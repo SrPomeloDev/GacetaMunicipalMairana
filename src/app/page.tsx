@@ -127,7 +127,7 @@ export default async function HomePage() {
             </div>
 
             {/* Main Title */}
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl font-serif text-foreground leading-none">
+            <h1 className="text-3xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl font-serif text-foreground leading-none">
               Gaceta Municipal <span className="bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 bg-clip-text text-transparent">Oficial</span>
             </h1>
 
@@ -144,13 +144,13 @@ export default async function HomePage() {
                     type="text"
                     name="q"
                     placeholder="Buscar por Ley, palabra clave, palabra del título..."
-                    className="w-full rounded-2xl border border-orange-200 bg-white py-4 pl-12 pr-32 text-sm text-foreground placeholder-muted-foreground focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 shadow-xl"
+                    className="w-full rounded-2xl border border-orange-200 bg-white py-4 pl-12 pr-24 sm:pr-32 text-sm text-foreground placeholder-muted-foreground focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 shadow-xl"
                   />
                   <button
                     type="submit"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:from-orange-600 hover:to-orange-700 transition-all"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-3.5 sm:px-5 py-2.5 text-xs font-bold text-white shadow-md hover:from-orange-600 hover:to-orange-700 transition-all"
                   >
-                    <span>Buscar</span>
+                    <span className="hidden min-[400px]:inline">Buscar</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </button>
                 </div>

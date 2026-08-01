@@ -172,14 +172,14 @@ export function ChatWidget({ fullPage }: ChatWidgetProps) {
 
   if (!open) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-5 right-5 z-50">
         <Button
           onClick={() => setOpen(true)}
           size="icon"
-          className="relative h-14 w-14 rounded-full shadow-2xl bg-gradient-to-br from-orange-500 via-orange-600 to-amber-700 text-white hover:scale-105 transition-all duration-300"
+          className="relative h-13 w-13 sm:h-14 sm:w-14 rounded-full shadow-2xl bg-gradient-to-br from-orange-500 via-orange-600 to-amber-700 text-white hover:scale-105 transition-all duration-300"
           aria-label="Abrir asistente de la Gaceta"
         >
-          <Sparkles className="h-6 w-6" />
+          <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />
           <span className="absolute -top-1 -right-1 flex h-4 w-4">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border-2 border-background" />
@@ -190,7 +190,7 @@ export function ChatWidget({ fullPage }: ChatWidgetProps) {
   }
 
   return (
-    <div className="fixed bottom-24 right-6 w-84 sm:w-96 h-[460px] bg-card rounded-3xl border border-primary/20 shadow-2xl flex flex-col z-50 overflow-hidden backdrop-blur-xl animate-in slide-in-from-bottom-3 duration-200">
+    <div className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 h-[65vh] sm:h-[460px] bg-card rounded-3xl border border-primary/20 shadow-2xl flex flex-col z-50 overflow-hidden backdrop-blur-xl animate-in slide-in-from-bottom-3 duration-200">
       <div className="flex items-center justify-between px-4 py-3 border-b bg-gradient-to-r from-orange-600 via-orange-600 to-amber-600 text-white">
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">

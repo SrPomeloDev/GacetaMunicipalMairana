@@ -141,7 +141,7 @@ export default function TransparenciaPage() {
                           download
                           className={cn(
                             buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                            "shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            "shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                           )}
                           aria-label="Descargar documento"
                         >

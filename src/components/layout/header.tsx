@@ -110,10 +110,10 @@ export default function Header() {
 
           {/* Action Tools & Mobile Toggle */}
           <div className="flex items-center gap-2">
-            <Link href="/normativa" className="hidden sm:inline-flex">
+            <Link href="/normativa">
               <Button size="sm" variant="outline" className="gap-2 border-orange-500/30 hover:bg-orange-500/10 text-xs font-semibold">
                 <Search className="h-3.5 w-3.5 text-primary" />
-                <span>Buscar Ley</span>
+                <span className="hidden sm:inline">Buscar Ley</span>
                 <kbd className="hidden md:inline-block pointer-events-none text-[10px] font-mono px-1 rounded bg-muted text-muted-foreground border">
                   Ctrl+K
                 </kbd>

@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { useCurrentUser } from "@/hooks/use-current-user"
 import { Bell, ChevronRight, Menu } from "lucide-react"
 
 const breadcrumbLabels: Record<string, string> = {
@@ -23,6 +24,7 @@ const breadcrumbLabels: Record<string, string> = {
 export default function AdminHeader({ onMenuToggle }: { onMenuToggle?: () => void }) {
   const pathname = usePathname()
   const segments = pathname.split("/").filter(Boolean)
+  const { user } = useCurrentUser()
 
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
@@ -62,10 +64,10 @@ export default function AdminHeader({ onMenuToggle }: { onMenuToggle?: () => voi
         </Button>
         <div className="flex items-center gap-2 pl-2 border-l">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-            A
+            {(user?.nombre || "U").charAt(0).toUpperCase()}
           </div>
           <div className="hidden sm:block">
-            <p className="text-sm font-medium leading-tight">Administrador</p>
+            <p className="text-sm font-medium leading-tight truncate max-w-40">{user?.nombre || "Usuario"}</p>
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { ADMIN_NAV, SITE_NAME } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
+import { useCurrentUser, rolLabel } from "@/hooks/use-current-user"
 import {
   PanelLeftClose, PanelLeft, LogOut, User,
   LayoutDashboard, FileText, Newspaper, Users, Shield,
@@ -31,6 +32,7 @@ export default function SidebarAdmin() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+  const { user } = useCurrentUser()
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -95,12 +97,12 @@ export default function SidebarAdmin() {
       )}>
         <div className={cn("flex items-center gap-3", collapsed && "flex-col")}>
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-            U
+            {(user?.nombre || "U").charAt(0).toUpperCase()}
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">Usuario</p>
-              <p className="text-xs text-muted-foreground truncate">Administrador</p>
+              <p className="text-sm font-medium text-sidebar-foreground truncate">{user?.nombre || "Usuario"}</p>
+              <p className="text-xs text-muted-foreground truncate">{user ? rolLabel(user.rol) : ""}</p>
             </div>
           )}
         </div>

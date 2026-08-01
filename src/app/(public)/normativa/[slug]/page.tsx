@@ -197,7 +197,7 @@ export default async function NormativaDetailPage({ params }: { params: Promise<
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <div>
                     <p className="text-xs text-muted-foreground">Vigencia</p>
-                    <p className="font-medium">{n.fecha_vigencia ? formatDate(n.fecha_vigencia, "short") : "-"}</p>
+                    <p className="font-medium">{n.fecha_vigencia ? formatDate(n.fecha_vigencia, "short") : "Indefinida"}</p>
                   </div>
                 </div>
               </div>

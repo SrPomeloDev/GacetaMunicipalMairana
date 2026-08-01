@@ -46,6 +46,7 @@ export default function NormativaFormPage() {
     numero_paginas: "",
     archivo_pdf: null as string | null,
     publicada: false,
+    vigencia_indefinida: false,
   })
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -85,6 +86,7 @@ export default function NormativaFormPage() {
           numero_paginas: n.numero_paginas ? String(n.numero_paginas) : "",
           archivo_pdf: n.archivo_pdf,
           publicada: n.publicada,
+          vigencia_indefinida: !n.fecha_vigencia,
         })
       }
       setLoading(false)
@@ -123,7 +125,7 @@ export default function NormativaFormPage() {
         estado: formData.estado,
         fecha_aprobacion: formData.fecha_aprobacion || null,
         fecha_publicacion: formData.fecha_publicacion || null,
-        fecha_vigencia: formData.fecha_vigencia || null,
+        fecha_vigencia: formData.vigencia_indefinida ? null : formData.fecha_vigencia || null,
         numero_paginas: formData.numero_paginas ? Number(formData.numero_paginas) : null,
         archivo_pdf: formData.archivo_pdf,
         publicada: formData.publicada,
@@ -197,7 +199,29 @@ export default function NormativaFormPage() {
               </div>
               <div className="space-y-2">
                 <Label>Fecha de Vigencia</Label>
-                <Input type="date" name="fecha_vigencia" value={formData.fecha_vigencia} onChange={handleChange} />
+                <Input
+                  type="date"
+                  name="fecha_vigencia"
+                  value={formData.fecha_vigencia}
+                  onChange={handleChange}
+                  disabled={formData.vigencia_indefinida}
+                />
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    id="vigencia_indefinida"
+                    checked={formData.vigencia_indefinida}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        vigencia_indefinida: e.target.checked,
+                        fecha_vigencia: e.target.checked ? "" : prev.fecha_vigencia,
+                      }))
+                    }
+                    className="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+                  />
+                  Vigencia indefinida (sin fecha de expiración)
+                </label>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

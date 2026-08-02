@@ -3,10 +3,11 @@ import { notFound } from "next/navigation"
 import { headers } from "next/headers"
 import QRCode from "qrcode"
 import { cn, getEstadoColor, getEstadoLabel, formatDate } from "@/lib/utils"
-import { FileText, Download, QrCode, Share2, Clock, Building2, Hash, Calendar, ChevronRight, ArrowLeft, Printer } from "lucide-react"
+import { FileText, Download, QrCode, Share2, Clock, Building2, Hash, Calendar, ChevronRight, ArrowLeft, Printer, ScrollText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import PageHeader from "@/components/layout/page-header"
 import { PdfViewer } from "@/components/normativa/pdf-viewer"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { Normativa, CategoriaNormativa, Dependencia, ModificacionNormativa } from "@/types"
@@ -54,34 +55,31 @@ export default async function NormativaDetailPage({ params }: { params: Promise<
   const qrDataUrl = await QRCode.toDataURL(qrContent, { width: 192, margin: 1 }).catch(() => null)
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
-        <Link href="/" className="hover:text-primary transition-colors">Inicio</Link>
-        <ChevronRight className="h-4 w-4" />
-        <Link href="/normativa" className="hover:text-primary transition-colors">Normativa</Link>
-        <ChevronRight className="h-4 w-4" />
-        <span className="text-foreground truncate max-w-[200px]">{n.titulo}</span>
-      </nav>
+    <div className="pb-16">
+      <PageHeader
+        title={n.titulo}
+        crumbs={[{ label: "Normativa", href: "/normativa" }, { label: n.titulo }]}
+        icon={<ScrollText className="hidden h-8 w-8 shrink-0 text-primary sm:block" />}
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge>{data.categoria?.nombre || "Normativa"}</Badge>
+          <span className={cn("inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold", getEstadoColor(n.estado))}>
+            {getEstadoLabel(n.estado)}
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-card/80 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+            <Hash className="h-3.5 w-3.5 text-primary" />
+            {n.numero}
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-card/80 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+            <Building2 className="h-3.5 w-3.5 text-primary" />
+            {data.dependencia?.nombre || "GAM Mairana"}
+          </span>
+        </div>
+      </PageHeader>
 
-      <div className="grid gap-8 lg:grid-cols-3">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid gap-8 lg:grid-cols-3 pt-8">
         <div className="lg:col-span-2 space-y-8">
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm font-semibold text-primary">{n.numero}</p>
-              <h1 className="mt-1 text-2xl sm:text-3xl font-bold font-serif text-foreground">{n.titulo}</h1>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Badge>{data.categoria?.nombre || "Normativa"}</Badge>
-                <span className={cn("inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold", getEstadoColor(n.estado))}>
-                  {getEstadoLabel(n.estado)}
-                </span>
-                <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Building2 className="h-3.5 w-3.5" />
-                  {data.dependencia?.nombre || "GAM Mairana"}
-                </span>
-              </div>
-            </div>
-          </div>
-
           {n.archivo_pdf ? (
             <PdfViewer url={n.archivo_pdf} titulo={n.titulo} />
           ) : (
@@ -268,6 +266,7 @@ export default async function NormativaDetailPage({ params }: { params: Promise<
             Volver a Normativa
           </Link>
         </div>
+      </div>
       </div>
     </div>
   )

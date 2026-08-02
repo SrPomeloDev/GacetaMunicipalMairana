@@ -12,7 +12,7 @@ export function PdfViewer({ url, titulo }: PdfViewerProps) {
   if (!url) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[450px] bg-muted/30 rounded-2xl border-2 border-dashed border-border p-8 text-center space-y-3">
-        <div className="h-16 w-16 rounded-2xl bg-orange-500/10 flex items-center justify-center text-primary">
+        <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
           <FileText className="h-8 w-8" />
         </div>
         <h4 className="text-base font-bold font-serif text-foreground">Documento digital en proceso de digitalización</h4>

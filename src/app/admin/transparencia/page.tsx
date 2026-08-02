@@ -17,11 +17,11 @@ const categorias: Record<string, { label: string; color: string }> = {
   presupuesto: { label: "Presupuesto", color: "bg-blue-100 text-blue-700" },
   poa: { label: "POA", color: "bg-purple-100 text-purple-700" },
   pei: { label: "PEI", color: "bg-indigo-100 text-indigo-700" },
-  contratacion: { label: "Contratación", color: "bg-amber-100 text-amber-700" },
+  contratacion: { label: "Contratación", color: "bg-primary/10 text-primary" },
   auditoria: { label: "Auditoría", color: "bg-red-100 text-red-700" },
   financiero: { label: "Financiero", color: "bg-green-100 text-green-700" },
   declaracion: { label: "Declaración", color: "bg-teal-100 text-teal-700" },
-  informe: { label: "Informe", color: "bg-gray-100 text-gray-700" },
+  informe: { label: "Informe", color: "bg-muted text-muted-foreground" },
 }
 
 export default function AdminTransparenciaPage() {
@@ -126,7 +126,7 @@ export default function AdminTransparenciaPage() {
                         </div>
                       </td>
                       <td className="py-3">
-                        <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${categorias[doc.categoria]?.color || "bg-gray-100 text-gray-700"}`}>
+                        <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${categorias[doc.categoria]?.color || "bg-muted text-muted-foreground"}`}>
                           {categorias[doc.categoria]?.label || doc.categoria}
                         </span>
                       </td>
@@ -135,7 +135,7 @@ export default function AdminTransparenciaPage() {
                         <button
                           onClick={() => togglePublicada(doc)}
                           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors ${
-                            doc.publicada ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                            doc.publicada ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-muted text-muted-foreground hover:bg-border"
                           }`}
                           title="Clic para cambiar"
                         >

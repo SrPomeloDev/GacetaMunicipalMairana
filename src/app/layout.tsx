@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ThemeProvider } from "@/components/theme-provider";
 import "@/styles/globals.css";
 
 const geistSans = Geist({
@@ -27,10 +28,20 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="es"
       className={`${geistSans.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
     >
-      <body>{children}</body>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=localStorage.getItem("gaceta-theme");var t=s==="dark"?"dark":"light";document.documentElement.classList.toggle("dark",t==="dark");document.documentElement.style.colorScheme=t}catch(e){}})()`,
+          }}
+        />
+      </head>
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

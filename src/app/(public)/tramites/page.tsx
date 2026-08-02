@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, Clock, DollarSign, Download, ClipboardList } from "lucide-react"
+import PageHeader from "@/components/layout/page-header"
+import { CheckCircle, Clock, DollarSign, Download, ClipboardList, FileCheck2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { Tramite } from "@/types"
 
@@ -31,14 +32,22 @@ export default function TramitesPage() {
   }, [fetchTramites])
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground font-serif">Trámites Municipales</h1>
-        <div className="mt-2 h-1 w-20 rounded-full bg-primary" />
-        <p className="mt-4 max-w-2xl text-muted-foreground">
-          Información sobre los trámites disponibles en el Gobierno Autónomo Municipal de Mairana. Conocé los requisitos, tiempos y costos.
-        </p>
-      </div>
+    <div className="pb-16">
+      <PageHeader
+        title="Trámites Municipales"
+        description="Información sobre los trámites disponibles en el Gobierno Autónomo Municipal de Mairana: requisitos, tiempos de atención y costos."
+        crumbs={[{ label: "Trámites" }]}
+        icon={<ClipboardList className="hidden h-8 w-8 text-primary sm:block" />}
+      >
+        <div className="flex items-center gap-2 rounded-xl border border-primary/15 bg-card/80 px-4 py-2 backdrop-blur">
+          <FileCheck2 className="h-4 w-4 text-primary" />
+          <span className="text-2xl font-extrabold font-serif text-foreground">{tramites.length}</span>
+          <span className="text-xs text-muted-foreground">trámites disponibles</span>
+        </div>
+      </PageHeader>
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="pt-8">
 
       {loading ? (
         <div className="space-y-6">
@@ -133,6 +142,8 @@ export default function TramitesPage() {
           ))}
         </div>
       )}
+      </div>
+      </div>
     </div>
   )
 }

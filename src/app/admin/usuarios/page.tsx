@@ -13,7 +13,7 @@ import { Search, Plus, Pencil, Trash2, CheckCircle2, XCircle, User } from "lucid
 import type { Usuario } from "@/types"
 
 const roles: Record<string, { label: string; color: string }> = {
-  admin: { label: "Administrador", color: "bg-orange-100 text-orange-700" },
+  admin: { label: "Administrador", color: "bg-primary/10 text-primary" },
   editor: { label: "Editor", color: "bg-blue-100 text-blue-700" },
   publicador: { label: "Publicador", color: "bg-green-100 text-green-700" },
 }
@@ -110,12 +110,12 @@ export default function AdminUsuariosPage() {
                     <tr key={user.id} className="border-b last:border-0">
                       <td className="py-3">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
                             {user.avatar_url ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img src={user.avatar_url} alt={user.nombre} className="h-8 w-8 rounded-full object-cover" />
                             ) : (
-                              <User className="h-4 w-4 text-orange-700" />
+                              <User className="h-4 w-4 text-primary" />
                             )}
                           </div>
                           <span className="font-medium">{user.nombre}</span>
@@ -123,13 +123,13 @@ export default function AdminUsuariosPage() {
                       </td>
                       <td className="py-3 text-muted-foreground">{user.email || "-"}</td>
                       <td className="py-3">
-                        <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${roles[user.rol]?.color || "bg-gray-100 text-gray-700"}`}>
+                        <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${roles[user.rol]?.color || "bg-muted text-muted-foreground"}`}>
                           {roles[user.rol]?.label || user.rol}
                         </span>
                       </td>
                       <td className="py-3">
                         <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          user.activo ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+                          user.activo ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"
                         }`}>
                           {user.activo ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
                           {user.activo ? "Activo" : "Inactivo"}

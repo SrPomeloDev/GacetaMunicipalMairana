@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send, MessageSquare, X, Bot, User, Sparkles, ShieldCheck } from "lucide-react"
+import { Send, X, Bot, User, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface Message {
@@ -40,10 +40,10 @@ export function ChatWidget({ fullPage }: ChatWidgetProps) {
   const [messages, setMessages] = useState<Message[]>([welcomeMessage])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    messagesContainerRef.current?.scrollTo({ top: messagesContainerRef.current.scrollHeight, behavior: "smooth" })
   }, [messages])
 
   const addBotMessage = (content: string) => {
@@ -80,7 +80,7 @@ export function ChatWidget({ fullPage }: ChatWidgetProps) {
 
   const messagesContainer = (
     <>
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 text-xs">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3 text-xs">
         {messages.map((msg, i) => (
           <div
             key={i}
@@ -90,7 +90,7 @@ export function ChatWidget({ fullPage }: ChatWidgetProps) {
             )}
           >
             {msg.role === "bot" && (
-              <div className="flex-shrink-0 h-7 w-7 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white shadow-xs mt-0.5">
+              <div className="flex-shrink-0 h-7 w-7 rounded-xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center text-white shadow-xs mt-0.5">
                 <Bot className="h-4 w-4" />
               </div>
             )}
@@ -98,14 +98,14 @@ export function ChatWidget({ fullPage }: ChatWidgetProps) {
               className={cn(
                 "max-w-[82%] rounded-2xl px-3.5 py-2.5 leading-relaxed shadow-2xs border",
                 msg.role === "user"
-                  ? "bg-primary text-primary-foreground border-orange-500/30 rounded-tr-xs font-medium"
+                  ? "bg-primary text-primary-foreground border-primary/30 rounded-tr-xs font-medium"
                   : "bg-muted/80 text-foreground border-border/60 rounded-tl-xs"
               )}
             >
               {msg.content}
             </div>
             {msg.role === "user" && (
-              <div className="flex-shrink-0 h-7 w-7 rounded-xl bg-slate-800 text-white flex items-center justify-center mt-0.5">
+              <div className="flex-shrink-0 h-7 w-7 rounded-xl bg-foreground text-background flex items-center justify-center mt-0.5">
                 <User className="h-3.5 w-3.5" />
               </div>
             )}
@@ -113,17 +113,16 @@ export function ChatWidget({ fullPage }: ChatWidgetProps) {
         ))}
         {loading && (
           <div className="flex gap-2.5 items-center">
-            <div className="flex-shrink-0 h-7 w-7 rounded-xl bg-orange-500 flex items-center justify-center text-white">
+            <div className="flex-shrink-0 h-7 w-7 rounded-xl bg-primary flex items-center justify-center text-white">
               <Bot className="h-4 w-4" />
             </div>
             <div className="bg-muted rounded-2xl rounded-tl-xs px-4 py-2.5 flex items-center gap-1.5 border">
-              <span className="h-1.5 w-1.5 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-              <span className="h-1.5 w-1.5 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-              <span className="h-1.5 w-1.5 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+              <span className="h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+              <span className="h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+              <span className="h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       <div className="p-3 border-t bg-muted/30 space-y-2">
@@ -158,11 +157,11 @@ export function ChatWidget({ fullPage }: ChatWidgetProps) {
   if (fullPage) {
     return (
       <div className="flex flex-col h-full bg-card rounded-2xl border shadow-md overflow-hidden">
-        <div className="flex items-center gap-2 px-4 py-3 border-b bg-gradient-to-r from-orange-600 to-amber-600 text-white">
+        <div className="flex items-center gap-2 px-4 py-3 border-b bg-gradient-to-r from-primary to-amber-500 text-white">
           <Sparkles className="h-5 w-5" />
           <div>
             <p className="font-bold text-sm font-serif">Asistente Municipal IA</p>
-            <p className="text-[10px] text-orange-100">Consultas de Gaceta y Trámites Mairana</p>
+            <p className="text-[10px] text-white/80">Consultas de Gaceta y Trámites Mairana</p>
           </div>
         </div>
         {messagesContainer}
@@ -176,7 +175,7 @@ export function ChatWidget({ fullPage }: ChatWidgetProps) {
         <Button
           onClick={() => setOpen(true)}
           size="icon"
-          className="relative h-13 w-13 sm:h-14 sm:w-14 rounded-full shadow-2xl bg-gradient-to-br from-orange-500 via-orange-600 to-amber-700 text-white hover:scale-105 transition-all duration-300"
+          className="relative h-13 w-13 sm:h-14 sm:w-14 rounded-full shadow-2xl bg-gradient-to-br from-primary via-primary to-amber-500 text-white"
           aria-label="Abrir asistente de la Gaceta"
         >
           <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -190,15 +189,15 @@ export function ChatWidget({ fullPage }: ChatWidgetProps) {
   }
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 h-[65vh] sm:h-[460px] bg-card rounded-3xl border border-primary/20 shadow-2xl flex flex-col z-50 overflow-hidden backdrop-blur-xl animate-in slide-in-from-bottom-3 duration-200">
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-gradient-to-r from-orange-600 via-orange-600 to-amber-600 text-white">
+    <div className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 h-[65vh] sm:h-[460px] liquid-glass rounded-3xl shadow-2xl flex flex-col z-50 overflow-hidden animate-in slide-in-from-bottom-3 duration-200">
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-gradient-to-r from-primary via-primary to-amber-500 text-white">
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
             <Sparkles className="h-4 w-4" />
           </div>
           <div>
             <p className="font-bold text-xs font-serif leading-tight">Asistente Virtual IA</p>
-            <p className="text-[10px] text-orange-100 flex items-center gap-1">
+            <p className="text-[10px] text-white/80 flex items-center gap-1">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               En línea • G.A.M. Mairana
             </p>

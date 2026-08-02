@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { formatDate } from "@/lib/utils"
 import { cn } from "@/lib/utils"
+import { NoticiaPlaceholder } from "@/components/noticias/noticia-placeholder"
 
 interface NoticiaCardProps {
   noticia: {
@@ -17,11 +18,11 @@ interface NoticiaCardProps {
 }
 
 const categoriaColores: Record<string, string> = {
-  noticias: "bg-blue-100 text-blue-800 border-blue-200",
-  eventos: "bg-purple-100 text-purple-800 border-purple-200",
-  comunicados: "bg-orange-100 text-orange-800 border-orange-200",
-  convocatorias: "bg-green-100 text-green-800 border-green-200",
-  transparencia: "bg-gray-100 text-gray-800 border-gray-200",
+  noticias: "bg-primary/10 text-primary border-primary/20",
+  eventos: "bg-primary/10 text-primary border-primary/20",
+  comunicados: "bg-primary/10 text-primary border-primary/20",
+  convocatorias: "bg-primary/10 text-primary border-primary/20",
+  transparencia: "bg-primary/10 text-primary border-primary/20",
 }
 
 export function NoticiaCard({ noticia }: NoticiaCardProps) {
@@ -31,30 +32,24 @@ export function NoticiaCard({ noticia }: NoticiaCardProps) {
         <div
           className={cn(
             "relative h-48 w-full overflow-hidden",
-            !noticia.imagen_principal && "bg-gradient-to-br from-orange-200 to-orange-400"
+            !noticia.imagen_principal && "bg-gradient-to-br from-primary/40 to-primary/80"
           )}
         >
           {noticia.imagen_principal ? (
             <img
               src={noticia.imagen_principal}
               alt={noticia.titulo}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex items-center justify-center h-full">
-              <img
-                src="/images/escudo-mairana.jpg"
-                alt=""
-                className="h-16 w-auto rounded-xl bg-white/85 object-contain p-1.5 opacity-80 shadow-lg"
-              />
-            </div>
+            <NoticiaPlaceholder className="absolute inset-0 h-full w-full" />
           )}
         </div>
       </Link>
       <div className="p-4">
         <div className="flex items-center gap-2 mb-2">
           {noticia.categoria && (
-            <Badge className={categoriaColores[noticia.categoria.toLowerCase()] || "bg-gray-100 text-gray-800"}>
+            <Badge className={categoriaColores[noticia.categoria.toLowerCase()] || "bg-muted text-muted-foreground"}>
               {noticia.categoria}
             </Badge>
           )}

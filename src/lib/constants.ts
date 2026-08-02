@@ -2,6 +2,13 @@ export const SITE_NAME = 'Gaceta Municipal de Mairana'
 export const SITE_DESCRIPTION = 'Gaceta Oficial del Gobierno Autónomo Municipal de Mairana - Provincia Florida, Santa Cruz, Bolivia'
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
+export const DEV_CREDIT = {
+  visible: true,
+  nombre: 'Pablo Salomón Moya Peña',
+  rol: 'Desarrollador',
+  ci: '13727173',
+}
+
 export const MAIRANA = {
   nombre: 'Mairana',
   provincia: 'Florida',

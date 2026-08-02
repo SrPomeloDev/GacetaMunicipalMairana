@@ -48,7 +48,7 @@ export function FileUpload({ bucket, accept, value, onChange, label = "Archivo" 
             // eslint-disable-next-line @next/next/no-img-element
             <img src={value} alt={label} className="h-16 w-16 rounded-lg object-cover" />
           ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary">
               <FileText className="h-6 w-6" />
             </div>
           )}

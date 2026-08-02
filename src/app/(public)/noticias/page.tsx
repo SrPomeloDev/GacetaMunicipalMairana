@@ -5,7 +5,9 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Pagination } from "@/components/ui/pagination"
 import { Card, CardContent } from "@/components/ui/card"
-import { Image as ImageIcon, Calendar, ArrowRight, Newspaper } from "lucide-react"
+import PageHeader from "@/components/layout/page-header"
+import { Reveal } from "@/components/ui/reveal"
+import { Image as ImageIcon, Calendar, ArrowRight, Newspaper, Megaphone } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { Noticia } from "@/types"
 
@@ -58,14 +60,22 @@ export default function NoticiasPage() {
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground font-serif">Noticias</h1>
-        <div className="mt-2 h-1 w-20 rounded-full bg-primary" />
-        <p className="mt-4 text-muted-foreground">Mantenete informado sobre las últimas novedades del municipio</p>
-      </div>
+    <div className="pb-16">
+      <PageHeader
+        title="Noticias del Municipio"
+        description="Mantenete informado sobre las últimas novedades, eventos y comunicados oficiales del Gobierno Autónomo Municipal de Mairana."
+        crumbs={[{ label: "Noticias" }]}
+        icon={<Megaphone className="hidden h-8 w-8 text-primary sm:block" />}
+      >
+        <div className="flex items-center gap-2 rounded-xl border border-primary/15 bg-card/80 px-4 py-2 backdrop-blur">
+          <Newspaper className="h-4 w-4 text-primary" />
+          <span className="text-2xl font-extrabold font-serif text-foreground">{noticias.length}</span>
+          <span className="text-xs text-muted-foreground">publicaciones</span>
+        </div>
+      </PageHeader>
 
-      <div className="mb-8 flex flex-wrap gap-2">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-wrap gap-2 pt-8">
         {categories.map((cat) => (
           <button
             key={cat}
@@ -105,15 +115,16 @@ export default function NoticiasPage() {
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {pageItems.map((item) => (
-            <Link key={item.id} href={`/noticias/${item.slug}`}>
-              <Card className="group h-full overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5">
+          {pageItems.map((item, i) => (
+            <Reveal key={item.id} delay={(i % 3) * 90}>
+            <Link href={`/noticias/${item.slug}`}>
+              <Card className="group h-full overflow-hidden hover:shadow-md">
                 <div className="aspect-video bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden">
                   {item.imagen_principal ? (
                     <img
                       src={item.imagen_principal}
                       alt={item.titulo}
-                      className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                      className="h-full w-full object-cover"
                     />
                   ) : (
                     <ImageIcon className="h-10 w-10 text-muted-foreground/50" />
@@ -143,6 +154,7 @@ export default function NoticiasPage() {
                 </CardContent>
               </Card>
             </Link>
+            </Reveal>
           ))}
         </div>
       )}
@@ -159,6 +171,7 @@ export default function NoticiasPage() {
           />
         </div>
       )}
+      </div>
     </div>
   )
 }

@@ -1,9 +1,9 @@
 "use client"
 
-import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { User, Phone, Mail, Calendar, FileText, Users, Scale, Building2, Shield } from "lucide-react"
+import PageHeader from "@/components/layout/page-header"
+import { Phone, Mail, Calendar, FileText, Users, Scale, Shield, Landmark } from "lucide-react"
 
 const presidente = {
   nombre: "María Elena Vargas",
@@ -43,14 +43,18 @@ const sesiones = [
 
 export default function ConcejoPage() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground font-serif">Concejo Municipal</h1>
-        <div className="mt-2 h-1 w-20 rounded-full bg-primary" />
-        <p className="mt-4 text-muted-foreground">Conocé a los representantes del Honorable Concejo Municipal de Mairana</p>
-      </div>
+    <>
+      <PageHeader
+        title="Concejo Municipal"
+        description="Conocé a los representantes del Honorable Concejo Municipal de Mairana, sus comisiones y el calendario de sesiones legislativas."
+        crumbs={[{ label: "Autoridades", href: "/autoridades" }, { label: "Concejo Municipal" }]}
+        icon={<Landmark className="h-8 w-8 text-primary sm:h-9 sm:w-9" />}
+      >
+        <Badge className="px-3 py-1 text-xs">Legislativo</Badge>
+      </PageHeader>
 
-      <div className="mb-10 grid gap-6 sm:grid-cols-2">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mb-10 grid gap-6 sm:grid-cols-2">
         {[presidente, vicepresidente].map((persona) => (
           <Card key={persona.nombre} className="overflow-hidden border-primary/20 transition-all hover:shadow-md">
             <div className="h-2 bg-gradient-to-r from-primary to-primary/60" />
@@ -161,5 +165,6 @@ export default function ConcejoPage() {
         </Card>
       </div>
     </div>
+    </>
   )
 }

@@ -218,7 +218,7 @@ export default function NormativaFormPage() {
                         fecha_vigencia: e.target.checked ? "" : prev.fecha_vigencia,
                       }))
                     }
-                    className="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+                    className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
                   />
                   Vigencia indefinida (sin fecha de expiración)
                 </label>
@@ -230,7 +230,7 @@ export default function NormativaFormPage() {
                 <Input type="number" min="1" name="numero_paginas" value={formData.numero_paginas} onChange={handleChange} placeholder="0" />
               </div>
               <div className="flex items-end gap-2 pb-1">
-                <input type="checkbox" name="publicada" id="publicada" checked={formData.publicada} onChange={handleChange} className="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500" />
+                <input type="checkbox" name="publicada" id="publicada" checked={formData.publicada} onChange={handleChange} className="h-4 w-4 rounded border-input text-primary focus:ring-primary" />
                 <Label htmlFor="publicada">Publicada (visible al público)</Label>
               </div>
             </div>
@@ -256,7 +256,7 @@ export default function NormativaFormPage() {
                 value={formData.resumen}
                 onChange={handleChange}
                 rows={3}
-                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 placeholder="Resumen breve de la norma"
               />
             </div>
@@ -267,7 +267,7 @@ export default function NormativaFormPage() {
                 value={formData.contenido_texto}
                 onChange={handleChange}
                 rows={10}
-                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 placeholder="Contenido textual de la norma..."
               />
             </div>

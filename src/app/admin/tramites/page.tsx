@@ -129,7 +129,7 @@ export default function AdminTramitesPage() {
                         <button
                           onClick={() => toggleActivo(tramite)}
                           className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors ${
-                            tramite.activo ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                            tramite.activo ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-muted text-muted-foreground hover:bg-border"
                           }`}
                           title="Clic para cambiar estado"
                         >

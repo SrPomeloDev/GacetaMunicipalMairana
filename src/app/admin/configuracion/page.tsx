@@ -104,7 +104,7 @@ export default function AdminConfiguracionPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-orange-500" />
+            <Building2 className="h-5 w-5 text-primary" />
             Información del Municipio
           </CardTitle>
         </CardHeader>
@@ -139,7 +139,7 @@ export default function AdminConfiguracionPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Share2 className="h-5 w-5 text-orange-500" />
+            <Share2 className="h-5 w-5 text-primary" />
             Redes Sociales
           </CardTitle>
         </CardHeader>
@@ -168,7 +168,7 @@ export default function AdminConfiguracionPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Palette className="h-5 w-5 text-orange-500" />
+            <Palette className="h-5 w-5 text-primary" />
             Personalización
           </CardTitle>
         </CardHeader>

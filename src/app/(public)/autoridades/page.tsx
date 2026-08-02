@@ -1,10 +1,12 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Mail, Phone, Users } from "lucide-react"
+import PageHeader from "@/components/layout/page-header"
+import { Mail, Phone, Users, Landmark, Building2, ChevronRight } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { Autoridad } from "@/types"
 
@@ -47,14 +49,40 @@ export default function AutoridadesPage() {
     : autoridades.filter(a => (TIPO_LABEL[a.tipo_autoridad] || a.tipo_autoridad) === activeFilter)
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground font-serif">Autoridades Municipales</h1>
-        <div className="mt-2 h-1 w-20 rounded-full bg-primary" />
-        <p className="mt-4 text-muted-foreground">Conocé a las autoridades que gobiernan nuestro municipio</p>
-      </div>
+    <div className="pb-16">
+      <PageHeader
+        title="Autoridades Municipales"
+        description="Conocé a las autoridades del Gobierno Autónomo Municipal de Mairana: Alcaldía, Concejo Municipal y Órgano Ejecutivo."
+        crumbs={[{ label: "Autoridades" }]}
+        icon={<Users className="hidden h-8 w-8 text-primary sm:block" />}
+      >
+        <div className="flex items-center gap-2 rounded-xl border border-primary/15 bg-card/80 px-4 py-2 backdrop-blur">
+          <Users className="h-4 w-4 text-primary" />
+          <span className="text-2xl font-extrabold font-serif text-foreground">{autoridades.length}</span>
+          <span className="text-xs text-muted-foreground">autoridades activas</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/concejo-municipal"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-primary/20 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground"
+          >
+            <Landmark className="h-4 w-4 text-primary" />
+            Concejo Municipal
+            <ChevronRight className="h-3 w-3" />
+          </Link>
+          <Link
+            href="/organo-ejecutivo"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-primary/20 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground"
+          >
+            <Building2 className="h-4 w-4 text-primary" />
+            Órgano Ejecutivo
+            <ChevronRight className="h-3 w-3" />
+          </Link>
+        </div>
+      </PageHeader>
 
-      <div className="mb-8 flex flex-wrap gap-2">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-wrap gap-2 pt-8">
         {filterOptions.map((f) => (
           <button
             key={f}
@@ -141,6 +169,7 @@ export default function AutoridadesPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }

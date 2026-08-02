@@ -1,12 +1,16 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Mail, Lock, User, LogIn, Loader2, ShieldCheck, ArrowLeft } from "lucide-react"
+import Link from "next/link"
 
 const REGISTRO_HABILITADO = false
 
-export default function LoginPage() {
+function LoginContent() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
@@ -15,6 +19,8 @@ export default function LoginPage() {
   const [nombre, setNombre] = useState("")
   const router = useRouter()
   const supabase = createClient()
+  const searchParams = useSearchParams()
+  const redirectError = searchParams.get("error")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,81 +47,143 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #fff7ed, white)", padding: "16px" }}>
-      <div style={{ width: "100%", maxWidth: "420px", background: "white", borderRadius: "12px", boxShadow: "0 20px 60px rgba(0,0,0,0.1)", padding: "32px" }}>
-        <div style={{ textAlign: "center", marginBottom: "24px" }}>
-          <div style={{ width: "64px", height: "64px", margin: "0 auto 16px", borderRadius: "50%", background: "#EA580C", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-          </div>
-          <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#1a1a1a", margin: "0 0 4px" }}>
-            {mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}
-          </h1>
-          <p style={{ fontSize: "14px", color: "#666", margin: 0 }}>
-            {mode === "login" ? "Accedé al panel administrativo" : "Registrate para gestionar la Gaceta"}
-          </p>
-        </div>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-16">
+      <div className="absolute inset-0 bg-pattern-dots opacity-20" aria-hidden />
+      <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[radial-gradient(closest-side,rgba(234,88,12,0.06),transparent_70%)] dark:hidden" aria-hidden />
+      <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-[radial-gradient(closest-side,rgba(234,88,12,0.06),transparent_70%)] dark:hidden" aria-hidden />
 
-        {error && (
-          <div style={{ background: "#fef2f2", color: "#dc2626", padding: "12px", borderRadius: "8px", fontSize: "14px", marginBottom: "16px", textAlign: "center" }}>
-            {error}
-          </div>
-        )}
+      <div className="relative w-full max-w-md">
+        <Link
+          href="/"
+          className="mb-6 inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Volver al sitio público
+        </Link>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          {mode === "register" && (
-            <div>
-              <label style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "#1a1a1a", marginBottom: "6px" }}>Nombre Completo</label>
-              <input
-                value={nombre}
-                onChange={e => setNombre(e.target.value)}
-                required
-                style={{ width: "100%", padding: "10px 12px", border: "1px solid #d1d5db", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box" }}
-                placeholder="Ej: Juan Pérez"
-              />
+        <div className="overflow-hidden rounded-2xl liquid-glass shadow-2xl shadow-primary/10 animate-in zoom-in-95 fade-in duration-200">
+          <div className="h-1.5 w-full bg-gradient-to-r from-primary via-amber-500 to-primary" />
+          <div className="p-8">
+            <div className="mb-6 text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white p-1 ring-4 ring-primary/10">
+                <img
+                  src="/images/escudo-mairana.jpg"
+                  alt="Escudo de Mairana"
+                  className="h-full w-full rounded-xl object-contain"
+                />
+              </div>
+              <h1 className="font-serif text-2xl font-extrabold text-foreground">
+                {mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {mode === "login" ? "Panel de administración de la Gaceta Municipal" : "Registrate para gestionar la Gaceta"}
+              </p>
+              <div className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-medium text-primary">
+                <ShieldCheck className="h-3 w-3" />
+                Acceso restringido a funcionarios
+              </div>
             </div>
-          )}
-          <div>
-            <label style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "#1a1a1a", marginBottom: "6px" }}>Correo Electrónico</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              style={{ width: "100%", padding: "10px 12px", border: "1px solid #d1d5db", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box" }}
-              placeholder="admin@mairana.gob.bo"
-            />
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "#1a1a1a", marginBottom: "6px" }}>Contraseña</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              minLength={6}
-              style={{ width: "100%", padding: "10px 12px", border: "1px solid #d1d5db", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box" }}
-              placeholder="••••••••"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            style={{ width: "100%", padding: "12px", background: loading ? "#ccc" : "#EA580C", color: "white", border: "none", borderRadius: "8px", fontSize: "16px", fontWeight: 600, cursor: loading ? "not-allowed" : "pointer" }}
-          >
-            {loading ? "Procesando..." : mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}
-          </button>
-        </form>
 
-        <div style={{ textAlign: "center", marginTop: "16px", fontSize: "14px", color: "#666" }}>
-          {mode === "register" ? (
-            <span>¿Ya tenés cuenta? <button onClick={() => { setMode("login"); setError(null) }} style={{ background: "none", border: "none", color: "#EA580C", fontWeight: 600, cursor: "pointer", padding: 0 }}>Iniciar sesión</button></span>
-          ) : REGISTRO_HABILITADO ? (
-            <span>¿No tenés cuenta? <button onClick={() => { setMode("register"); setError(null) }} style={{ background: "none", border: "none", color: "#EA580C", fontWeight: 600, cursor: "pointer", padding: 0 }}>Registrate</button></span>
-          ) : (
-            <span>Acceso restringido al personal autorizado</span>
-          )}
+            {(error || redirectError === "inactive") && (
+              <div className="mb-4 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive animate-in fade-in duration-200">
+                {error || "Tu usuario fue desactivado. Contactá al administrador del sistema."}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {mode === "register" && (
+                <div className="space-y-2">
+                  <label htmlFor="nombre" className="text-sm font-medium text-foreground">Nombre Completo</label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="nombre"
+                      value={nombre}
+                      onChange={e => setNombre(e.target.value)}
+                      required
+                      className="pl-10"
+                      placeholder="Ej: Juan Pérez"
+                    />
+                  </div>
+                </div>
+              )}
+              <div className="space-y-2">
+                <label htmlFor="email" className="text-sm font-medium text-foreground">Correo Electrónico</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required
+                    className="pl-10"
+                    placeholder="admin@mairana.gob.bo"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="password" className="text-sm font-medium text-foreground">Contraseña</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="pl-10"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+              <Button type="submit" disabled={loading} className="w-full gap-2" size="lg">
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
+                {loading ? "Procesando..." : mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}
+              </Button>
+            </form>
+
+            <div className="mt-5 text-center text-sm text-muted-foreground">
+              {mode === "register" ? (
+                <span>
+                  ¿Ya tenés cuenta?{" "}
+                  <button
+                    onClick={() => { setMode("login"); setError(null) }}
+                    className="font-semibold text-primary hover:underline"
+                  >
+                    Iniciar sesión
+                  </button>
+                </span>
+              ) : REGISTRO_HABILITADO ? (
+                <span>
+                  ¿No tenés cuenta?{" "}
+                  <button
+                    onClick={() => { setMode("register"); setError(null) }}
+                    className="font-semibold text-primary hover:underline"
+                  >
+                    Registrate
+                  </button>
+                </span>
+              ) : (
+                <span>Acceso restringido al personal autorizado del G.A.M. Mairana</span>
+              )}
+            </div>
+          </div>
         </div>
+
+        <p className="mt-6 text-center text-[11px] text-muted-foreground">
+          &copy; {new Date().getFullYear()} Gaceta Municipal de Mairana — Gobierno Autónomo Municipal
+        </p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-muted-foreground">Cargando...</div>}>
+      <LoginContent />
+    </Suspense>
   )
 }

@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { cn, formatDate } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
-import { FileText, Download, Calendar, Search, FolderOpen } from "lucide-react"
+import PageHeader from "@/components/layout/page-header"
+import { FileText, Download, Calendar, Search, FolderOpen, ShieldCheck, FileCheck2, Eye } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { Transparencia } from "@/types"
 
@@ -14,14 +15,14 @@ const CATEGORIA_LABEL: Record<string, string> = {
 }
 
 const categoryColors: Record<string, string> = {
-  presupuesto: "bg-blue-100 text-blue-700",
-  poa: "bg-green-100 text-green-700",
-  pei: "bg-purple-100 text-purple-700",
-  contratacion: "bg-amber-100 text-amber-700",
-  auditoria: "bg-rose-100 text-rose-700",
-  financiero: "bg-cyan-100 text-cyan-700",
-  declaracion: "bg-indigo-100 text-indigo-700",
-  informe: "bg-orange-100 text-orange-700",
+  presupuesto: "bg-primary/10 text-primary",
+  poa: "bg-primary/10 text-primary",
+  pei: "bg-primary/10 text-primary",
+  contratacion: "bg-primary/10 text-primary",
+  auditoria: "bg-primary/10 text-primary",
+  financiero: "bg-primary/10 text-primary",
+  declaracion: "bg-primary/10 text-primary",
+  informe: "bg-primary/10 text-primary",
 }
 
 export default function TransparenciaPage() {
@@ -65,16 +66,26 @@ export default function TransparenciaPage() {
   })
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground font-serif">Transparencia Municipal</h1>
-        <div className="mt-2 h-1 w-20 rounded-full bg-primary" />
-        <p className="mt-4 max-w-2xl text-muted-foreground">
-          Accedé a la información pública del Gobierno Autónomo Municipal de Mairana. Presupuestos, planes, auditorías y más documentos de interés público.
-        </p>
-      </div>
+    <div className="pb-16">
+      <PageHeader
+        title="Transparencia Municipal"
+        description="Accedé a la información pública del Gobierno Autónomo Municipal de Mairana: presupuestos, planes, auditorías y más documentos de interés público, en cumplimiento de la Ley N° 482 y la Ley N° 341."
+        crumbs={[{ label: "Transparencia" }]}
+        icon={<ShieldCheck className="hidden h-8 w-8 text-primary sm:block" />}
+      >
+        <div className="flex items-center gap-2 rounded-xl border border-primary/15 bg-card/80 px-4 py-2 backdrop-blur">
+          <FileCheck2 className="h-4 w-4 text-primary" />
+          <span className="text-2xl font-extrabold font-serif text-foreground">{documents.length}</span>
+          <span className="text-xs text-muted-foreground">documentos públicos</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-2 backdrop-blur">
+          <Eye className="h-4 w-4 text-emerald-600" />
+          <span className="text-xs font-medium text-foreground">Acceso libre y gratuito</span>
+        </div>
+      </PageHeader>
 
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pt-8">
         <div className="flex flex-wrap gap-2">
           {categories.map((cat) => (
             <button
@@ -168,6 +179,7 @@ export default function TransparenciaPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }

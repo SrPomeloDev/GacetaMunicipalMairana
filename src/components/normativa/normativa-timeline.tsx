@@ -17,11 +17,11 @@ interface NormativaTimelineProps {
 }
 
 const tipoColores: Record<string, string> = {
-  modificacion: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
-  derogacion: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
-  suspension: "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20",
-  prorroga: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
-  actualizacion: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  modificacion: "bg-primary/10 text-primary dark:text-primary border-primary/20",
+  derogacion: "bg-primary/10 text-primary dark:text-primary border-primary/20",
+  suspension: "bg-primary/10 text-primary dark:text-primary border-primary/20",
+  prorroga: "bg-primary/10 text-primary dark:text-primary border-primary/20",
+  actualizacion: "bg-primary/10 text-primary dark:text-primary border-primary/20",
 }
 
 const tipoLabels: Record<string, string> = {
@@ -45,11 +45,11 @@ export function NormativaTimeline({ modificaciones }: NormativaTimelineProps) {
 
   return (
     <div className="relative space-y-0 pl-2">
-      <div className="absolute left-[19px] top-3 bottom-3 w-0.5 bg-gradient-to-b from-orange-500 via-amber-500 to-slate-400 opacity-30" />
+      <div className="absolute left-[19px] top-3 bottom-3 w-0.5 bg-gradient-to-b from-primary via-amber-500 to-foreground/30 opacity-30" />
       {modificaciones.map((mod) => (
         <div key={mod.id} className="relative flex gap-5 pb-8 last:pb-0 group">
           <div className="relative z-10 flex-shrink-0 mt-1">
-            <div className="h-9 w-9 rounded-full border-2 border-primary bg-background flex items-center justify-center shadow-md shadow-orange-500/10 group-hover:scale-110 transition-transform">
+            <div className="h-9 w-9 rounded-full border-2 border-primary bg-background flex items-center justify-center shadow-md shadow-primary/10">
               <GitCommit className="h-4 w-4 text-primary" />
             </div>
           </div>

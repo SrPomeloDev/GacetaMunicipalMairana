@@ -30,16 +30,16 @@ export function AutoridadCard({ autoridad }: AutoridadCardProps) {
         <img
           src={autoridad.foto}
           alt={autoridad.nombre_completo}
-          className="h-24 w-24 rounded-full object-cover border-4 border-orange-200"
+          className="h-24 w-24 rounded-full object-cover border-4 border-primary/30"
         />
       ) : autoridad.tipo_autoridad === "alcalde" ? (
         <img
           src="/images/AlcaldeMairana.png"
           alt={autoridad.nombre_completo}
-          className="h-24 w-24 rounded-full object-cover border-4 border-orange-200"
+          className="h-24 w-24 rounded-full object-cover border-4 border-primary/30"
         />
       ) : (
-        <div className="h-24 w-24 rounded-full bg-orange-500 flex items-center justify-center border-4 border-orange-200">
+        <div className="h-24 w-24 rounded-full bg-primary flex items-center justify-center border-4 border-primary/30">
           <span className="text-2xl font-bold text-white">{initials}</span>
         </div>
       )}
@@ -75,7 +75,7 @@ export function AutoridadCard({ autoridad }: AutoridadCardProps) {
           {autoridad.comisiones.map((comision) => (
             <span
               key={comision}
-              className="text-xs bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full"
+              className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full"
             >
               {comision}
             </span>

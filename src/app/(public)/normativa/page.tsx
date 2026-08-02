@@ -5,13 +5,14 @@ import { cn } from "@/lib/utils"
 import { SearchInput } from "@/components/ui/search-input"
 import { Select } from "@/components/ui/select"
 import { Pagination } from "@/components/ui/pagination"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { FileText, SlidersHorizontal, X, Filter, Download, Eye } from "lucide-react"
-import Link from "next/link"
+import { NormativaCard } from "@/components/normativa/normativa-card"
+import PageHeader from "@/components/layout/page-header"
+import { Reveal } from "@/components/ui/reveal"
+import { SlidersHorizontal, X, Filter, FileText, Landmark } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { formatDate, getEstadoColor, getEstadoLabel } from "@/lib/utils"
 import type { Normativa, CategoriaNormativa } from "@/types"
 
 const estadoOptions = [
@@ -135,17 +136,31 @@ function NormativaContent() {
   const page = Math.min(currentPage, totalPages)
   const pageItems = filteredResults.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground font-serif">Normativa Municipal</h1>
-        <div className="mt-2 h-1 w-20 rounded-full bg-primary" />
-        <p className="mt-4 max-w-2xl text-muted-foreground">
-          Consultá la base de datos de leyes, decretos, ordenanzas y resoluciones municipales del Gobierno Autónomo Municipal de Mairana.
-        </p>
-      </div>
+  const stats = useMemo(() => {
+    const vigentes = normativas.filter((n) => n.estado === "vigente").length
+    return {
+      total: normativas.length,
+      vigentes,
+      categorias: categorias.length,
+    }
+  }, [normativas, categorias])
 
-      <div className="mb-6 space-y-4">
+  return (
+    <div className="pb-16">
+      <PageHeader
+        title="Normativa Municipal"
+        description="Consultá la base de datos de leyes, decretos, ordenanzas y resoluciones municipales del Gobierno Autónomo Municipal de Mairana."
+        crumbs={[{ label: "Normativa" }]}
+      >
+        <div className="flex items-center gap-2 rounded-xl border border-primary/15 bg-card/80 px-4 py-2 backdrop-blur">
+          <Landmark className="h-4 w-4 text-primary" />
+          <span className="text-2xl font-extrabold font-serif text-foreground">{stats.total}</span>
+          <span className="text-xs text-muted-foreground">documentos publicados</span>
+        </div>
+      </PageHeader>
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-6 space-y-4 pt-8">
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <SearchInput
@@ -267,53 +282,27 @@ function NormativaContent() {
             </CardContent>
           </Card>
         ) : (
-          pageItems.map((item) => {
-            const cat = catById[item.categoria_id]
-            return (
-              <Card key={item.id} className="transition-all hover:shadow-md hover:-translate-y-0.5">
-                <CardContent className="flex items-start gap-4 p-5">
-                  <Link href={`/normativa/${item.slug}`} className="flex flex-1 min-w-0 items-start gap-4 group">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <FileText className="h-5 w-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-muted-foreground">{item.numero}</p>
-                      <h3 className="mt-0.5 font-semibold text-card-foreground truncate group-hover:text-primary transition-colors">{item.titulo}</h3>
-                      <div className="mt-2 flex flex-wrap items-center gap-3">
-                        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">{cat?.nombre || "Normativa"}</span>
-                        <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-medium", getEstadoColor(item.estado))}>
-                          {getEstadoLabel(item.estado)}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {item.fecha_publicacion ? formatDate(item.fecha_publicacion, "short") : "-"}
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Link
-                      href={`/normativa/${item.slug}`}
-                      className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
-                      aria-label="Ver normativa"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Link>
-                    {item.archivo_pdf && (
-                      <a
-                        href={item.archivo_pdf}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
-                        aria-label="Descargar PDF"
-                      >
-                        <Download className="h-4 w-4" />
-                      </a>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })
+          <div className="grid gap-4 md:grid-cols-2">
+            {pageItems.map((item, i) => {
+              const cat = catById[item.categoria_id]
+              return (
+                <Reveal key={item.id} delay={(i % 2) * 90}>
+                  <NormativaCard
+                    normativa={{
+                      numero: item.numero,
+                      titulo: item.titulo,
+                      slug: item.slug,
+                      estado: item.estado,
+                      categoria: cat ? { nombre: cat.nombre } : null,
+                      fecha_publicacion: item.fecha_publicacion ?? new Date().toISOString(),
+                      resumen: item.resumen,
+                      archivo_pdf: item.archivo_pdf,
+                    }}
+                  />
+                </Reveal>
+              )
+            })}
+          </div>
         )}
       </div>
 
@@ -329,6 +318,7 @@ function NormativaContent() {
           />
         </div>
       )}
+      </div>
     </div>
   )
 }

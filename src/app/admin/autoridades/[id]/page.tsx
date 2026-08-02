@@ -178,7 +178,7 @@ export default function AutoridadFormPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <input type="checkbox" name="activo" id="activo" checked={formData.activo} onChange={handleChange} className="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500" />
+              <input type="checkbox" name="activo" id="activo" checked={formData.activo} onChange={handleChange} className="h-4 w-4 rounded border-input text-primary focus:ring-primary" />
               <Label htmlFor="activo">Activa (visible al público)</Label>
             </div>
           </CardContent>
@@ -203,7 +203,7 @@ export default function AutoridadFormPage() {
                 value={formData.biografia}
                 onChange={handleChange}
                 rows={3}
-                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 placeholder="Reseña biográfica..."
               />
             </div>
@@ -214,7 +214,7 @@ export default function AutoridadFormPage() {
                 value={formData.formacion}
                 onChange={handleChange}
                 rows={2}
-                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 placeholder="Formación académica..."
               />
             </div>
@@ -225,7 +225,7 @@ export default function AutoridadFormPage() {
                 value={formData.funciones}
                 onChange={handleChange}
                 rows={3}
-                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 placeholder="Funciones principales..."
               />
             </div>

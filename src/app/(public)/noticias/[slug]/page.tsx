@@ -1,7 +1,8 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { formatDate } from "@/lib/utils"
-import { Calendar, Share2, ArrowLeft, Image as ImageIcon } from "lucide-react"
+import PageHeader from "@/components/layout/page-header"
+import { Calendar, Share2, ArrowLeft, Image as ImageIcon, Newspaper } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { Noticia } from "@/types"
@@ -29,16 +30,23 @@ export default async function NoticiaDetailPage({ params }: { params: Promise<{ 
   if (!n) notFound()
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
-        <Link href="/" className="hover:text-primary transition-colors">Inicio</Link>
-        <span className="text-muted-foreground">/</span>
-        <Link href="/noticias" className="hover:text-primary transition-colors">Noticias</Link>
-        <span className="text-muted-foreground">/</span>
-        <span className="text-foreground truncate max-w-[250px]">{n.titulo}</span>
-      </nav>
+    <div className="pb-16">
+      <PageHeader
+        title={n.titulo}
+        crumbs={[{ label: "Noticias", href: "/noticias" }, { label: n.titulo }]}
+        icon={<Newspaper className="hidden h-8 w-8 shrink-0 text-primary sm:block" />}
+      >
+        <span className="inline-block rounded-full border border-primary/20 bg-card/80 px-3 py-1 text-xs font-medium text-primary backdrop-blur">
+          {CATEGORIA_LABEL[n.categoria] || n.categoria}
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-card/80 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+          <Calendar className="h-3.5 w-3.5 text-primary" />
+          {n.fecha_publicacion ? formatDate(n.fecha_publicacion, "long") : formatDate(n.created_at, "long")}
+        </span>
+      </PageHeader>
 
-      {n.imagen_principal ? (
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        {n.imagen_principal ? (
         <div className="mb-8 overflow-hidden rounded-2xl">
           <img src={n.imagen_principal} alt={n.titulo} className="w-full aspect-video object-cover" />
         </div>
@@ -51,24 +59,7 @@ export default async function NoticiaDetailPage({ params }: { params: Promise<{ 
         </div>
       )}
 
-      <article className="max-w-none">
-        <div className="mb-3">
-          <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
-            {CATEGORIA_LABEL[n.categoria] || n.categoria}
-          </span>
-        </div>
-
-        <h1 className="text-3xl font-bold font-serif text-foreground sm:text-4xl leading-tight">
-          {n.titulo}
-        </h1>
-
-        <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <Calendar className="h-4 w-4" />
-            {n.fecha_publicacion ? formatDate(n.fecha_publicacion, "long") : formatDate(n.created_at, "long")}
-          </span>
-        </div>
-
+      <article className="max-w-none pt-8">
         {n.resumen && (
           <div className="mt-6 border-l-4 border-primary pl-4">
             <p className="text-lg text-muted-foreground italic leading-relaxed">{n.resumen}</p>
@@ -115,6 +106,7 @@ export default async function NoticiaDetailPage({ params }: { params: Promise<{ 
             <Share2 className="h-4 w-4" />
           </Button>
         </div>
+      </div>
       </div>
     </div>
   )

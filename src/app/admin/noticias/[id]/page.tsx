@@ -154,11 +154,11 @@ export default function NoticiaFormPage() {
             </div>
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
-                <input type="checkbox" name="destacada" id="destacada" checked={formData.destacada} onChange={handleChange} className="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500" />
+                <input type="checkbox" name="destacada" id="destacada" checked={formData.destacada} onChange={handleChange} className="h-4 w-4 rounded border-input text-primary focus:ring-primary" />
                 <Label htmlFor="destacada">Noticia destacada</Label>
               </div>
               <div className="flex items-center gap-2">
-                <input type="checkbox" name="publicada" id="publicada" checked={formData.publicada} onChange={handleChange} className="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500" />
+                <input type="checkbox" name="publicada" id="publicada" checked={formData.publicada} onChange={handleChange} className="h-4 w-4 rounded border-input text-primary focus:ring-primary" />
                 <Label htmlFor="publicada">Publicada (visible al público)</Label>
               </div>
             </div>
@@ -184,7 +184,7 @@ export default function NoticiaFormPage() {
                 value={formData.resumen}
                 onChange={handleChange}
                 rows={3}
-                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 placeholder="Resumen breve de la noticia"
               />
             </div>
@@ -195,7 +195,7 @@ export default function NoticiaFormPage() {
                 value={formData.contenido}
                 onChange={handleChange}
                 rows={15}
-                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 placeholder="Contenido completo de la noticia..."
               />
             </div>

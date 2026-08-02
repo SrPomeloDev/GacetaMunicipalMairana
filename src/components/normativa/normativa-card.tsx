@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { getEstadoColor, getEstadoLabel, formatDate, cn } from "@/lib/utils"
-import { FileText, Calendar, ArrowRight, ShieldCheck, Download, Eye } from "lucide-react"
+import { FileText, Calendar, ArrowRight } from "lucide-react"
 
 interface NormativaCardProps {
   normativa: {

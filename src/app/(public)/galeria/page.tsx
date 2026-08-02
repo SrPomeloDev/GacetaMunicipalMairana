@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
-import { Image as ImageIcon, Camera } from "lucide-react"
+import PageHeader from "@/components/layout/page-header"
+import { Image as ImageIcon, Camera, Images } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { Galeria } from "@/types"
 
@@ -40,14 +41,22 @@ export default function GaleriaPage() {
   const heights = ["h-64", "h-80", "h-72", "h-96", "h-60", "h-72", "h-64", "h-80", "h-72", "h-96", "h-64", "h-80"]
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground font-serif">Galería Municipal</h1>
-        <div className="mt-2 h-1 w-20 rounded-full bg-primary" />
-        <p className="mt-4 text-muted-foreground">Imágenes institucionales del municipio de Mairana</p>
-      </div>
+    <div className="pb-16">
+      <PageHeader
+        title="Galería Municipal"
+        description="Imágenes institucionales del municipio de Mairana: actividades, eventos y paisajes de nuestra tierra."
+        crumbs={[{ label: "Galería" }]}
+        icon={<Camera className="hidden h-8 w-8 text-primary sm:block" />}
+      >
+        <div className="flex items-center gap-2 rounded-xl border border-primary/15 bg-card/80 px-4 py-2 backdrop-blur">
+          <Images className="h-4 w-4 text-primary" />
+          <span className="text-2xl font-extrabold font-serif text-foreground">{images.length}</span>
+          <span className="text-xs text-muted-foreground">imágenes publicadas</span>
+        </div>
+      </PageHeader>
 
-      <div className="mb-8 flex flex-wrap gap-2">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-wrap gap-2 pt-8">
         {albums.map((album) => (
           <button
             key={album}
@@ -87,11 +96,11 @@ export default function GaleriaPage() {
                   <img
                     src={item.imagen}
                     alt={item.titulo}
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
-                    <ImageIcon className="h-12 w-12 text-muted-foreground/50 group-hover:scale-110 transition-transform" />
+                    <ImageIcon className="h-12 w-12 text-muted-foreground/50" />
                   </div>
                 )}
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4">
@@ -103,6 +112,7 @@ export default function GaleriaPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import PageHeader from "@/components/layout/page-header"
 import { Send, Bot, User, Sparkles, MessageCircle, Search } from "lucide-react"
 
 interface Message {
@@ -35,10 +36,10 @@ export default function AsistentePage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [input, setInput] = useState("")
   const [isTyping, setIsTyping] = useState(false)
-  const chatEndRef = useRef<HTMLDivElement>(null)
+  const chatContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    chatContainerRef.current?.scrollTo({ top: chatContainerRef.current.scrollHeight, behavior: "smooth" })
   }, [messages])
 
   const addBotMessage = (content: string) => {
@@ -76,12 +77,24 @@ export default function AsistentePage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-foreground font-serif">Asistente Virtual</h1>
-        <div className="mt-2 h-1 w-20 rounded-full bg-primary" />
-        <p className="mt-4 text-muted-foreground">Consultá sobre la normativa municipal</p>
-      </div>
+    <div className="pb-16">
+      <PageHeader
+        title="Asistente Virtual"
+        description="Consultá sobre la normativa municipal de Mairana: leyes, decretos, ordenanzas y trámites."
+        crumbs={[{ label: "Asistente" }]}
+        icon={<MessageCircle className="hidden h-8 w-8 text-primary sm:block" />}
+      >
+        <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-2 backdrop-blur">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+          </span>
+          <span className="text-xs font-medium text-foreground">En línea — respuestas inmediatas</span>
+        </div>
+      </PageHeader>
+
+      <div className="mx-auto flex max-w-4xl flex-col px-4 sm:px-6 lg:px-8">
+        <div className="pt-8">
 
       <Card className="flex flex-1 flex-col overflow-hidden rounded-2xl border shadow-lg">
         <div className="flex items-center gap-3 border-b bg-muted/30 px-6 py-4">
@@ -94,7 +107,7 @@ export default function AsistentePage() {
           </div>
         </div>
 
-        <div className="flex-1 space-y-4 overflow-y-auto p-6 max-h-[500px]">
+        <div ref={chatContainerRef} className="flex-1 space-y-4 overflow-y-auto p-6 max-h-[500px]">
           {messages.map((msg, i) => (
             <div
               key={i}
@@ -113,13 +126,13 @@ export default function AsistentePage() {
                   "max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed",
                   msg.role === "bot"
                     ? "border-l-4 border-primary bg-muted/50 text-foreground rounded-tl-sm"
-                    : "border-r-4 border-blue-500 bg-primary text-primary-foreground rounded-tr-sm"
+                    : "border-r-4 border-primary-foreground/40 bg-primary text-primary-foreground rounded-tr-sm"
                 )}
               >
                 {msg.content}
               </div>
               {msg.role === "user" && (
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-600">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <User className="h-4 w-4" />
                 </div>
               )}
@@ -139,7 +152,6 @@ export default function AsistentePage() {
               </div>
             </div>
           )}
-          <div ref={chatEndRef} />
         </div>
 
         <div className="border-t p-4 space-y-3">
@@ -176,6 +188,8 @@ export default function AsistentePage() {
           </div>
         </div>
       </Card>
+      </div>
+      </div>
     </div>
   )
 }

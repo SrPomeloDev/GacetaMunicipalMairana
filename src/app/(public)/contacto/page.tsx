@@ -5,7 +5,8 @@ import { MAIRANA } from "@/lib/constants"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { MapPin, Phone, Mail, Clock, Send, MessageSquare } from "lucide-react"
+import PageHeader from "@/components/layout/page-header"
+import { MapPin, Phone, Mail, Clock, Send, MessageSquare, Headset } from "lucide-react"
 
 const contactInfo = [
   { icon: MapPin, label: "Dirección", value: `${MAIRANA.direccion}, ${MAIRANA.nombre}, ${MAIRANA.provincia}, ${MAIRANA.departamento}` },
@@ -13,6 +14,9 @@ const contactInfo = [
   { icon: Mail, label: "Correo Electrónico", value: MAIRANA.email },
   { icon: Clock, label: "Horarios", value: "Lunes a Viernes: 8:00 - 16:00, Sábados: 8:00 - 12:00" },
 ]
+
+const MAIRANA_LAT = -18.119
+const MAIRANA_LON = -63.956
 
 export default function ContactoPage() {
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" })
@@ -24,14 +28,16 @@ export default function ContactoPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground font-serif">Contacto</h1>
-        <div className="mt-2 h-1 w-20 rounded-full bg-primary" />
-        <p className="mt-4 text-muted-foreground">Comunicate con el Gobierno Autónomo Municipal de Mairana</p>
-      </div>
+    <div className="pb-16">
+      <PageHeader
+        title="Contacto"
+        description="Comunicate con el Gobierno Autónomo Municipal de Mairana. Estamos para atenderte y responder tus consultas."
+        crumbs={[{ label: "Contacto" }]}
+        icon={<Headset className="hidden h-8 w-8 text-primary sm:block" />}
+      />
 
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid gap-8 lg:grid-cols-2 pt-8">
         <div className="space-y-6">
           <Card>
             <CardContent className="p-6 space-y-6">
@@ -52,10 +58,27 @@ export default function ContactoPage() {
             </CardContent>
           </Card>
 
-          <div className="aspect-[16/9] rounded-xl bg-muted flex flex-col items-center justify-center text-muted-foreground">
-            <MapPin className="h-10 w-10 mb-2 text-muted-foreground/50" />
-            <p className="text-sm font-medium">Mapa de Ubicación</p>
-            <p className="text-xs mt-1">Plaza Principal 24 de Septiembre</p>
+          <div className="overflow-hidden rounded-xl border border-primary/15 shadow-sm">
+            <iframe
+              title="Mapa de ubicación de la Alcaldía de Mairana"
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=${MAIRANA_LON - 0.012}%2C${MAIRANA_LAT - 0.008}%2C${MAIRANA_LON + 0.012}%2C${MAIRANA_LAT + 0.008}&layer=mapnik&marker=${MAIRANA_LAT}%2C${MAIRANA_LON}`}
+              className="aspect-[16/9] w-full border-0"
+              loading="lazy"
+            />
+            <div className="flex items-center justify-between gap-2 border-t border-primary/10 bg-card px-4 py-2.5">
+              <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 text-primary" />
+                Plaza Principal 24 de Septiembre
+              </p>
+              <a
+                href={`https://www.openstreetmap.org/?mlat=${MAIRANA_LAT}&mlon=${MAIRANA_LON}#map=16/${MAIRANA_LAT}/${MAIRANA_LON}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                Ver mapa ampliado
+              </a>
+            </div>
           </div>
         </div>
 
@@ -68,7 +91,7 @@ export default function ContactoPage() {
 
             {submitted ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-600 mb-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary mb-4">
                   <Send className="h-8 w-8" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground">Mensaje Enviado</h3>
@@ -113,6 +136,7 @@ export default function ContactoPage() {
             )}
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   )

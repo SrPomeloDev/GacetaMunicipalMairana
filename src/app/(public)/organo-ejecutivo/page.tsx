@@ -1,9 +1,9 @@
 "use client"
 
-import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { User, Phone, Mail, Building2, Target, FileText, ChevronRight, MapPin, Shield, Users, Briefcase, Heart, GraduationCap, Wrench, TreePine, Bus } from "lucide-react"
+import PageHeader from "@/components/layout/page-header"
+import { Phone, Mail, Building2, Target, FileText, ChevronRight, Briefcase, Heart, GraduationCap, Wrench, TreePine, Landmark } from "lucide-react"
 
 const alcalde = {
   nombre: "Andres Fidel Rocha Rosales",
@@ -24,14 +24,18 @@ const secretarias = [
 
 export default function OrganoEjecutivoPage() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground font-serif">Órgano Ejecutivo</h1>
-        <div className="mt-2 h-1 w-20 rounded-full bg-primary" />
-        <p className="mt-4 text-muted-foreground">Gobierno Autónomo Municipal de Mairana - Gestión 2026</p>
-      </div>
+    <>
+      <PageHeader
+        title="Órgano Ejecutivo"
+        description="Gobierno Autónomo Municipal de Mairana - Gestión 2026. Conocé al Alcalde, las Secretarías y la planificación institucional."
+        crumbs={[{ label: "Autoridades", href: "/autoridades" }, { label: "Órgano Ejecutivo" }]}
+        icon={<Landmark className="h-8 w-8 text-primary sm:h-9 sm:w-9" />}
+      >
+        <Badge className="px-3 py-1 text-xs">Ejecutivo</Badge>
+      </PageHeader>
 
-      <Card className="mb-10 overflow-hidden border-primary/20 transition-all hover:shadow-lg">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <Card className="mb-10 overflow-hidden border-primary/20 transition-all hover:shadow-lg">
         <div className="h-3 bg-gradient-to-r from-primary via-primary/80 to-primary/60" />
         <CardContent className="p-8">
           <div className="flex flex-col items-center text-center lg:flex-row lg:text-left lg:items-start lg:gap-8">
@@ -147,5 +151,6 @@ export default function OrganoEjecutivoPage() {
         </Card>
       </div>
     </div>
+    </>
   )
 }

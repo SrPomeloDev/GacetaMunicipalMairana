@@ -5,7 +5,7 @@ import { SearchInput } from "@/components/ui/search-input"
 import { Select } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Filter, X, SlidersHorizontal, Search, RotateCcw } from "lucide-react"
+import { SlidersHorizontal, Search, RotateCcw } from "lucide-react"
 
 export interface SearchFilters {
   q: string
@@ -75,7 +75,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         >
           <SlidersHorizontal className="h-4 w-4" />
           {activeFilterCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-orange-600 text-[10px] font-bold text-white shadow-xs">
+            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-xs">
               {activeFilterCount}
             </span>
           )}
@@ -83,7 +83,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
       </div>
 
       {showAdvanced && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-5 rounded-2xl border border-primary/20 bg-card/90 backdrop-blur-xl shadow-lg animate-in fade-in duration-200">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-5 rounded-2xl liquid-glass shadow-lg animate-in fade-in duration-200">
           <Select
             label="Tipo de Normativa"
             placeholder="Todas las categorías"

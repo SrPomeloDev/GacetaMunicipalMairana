@@ -2,10 +2,10 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useCurrentUser } from "@/hooks/use-current-user"
-import { Bell, ChevronRight, Menu } from "lucide-react"
+import { useTheme } from "@/components/theme-provider"
+import { Bell, ChevronRight, Menu, Sun, Moon } from "lucide-react"
 
 const breadcrumbLabels: Record<string, string> = {
   dashboard: "Panel de Control",
@@ -25,6 +25,7 @@ export default function AdminHeader({ onMenuToggle }: { onMenuToggle?: () => voi
   const pathname = usePathname()
   const segments = pathname.split("/").filter(Boolean)
   const { user } = useCurrentUser()
+  const { theme, toggleTheme } = useTheme()
 
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
@@ -56,11 +57,17 @@ export default function AdminHeader({ onMenuToggle }: { onMenuToggle?: () => voi
       </nav>
 
       <div className="ml-auto flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+          aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+          className="text-muted-foreground hover:text-primary"
+        >
+          {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </Button>
+        <Button variant="ghost" size="icon" className="text-muted-foreground">
           <Bell className="h-5 w-5" />
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
-            3
-          </span>
         </Button>
         <div className="flex items-center gap-2 pl-2 border-l">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">

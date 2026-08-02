@@ -4,14 +4,14 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { ADMIN_NAV, SITE_NAME } from "@/lib/constants"
+import { ADMIN_NAV, SITE_NAME, DEV_CREDIT } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import { useCurrentUser, rolLabel } from "@/hooks/use-current-user"
 import {
   PanelLeftClose, PanelLeft, LogOut, User,
   LayoutDashboard, FileText, Newspaper, Users, Shield,
-  ClipboardList, Image, UserCog, Settings, ChevronLeft
+  ClipboardList, Image, UserCog, Settings, ChevronLeft, Code2
 } from "lucide-react"
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -41,7 +41,7 @@ export default function SidebarAdmin() {
 
   const sidebarContent = (
     <div className={cn(
-      "flex h-full flex-col bg-sidebar-background border-r border-sidebar-border transition-all duration-300",
+      "flex h-full flex-col liquid-glass border-r border-sidebar-border transition-all duration-300",
       collapsed ? "w-16" : "w-64"
     )}>
       <div className={cn(
@@ -118,6 +118,22 @@ export default function SidebarAdmin() {
           </Button>
         )}
       </div>
+
+      {DEV_CREDIT.visible && (
+        <div className="border-t border-sidebar-border px-3 py-3">
+          <div className={cn("flex items-center gap-2", collapsed && "justify-center")}>
+            <Code2 className={cn("h-4 w-4 text-primary shrink-0", collapsed && "h-5 w-5")} />
+            {!collapsed && (
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-sidebar-foreground truncate">{DEV_CREDIT.nombre}</p>
+                <p className="text-[11px] text-muted-foreground truncate">
+                  {DEV_CREDIT.rol} • CI {DEV_CREDIT.ci}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 
@@ -138,7 +154,7 @@ export default function SidebarAdmin() {
 
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="fixed bottom-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg lg:hidden"
+        className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg lg:hidden"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>

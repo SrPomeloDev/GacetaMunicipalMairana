@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { cn, formatDate } from "@/lib/utils"
-import { FileText, Newspaper, Users, ArrowRight, PlusCircle, BarChart3, Eye, Image as ImageIcon, ScrollText, BadgeCheck } from "lucide-react"
+import { FileText, Newspaper, Users, ArrowRight, PlusCircle, BarChart3, Eye, Image as ImageIcon, ScrollText, BadgeCheck, PieChart } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/components/ui/toast"
 import { createClient } from "@/lib/supabase/client"
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell } from "recharts"
 
 interface Stats {
   normativas: number
@@ -18,6 +19,22 @@ interface Stats {
   galeria: number
   tramites: number
   visitas: number
+}
+
+const ESTADO_COLORS: Record<string, string> = {
+  vigente: "#16a34a",
+  derogada: "#dc2626",
+  modificada: "#ca8a04",
+  suspendida: "#f97316",
+  abrogada: "#64748b",
+}
+
+const ESTADO_LABEL: Record<string, string> = {
+  vigente: "Vigente",
+  derogada: "Derogada",
+  modificada: "Modificada",
+  suspendida: "Suspendida",
+  abrogada: "Abrogada",
 }
 
 const quickActions = [
@@ -39,6 +56,7 @@ export default function AdminDashboardPage() {
 
   const [stats, setStats] = useState<Stats | null>(null)
   const [activity, setActivity] = useState<ActivityItem[]>([])
+  const [estadoData, setEstadoData] = useState<{ estado: string; cantidad: number }[]>([])
   const [currentDate] = useState(() => {
     return new Date().toLocaleDateString("es-BO", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
   })
@@ -93,13 +111,22 @@ export default function AdminDashboardPage() {
         })),
       ]
       setActivity(items.sort((a, b) => (a.time < b.time ? 1 : -1)).slice(0, 6))
+
+      const { data: estados } = await supabase.from("normativa").select("estado").limit(1000)
+      if (!estados) return
+      const counts = new Map<string, number>()
+      estados.forEach((e) => counts.set(e.estado, (counts.get(e.estado) || 0) + 1))
+      const sorted = Array.from(counts.entries())
+        .map(([estado, cantidad]) => ({ estado: ESTADO_LABEL[estado] || estado, cantidad }))
+        .sort((a, b) => b.cantidad - a.cantidad)
+      setEstadoData(sorted)
     }
     load()
   }, [supabase, addToast])
 
   const kpiCards = stats
     ? [
-        { icon: FileText, label: "Normativas", value: String(stats.normativas), bg: "bg-orange-500", desc: "Documentos publicados" },
+        { icon: FileText, label: "Normativas", value: String(stats.normativas), bg: "bg-primary", desc: "Documentos publicados" },
         { icon: Newspaper, label: "Noticias", value: String(stats.noticias), bg: "bg-blue-500", desc: "Artículos publicados" },
         { icon: Users, label: "Usuarios", value: String(stats.usuarios), bg: "bg-green-500", desc: "Cuentas del panel" },
         { icon: Eye, label: "Visitas totales", value: String(stats.visitas), bg: "bg-purple-500", desc: "Lecturas de normativa" },
@@ -107,7 +134,7 @@ export default function AdminDashboardPage() {
     : []
 
   const typeColors: Record<string, string> = {
-    normativa: "bg-orange-100 text-orange-700",
+    normativa: "bg-primary/10 text-primary",
     noticia: "bg-blue-100 text-blue-700",
     autoridad: "bg-green-100 text-green-700",
     transparencia: "bg-purple-100 text-purple-700",
@@ -187,6 +214,62 @@ export default function AdminDashboardPage() {
           </Card>
         </Link>
       </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <PieChart className="h-5 w-5 text-primary" />
+              Normativas por Estado
+            </CardTitle>
+            <Link href="/admin/normativa" className="text-sm font-medium text-primary hover:underline">
+              Ver normativa →
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {estadoData.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">
+              No hay normativas registradas todavía.
+            </p>
+          ) : (
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={estadoData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                  <XAxis
+                    dataKey="estado"
+                    tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                    axisLine={{ stroke: "var(--border)" }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "var(--muted)" }}
+                    contentStyle={{
+                      backgroundColor: "var(--popover)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "0.75rem",
+                      fontSize: "12px",
+                      color: "var(--popover-foreground)",
+                    }}
+                  />
+                  <Bar dataKey="cantidad" name="Documentos" radius={[6, 6, 0, 0]} maxBarSize={56}>
+                    {estadoData.map((entry) => (
+                      <Cell key={entry.estado} fill={ESTADO_COLORS[entry.estado.toLowerCase()] || "#EA580C"} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">

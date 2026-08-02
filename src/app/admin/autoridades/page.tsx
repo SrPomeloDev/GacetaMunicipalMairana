@@ -22,7 +22,7 @@ const TIPO_COLOR: Record<string, string> = {
   alcalde: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400",
   concejal: "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400",
   secretario: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400",
-  director: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400",
+  director: "bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:text-primary",
   jefe_unidad: "bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-400",
   subalcalde: "bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400",
 }

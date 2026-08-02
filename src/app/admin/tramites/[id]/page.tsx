@@ -178,7 +178,7 @@ export default function EditarTramitePage() {
               <Checkbox
                 id="activo"
                 checked={form.activo}
-                onCheckedChange={(checked) => handleChange("activo", checked === true)}
+                onChange={(e) => handleChange("activo", e.target.checked)}
               />
               <Label htmlFor="activo" className="cursor-pointer">Trámite activo</Label>
             </div>

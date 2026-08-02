@@ -36,7 +36,12 @@ npm run lint       # ESLint (eslint-config-next core-web-vitals + typescript)
   - `00001_core_tables.sql` — 13 tablas + triggers + RLS base
   - `00002_search_and_rls.sql` — full-text search + políticas; define helpers `current_user_role()`, `is_staff()` y `buscar_normativa()`
   - `00003_configuracion.sql` — tabla `configuracion` de una sola fila (id=1) con políticas SELECT público + UPDATE solo admin
-  - **NO existe `00004`**: falta política INSERT/UPDATE para staff (admin + editor) en `configuracion`. Ejecutar SQL manual en Supabase SQL Editor.
+  - `00004_configuracion_policies_improvements.sql` — políticas INSERT/UPDATE staff en `configuracion`, función/trigger genérico `set_updated_at()`, buckets storage (`noticias-imagenes`, `normativa-pdf`, `galeria`, `documentos`) idempotente
+  - `00005_contrataciones.sql` — tabla `contrataciones` (licitaciones/convocatorias) + RLS + trigger updated_at
+  - `00006_contacto_mensajes.sql` — tabla `contacto_mensajes` (mensajes del formulario de contacto) + RLS (INSERT público, gestión solo staff)
+  - `00007_contacto_mensajes_categorias.sql` — columnas `categoria` (general/tramite/reclamo/denuncia/sugerencia/informacion_publica/normativa) y `anonimo` (denuncias anónimas)
+  - `00008_mensajes_flujo.sql` — columnas `estado` (nuevo/en_revision/respondido/cerrado), `respuesta` y `respondido_en`
+- **Las migraciones `00006`/`00007`/`00008` NO están ejecutadas en Supabase todavía**: ejecutar en SQL Editor en orden.
 - `.env.local` (ver `.env.example`): obligatorias `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`; opcionales `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_APP_NAME`, `OPENAI_API_KEY`.
 
 ## Auth users (estado actual)
@@ -50,7 +55,7 @@ npm run lint       # ESLint (eslint-config-next core-web-vitals + typescript)
 src/
 ├── app/
 │   ├── (public)/        # rutas públicas (normativa, noticias, autoridades, transparencia, tramites, galeria, contacto, asistente) — incluye page.tsx (home)
-│   ├── admin/           # panel protegido: login, dashboard, CRUDs por módulo
+│   ├── admin/           # panel protegido: login, dashboard, CRUDs por módulo, perfil (mi cuenta)
 │   ├── api/             # rutas públicas + CRUDs admin en /api/admin/* + /api/asistente/consulta (chatbot MOCK)
 │   ├── auth/callback/   # callback OAuth Supabase
 │   └── (sin page.tsx en la raíz: la home vive en (public)/page.tsx para heredar header/footer y el toggle de tema)
@@ -65,7 +70,9 @@ src/
 │   └── use-current-user.ts  # hook para obtener perfil real del usuario autenticado
 ├── lib/
 │   ├── utils.ts         # cn()
-│   ├── constants.ts     # SITE_URL, datos Mairana, NAV_LINKS / ADMIN_NAV
+│   ├── constants.ts     # SITE_URL, datos Mairana, NAV_LINKS / ADMIN_NAV (cada item tiene `modulo`)
+│   ├── roles.ts         # tipos/definiciones de permisos por rol y por módulo (fuente única)
+│   ├── permisos-server.ts # getPermisosUsuario/requirePermiso (server) para autorizar rutas API
 │   └── supabase/        # 3 clientes (client.ts, server.ts, admin.ts)
 ├── types/               # index.ts + database.ts (tipos Database MANUALES, a menudo desactualizados)
 └── styles/globals.css
@@ -76,6 +83,19 @@ src/
 - "use client" solo cuando hay hooks o interactividad; Server Components por defecto
 - Clases con Tailwind + CSS variables vía `cn()` (`@/lib/utils`)
 - Imports con alias `@/` → `src/`; `displayName` en componentes con `forwardRef`
+
+## Sistema de permisos (roles + matriz por módulo)
+- Fuente única: `src/lib/roles.ts` — `Modulo` (normativa, noticias, autoridades, transparencia, tramites, galeria, usuarios, configuracion), `Accion` (crear/editar/eliminar/publicar), defaults `ROLES` (admin=todo, editor=gestión sin eliminar/usuarios/config, publicador=solo publicar), `permisosEfectivos(rol, overrides)`, `tipoPermisos()`.
+- Los permisos de cada usuario se guardan en `auth.users.raw_user_meta_data.permisos` (NO hay columna en `usuarios`). Los overrides se suman a los defaults del rol. El PATCH de `/api/admin/usuarios/[id]` fusiona `user_metadata` (la clave admin es `user_metadata`, NO `data`, en supabase-js 2.x).
+- Lectura en cliente: `useCurrentUser()` devuelve `{ rol, permisos }` efectivos; helpers `can(user, modulo, accion)` / `canView(user, modulo)`. El sidebar filtra por `canView` (dashboard siempre visible).
+- Lectura en server: `requirePermiso(modulo, accion)` (lanzar 403 en catch, 401 si devuelve null sin sesión). Ya aplicado en `/api/admin/normativa*` y `/api/admin/noticias*`; el resto de rutas admin solo valida sesión/rol admin.
+- UI: matriz en `src/components/admin/permisos-editor.tsx` (usado en editar usuario). Al cambiar el rol en el formulario se reinicia la matriz a los defaults del rol.
+- El `Checkbox` de `ui/checkbox.tsx` es un input nativo: usar `onChange`/`checked`, NO `onCheckedChange` (varias páginas lo usan mal y quedan rotas).
+
+## Perfil del usuario (mi cuenta)
+- `/admin/perfil` (página `src/app/admin/perfil/page.tsx`): edita nombre, avatar (sube a bucket `noticias-imagenes`), cambio de contraseña (`supabase.auth.updateUser({ password })`) y preferencia de tema.
+- La preferencia de tema se guarda en `auth.users.raw_user_meta_data.tema` vía `PATCH /api/admin/perfil`; `ThemeProvider` la aplica en el arranque (el `localStorage` `gaceta-theme` da el primer paint, la metadata lo sincroniza entre dispositivos).
+- El nombre/avatar del sidebar y del header enlazan a `/admin/perfil`.
 
 ## Tema institucional
 - Primario `#EA580C` (oklch 0.65 0.18 45); variables CSS en `globals.css` para light + `.dark`

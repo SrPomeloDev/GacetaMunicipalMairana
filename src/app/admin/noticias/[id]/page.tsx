@@ -124,7 +124,7 @@ export default function NoticiaFormPage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">{isNew ? "Nueva Noticia" : "Editar Noticia"}</h1>
         <Link href="/admin/noticias">
           <Button variant="outline">Cancelar</Button>

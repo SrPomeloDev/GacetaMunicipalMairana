@@ -1,21 +1,25 @@
 import { NextResponse } from "next/server"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const supabase = await createServerSupabaseClient()
 
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
+  let permiso: PermisosUsuario | null
+  try {
+    permiso = await requirePermiso("normativa", "editar")
+  } catch {
+    return NextResponse.json({ error: "No tienes permiso para editar normativa" }, { status: 403 })
+  }
+  if (!permiso) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 
   const body = await request.json()
 
-  const { data, error } = await supabase
+  const { data, error } = await permiso.supabase
     .from("normativa")
     .update(body)
     .eq("id", id)
@@ -27,18 +31,22 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const supabase = await createServerSupabaseClient()
 
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
+  let permiso: PermisosUsuario | null
+  try {
+    permiso = await requirePermiso("normativa", "eliminar")
+  } catch {
+    return NextResponse.json({ error: "No tienes permiso para eliminar normativa" }, { status: 403 })
+  }
+  if (!permiso) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 
-  const { error } = await supabase
+  const { error } = await permiso.supabase
     .from("normativa")
     .delete()
     .eq("id", id)

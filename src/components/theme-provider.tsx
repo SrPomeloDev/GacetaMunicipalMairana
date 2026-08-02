@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react"
+import { createClient } from "@/lib/supabase/client"
 
 type Theme = "light" | "dark"
 
@@ -44,6 +45,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem(STORAGE_KEY, next)
       return next
     })
+  }, [])
+
+  useEffect(() => {
+    const supabase = createClient()
+    const loadUserTheme = async () => {
+      const { data } = await supabase.auth.getUser()
+      const t = data.user?.user_metadata?.tema
+      if ((t === "dark" || t === "light") && t !== theme) {
+        setThemeState(t)
+        applyTheme(t)
+        localStorage.setItem(STORAGE_KEY, t)
+      }
+    }
+    loadUserTheme()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

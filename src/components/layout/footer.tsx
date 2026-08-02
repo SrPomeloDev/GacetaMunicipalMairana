@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { MAIRANA, NAV_LINKS, SITE_NAME, DEV_CREDIT } from "@/lib/constants"
 import { MapPin, Phone, Mail, Clock, ShieldCheck, Scale, FileCheck, ExternalLink, Landmark, Building2, Code2 } from "lucide-react"
+import NewsletterForm from "./newsletter-form"
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -95,9 +96,10 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Columna 4: Ubicación & Contacto Oficial */}
+          {/* Columna 4: Newsletter & Contacto Oficial */}
           <div>
-            <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+            <NewsletterForm />
+            <h3 className="mt-6 mb-4 text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
               <MapPin className="h-3.5 w-3.5" /> Alcaldía de Mairana
             </h3>
             <ul className="space-y-3 text-xs text-muted-foreground">

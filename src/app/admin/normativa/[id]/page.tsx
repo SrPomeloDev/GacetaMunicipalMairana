@@ -22,6 +22,24 @@ const ESTADOS_OPTIONS = [
   { value: "abrogada", label: "Abrogada" },
 ]
 
+const TIPO_MODIFICACION_LABEL: Record<string, string> = {
+  deroga: "Deroga", modifica: "Modifica", complementa: "Complementa",
+  suspende: "Suspende", prorroga: "Prórroga",
+}
+
+const TIPO_MODIFICACION_OPTIONS = Object.entries(TIPO_MODIFICACION_LABEL).map(([value, label]) => ({ value, label }))
+
+interface ModificacionRow {
+  id: string
+  normativa_id: string
+  normativa_modificadora_id: string
+  tipo_modificacion: string
+  articulos_afectados: string | null
+  descripcion: string | null
+  fecha: string
+  modificadora?: { numero: string; titulo: string } | null
+}
+
 export default function NormativaFormPage() {
   const params = useParams()
   const router = useRouter()
@@ -52,19 +70,47 @@ export default function NormativaFormPage() {
   const [loading, setLoading] = useState(true)
   const [slugTouched, setSlugTouched] = useState(false)
 
+  const [modificaciones, setModificaciones] = useState<ModificacionRow[]>([])
+  const [normativasOpts, setNormativasOpts] = useState<{ value: string; label: string }[]>([])
+  const [nuevaMod, setNuevaMod] = useState({
+    normativa_modificadora_id: "",
+    tipo_modificacion: "modifica",
+    articulos_afectados: "",
+    descripcion: "",
+    fecha: "",
+  })
+  const [savingMod, setSavingMod] = useState(false)
+
+  const cargarModificaciones = async (normativaId: string) => {
+    const { data, error } = await supabase
+      .from("modificaciones_normativa")
+      .select("*, modificadora:normativa!modificaciones_normativa_normativa_modificadora_id_fkey(numero,titulo)")
+      .eq("normativa_id", normativaId)
+      .order("fecha", { ascending: false })
+    if (!error) setModificaciones((data as ModificacionRow[]) || [])
+  }
+
   useEffect(() => {
     const init = async () => {
-      const [catRes, depRes, normativaRes] = await Promise.all([
+      const [catRes, depRes, normativaRes, modsRes] = await Promise.all([
         supabase.from("categorias_normativa").select("id,nombre").order("orden"),
         supabase.from("dependencias").select("id,nombre").order("orden"),
         isNew
           ? Promise.resolve({ data: null, error: null })
           : supabase.from("normativa").select("*").eq("id", params.id as string).single(),
+        isNew
+          ? Promise.resolve({ data: [] as ModificacionRow[], error: null })
+          : supabase
+              .from("modificaciones_normativa")
+              .select("*, modificadora:normativa!modificaciones_normativa_normativa_modificadora_id_fkey(numero,titulo)")
+              .eq("normativa_id", params.id as string)
+              .order("fecha", { ascending: false }),
       ])
       if (catRes.error) addToast(catRes.error.message, "error")
       if (depRes.error) addToast(depRes.error.message, "error")
       setCategorias((catRes.data || []).map((c) => ({ value: c.id, label: c.nombre })))
       setDependencias((depRes.data || []).map((d) => ({ value: d.id, label: d.nombre })))
+      if (!modsRes.error) setModificaciones((modsRes.data as ModificacionRow[]) || [])
 
       if (normativaRes.error) {
         addToast(normativaRes.error.message, "error")
@@ -144,13 +190,72 @@ export default function NormativaFormPage() {
     }
   }
 
+  const cargarNormativasRelacionadas = async () => {
+    const { data, error } = await supabase
+      .from("normativa")
+      .select("id,numero,titulo")
+      .neq("id", params.id as string)
+      .order("numero")
+    if (error) {
+      addToast(error.message, "error")
+      return
+    }
+    setNormativasOpts((data || []).map((n) => ({ value: n.id, label: `${n.numero} — ${n.titulo}` })))
+  }
+
+  useEffect(() => {
+    if (isNew) return
+    const run = async () => {
+      await cargarNormativasRelacionadas()
+    }
+    run()
+  }, [isNew, params.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleAddModificacion = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!nuevaMod.normativa_modificadora_id) {
+      addToast("Selecciona la normativa que modifica", "error")
+      return
+    }
+    setSavingMod(true)
+    try {
+      const { error } = await supabase.from("modificaciones_normativa").insert({
+        normativa_id: params.id as string,
+        normativa_modificadora_id: nuevaMod.normativa_modificadora_id,
+        tipo_modificacion: nuevaMod.tipo_modificacion,
+        articulos_afectados: nuevaMod.articulos_afectados || null,
+        descripcion: nuevaMod.descripcion || null,
+        fecha: nuevaMod.fecha || undefined,
+      })
+      if (error) {
+        addToast(error.message, "error")
+        return
+      }
+      addToast("Modificación registrada", "success")
+      setNuevaMod({ normativa_modificadora_id: "", tipo_modificacion: "modifica", articulos_afectados: "", descripcion: "", fecha: "" })
+      cargarModificaciones(params.id as string)
+    } finally {
+      setSavingMod(false)
+    }
+  }
+
+  const handleDeleteModificacion = async (id: string) => {
+    const { error } = await supabase.from("modificaciones_normativa").delete().eq("id", id)
+    if (error) {
+      addToast(error.message, "error")
+      return
+    }
+    addToast("Modificación eliminada", "success")
+    cargarModificaciones(params.id as string)
+  }
+
   if (loading) {
     return <div className="space-y-4">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
   }
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">{isNew ? "Nueva Normativa" : "Editar Normativa"}</h1>
         <Link href="/admin/normativa">
           <Button variant="outline">Cancelar</Button>
@@ -273,6 +378,78 @@ export default function NormativaFormPage() {
             </div>
           </CardContent>
         </Card>
+        {!isNew && (
+          <Card>
+            <CardHeader><CardTitle>Modificaciones y Relaciones</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              {modificaciones.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Esta normativa no tiene modificaciones registradas.</p>
+              ) : (
+                <div className="divide-y rounded-lg border border-border">
+                  {modificaciones.map((m) => (
+                    <div key={m.id} className="flex items-center justify-between gap-4 p-3">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                            {TIPO_MODIFICACION_LABEL[m.tipo_modificacion] || m.tipo_modificacion}
+                          </span>
+                          <span className="text-sm font-medium">
+                            {m.modificadora ? `${m.modificadora.numero} — ${m.modificadora.titulo}` : "Normativa no encontrada"}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {m.fecha}
+                          {m.articulos_afectados ? ` · Artículos: ${m.articulos_afectados}` : ""}
+                          {m.descripcion ? ` · ${m.descripcion}` : ""}
+                        </p>
+                      </div>
+                      <Button variant="destructive" size="sm" onClick={() => handleDeleteModificacion(m.id)}>Eliminar</Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <form onSubmit={handleAddModificacion} className="space-y-4 rounded-lg border border-dashed border-border p-4">
+                <p className="text-sm font-medium">Registrar modificación</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Normativa que modifica esta</Label>
+                    <Select
+                      name="normativa_modificadora_id"
+                      value={nuevaMod.normativa_modificadora_id}
+                      onChange={(e) => setNuevaMod((prev) => ({ ...prev, normativa_modificadora_id: e.target.value }))}
+                      options={normativasOpts}
+                      placeholder="Seleccionar normativa modificadora"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Tipo de modificación</Label>
+                    <Select
+                      name="tipo_modificacion"
+                      value={nuevaMod.tipo_modificacion}
+                      onChange={(e) => setNuevaMod((prev) => ({ ...prev, tipo_modificacion: e.target.value }))}
+                      options={TIPO_MODIFICACION_OPTIONS}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Fecha</Label>
+                    <Input type="date" value={nuevaMod.fecha} onChange={(e) => setNuevaMod((prev) => ({ ...prev, fecha: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Artículos afectados</Label>
+                    <Input value={nuevaMod.articulos_afectados} onChange={(e) => setNuevaMod((prev) => ({ ...prev, articulos_afectados: e.target.value }))} placeholder="Ej: Art. 5, 7" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Descripción</Label>
+                    <Input value={nuevaMod.descripcion} onChange={(e) => setNuevaMod((prev) => ({ ...prev, descripcion: e.target.value }))} placeholder="Opcional" />
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <Button type="submit" variant="outline" loading={savingMod}>Agregar Modificación</Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        )}
         <div className="flex gap-4 justify-end">
           <Link href="/admin/normativa">
             <Button type="button" variant="outline">Cancelar</Button>

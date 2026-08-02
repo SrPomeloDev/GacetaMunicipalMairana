@@ -14,12 +14,18 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/lib/supabase/client"
 import { ArrowLeft, Save } from "lucide-react"
 import type { Usuario } from "@/types"
+import { permisosPorRol, tipoPermisos, ROLES, type Permisos } from "@/lib/roles"
+import { PermisosEditor } from "@/components/admin/permisos-editor"
 
 const ROLES_OPTIONS = [
   { value: "admin", label: "Administrador" },
   { value: "editor", label: "Editor" },
   { value: "publicador", label: "Publicador" },
 ]
+
+function clonarPermisos(permisos: Permisos): Permisos {
+  return JSON.parse(JSON.stringify(permisos)) as Permisos
+}
 
 export default function EditarUsuarioPage() {
   const params = useParams()
@@ -35,14 +41,16 @@ export default function EditarUsuarioPage() {
     dependencia_id: "",
     activo: true,
   })
+  const [permisos, setPermisos] = useState<Permisos>(() => clonarPermisos(permisosPorRol("editor")))
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const init = async () => {
-      const [depRes, userRes] = await Promise.all([
+      const [depRes, userRes, metaRes] = await Promise.all([
         supabase.from("dependencias").select("id,nombre").order("orden"),
         supabase.from("usuarios").select("*").eq("id", params.id as string).single(),
+        fetch(`/api/admin/usuarios/${params.id}`).then((r) => r.json()),
       ])
       if (depRes.error) addToast(depRes.error.message, "error")
       setDependencias((depRes.data || []).map((d) => ({ value: d.id, label: d.nombre })))
@@ -53,6 +61,7 @@ export default function EditarUsuarioPage() {
         return
       }
       const u = userRes.data as Usuario
+      const savedPermisos = tipoPermisos(metaRes.permisos)
       setForm({
         nombre: u.nombre,
         email: u.email || "",
@@ -60,10 +69,16 @@ export default function EditarUsuarioPage() {
         dependencia_id: u.dependencia_id || "",
         activo: u.activo,
       })
+      setPermisos(clonarPermisos(savedPermisos ?? permisosPorRol(u.rol)))
       setLoading(false)
     }
     init()
   }, [params.id, supabase, router, addToast])
+
+  const handleRolChange = (rol: string) => {
+    setForm((prev) => ({ ...prev, rol }))
+    setPermisos(clonarPermisos(permisosPorRol(rol)))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -81,6 +96,7 @@ export default function EditarUsuarioPage() {
           rol: form.rol,
           dependencia_id: form.dependencia_id || null,
           activo: form.activo,
+          permisos,
         }),
       })
       const data = await res.json()
@@ -131,7 +147,8 @@ export default function EditarUsuarioPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Rol</Label>
-                <Select value={form.rol} onChange={(e) => setForm((prev) => ({ ...prev, rol: e.target.value }))} options={ROLES_OPTIONS} />
+                <Select value={form.rol} onChange={(e) => handleRolChange(e.target.value)} options={ROLES_OPTIONS} />
+                <p className="text-xs text-muted-foreground">{ROLES[form.rol]?.descripcion}</p>
               </div>
               <div className="space-y-2">
                 <Label>Dependencia</Label>
@@ -142,7 +159,7 @@ export default function EditarUsuarioPage() {
               <Checkbox
                 id="activo"
                 checked={form.activo}
-                onCheckedChange={(checked) => setForm((prev) => ({ ...prev, activo: checked === true }))}
+                onChange={(e) => setForm((prev) => ({ ...prev, activo: e.target.checked }))}
               />
               <Label htmlFor="activo" className="cursor-pointer">Cuenta activa</Label>
             </div>
@@ -156,6 +173,19 @@ export default function EditarUsuarioPage() {
               </Link>
             </div>
           </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Permisos por Módulo</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Acciones específicas que puede realizar este usuario en cada módulo. Se suman a los
+            permisos predeterminados de su rol.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <PermisosEditor permisos={permisos} rol={form.rol} onChange={setPermisos} />
         </CardContent>
       </Card>
     </div>

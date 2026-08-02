@@ -120,7 +120,7 @@ export default function NuevoDocumentoPage() {
               <Checkbox
                 id="publicada"
                 checked={form.publicada}
-                onCheckedChange={(checked) => setForm((prev) => ({ ...prev, publicada: checked === true }))}
+                onChange={(e) => setForm((prev) => ({ ...prev, publicada: e.target.checked }))}
               />
               <Label htmlFor="publicada" className="cursor-pointer">Publicada (visible al público)</Label>
             </div>

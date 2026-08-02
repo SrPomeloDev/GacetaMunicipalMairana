@@ -39,13 +39,19 @@ export const NAV_LINKS = [
 ]
 
 export const ADMIN_NAV = [
-  { href: '/admin/dashboard', label: 'Panel de Control', icon: 'LayoutDashboard' },
-  { href: '/admin/normativa', label: 'Normativa', icon: 'FileText' },
-  { href: '/admin/noticias', label: 'Noticias', icon: 'Newspaper' },
-  { href: '/admin/autoridades', label: 'Autoridades', icon: 'Users' },
-  { href: '/admin/transparencia', label: 'Transparencia', icon: 'Shield' },
-  { href: '/admin/tramites', label: 'Trámites', icon: 'ClipboardList' },
-  { href: '/admin/galeria', label: 'Galería', icon: 'Image' },
-  { href: '/admin/usuarios', label: 'Usuarios', icon: 'UserCog' },
-  { href: '/admin/configuracion', label: 'Configuración', icon: 'Settings' },
+  { href: '/admin/dashboard', label: 'Panel de Control', icon: 'LayoutDashboard', modulo: 'configuracion' as const },
+  { href: '/admin/normativa', label: 'Normativa', icon: 'FileText', modulo: 'normativa' as const },
+  { href: '/admin/noticias', label: 'Noticias', icon: 'Newspaper', modulo: 'noticias' as const },
+  { href: '/admin/autoridades', label: 'Autoridades', icon: 'Users', modulo: 'autoridades' as const },
+  { href: '/admin/dependencias', label: 'Dependencias', icon: 'Building2', modulo: 'dependencias' as const },
+  { href: '/admin/categorias', label: 'Categorías', icon: 'Tags', modulo: 'categorias' as const },
+  { href: '/admin/concejo', label: 'Concejo', icon: 'Landmark', modulo: 'concejo' as const },
+  { href: '/admin/transparencia', label: 'Transparencia', icon: 'Shield', modulo: 'transparencia' as const },
+  { href: '/admin/tramites', label: 'Trámites', icon: 'ClipboardList', modulo: 'tramites' as const },
+  { href: '/admin/galeria', label: 'Galería', icon: 'Image', modulo: 'galeria' as const },
+  { href: '/admin/contrataciones', label: 'Contrataciones', icon: 'Gavel', modulo: 'contrataciones' as const },
+  { href: '/admin/suscripciones', label: 'Suscripciones', icon: 'Mail', modulo: 'suscripciones' as const },
+  { href: '/admin/mensajes', label: 'Mensajes', icon: 'Inbox', modulo: 'mensajes' as const },
+  { href: '/admin/usuarios', label: 'Usuarios', icon: 'UserCog', modulo: 'usuarios' as const },
+  { href: '/admin/configuracion', label: 'Configuración', icon: 'Settings', modulo: 'configuracion' as const },
 ]

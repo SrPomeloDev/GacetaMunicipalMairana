@@ -4,33 +4,28 @@ import { useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import PageHeader from "@/components/layout/page-header"
-import { Send, Bot, User, Sparkles, MessageCircle, Search } from "lucide-react"
+import { Send, Bot, User, Sparkles, MessageCircle, Search, ExternalLink } from "lucide-react"
 
 interface Message {
   role: "user" | "bot"
   content: string
+  references?: { titulo: string; url: string }[]
   timestamp: Date
 }
 
 const suggestedQuestions = [
   "¿Qué leyes están vigentes?",
   "¿Cómo se tramita una patente?",
-  "¿Cuáles son las ordenanzas recientes?",
+  "¿Qué normativa existe sobre transparencia?",
 ]
 
 const initialMessages: Message[] = [
   {
     role: "bot",
-    content: "¡Hola! Soy el asistente virtual de la Gaceta Municipal de Mairana. ¿En qué puedo ayudarte? Puedes preguntarme sobre leyes, decretos, ordenanzas y más.",
+    content: "¡Hola! Soy el asistente virtual de la Gaceta Municipal de Mairana. ¿En qué puedo ayudarte? Puedes preguntarme sobre leyes, decretos, ordenanzas, trámites y transparencia.",
     timestamp: new Date(),
   },
 ]
-
-const botResponses: Record<string, string> = {
-  "¿Qué leyes están vigentes?": "Actualmente se encuentran vigentes más de 120 normativas en el municipio de Mairana. Entre las más recientes destacan: Ley Municipal de Desarrollo Económico (Ley N° 001/2024), Ordenanza de Desarrollo Urbano (Ordenanza N° 045/2024), y la Ley de Fomento al Empleo Juvenil (Ley N° 012/2024). Podés consultar el listado completo en la sección de Normativa.",
-  "¿Cómo se tramita una patente?": "Para tramitar una patente municipal en Mairana, seguí estos pasos: 1) Completá el formulario de solicitud. 2) Presentá tu cédula de identidad vigente. 3) Adjuntá el certificado de registro en FUNDEMPRESA. 4) Incluí un croquis de ubicación del negocio. 5) Aboná la tasa municipal correspondiente (Bs. 250). El trámite tiene un plazo estimado de 15 días hábiles. Podés descargar el formulario en la sección de Trámites.",
-  "¿Cuáles son las ordenanzas recientes?": "Las ordenanzas municipales más recientes incluyen: Ordenanza de Desarrollo Urbano Sostenible (N° 045/2024), Ordenanza de Protección del Medio Ambiente (N° 032/2024), Ordenanza de Fomento al Turismo (N° 028/2024), y Ordenanza de Regulación de Comercio Informal (N° 015/2024). Todas están disponibles para su consulta en la sección de Normativa.",
-}
 
 export default function AsistentePage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
@@ -42,12 +37,12 @@ export default function AsistentePage() {
     chatContainerRef.current?.scrollTo({ top: chatContainerRef.current.scrollHeight, behavior: "smooth" })
   }, [messages])
 
-  const addBotMessage = (content: string) => {
-    setMessages((prev) => [...prev, { role: "bot", content, timestamp: new Date() }])
+  const addBotMessage = (content: string, references?: { titulo: string; url: string }[]) => {
+    setMessages((prev) => [...prev, { role: "bot", content, references, timestamp: new Date() }])
     setIsTyping(false)
   }
 
-  const handleSend = (text?: string) => {
+  const handleSend = async (text?: string) => {
     const messageText = text || input
     if (!messageText.trim() || isTyping) return
 
@@ -55,18 +50,19 @@ export default function AsistentePage() {
     setInput("")
     setIsTyping(true)
 
-    setTimeout(() => {
-      const response = Object.entries(botResponses).find(([q]) =>
-        messageText.toLowerCase().includes(q.toLowerCase().slice(0, 20))
+    try {
+      const res = await fetch("/api/asistente/consulta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pregunta: messageText }),
+      })
+      const data = await res.json()
+      addBotMessage(data.respuesta, data.referencias)
+    } catch {
+      addBotMessage(
+        "Lo siento, no pude procesar tu consulta en este momento. Intenta nuevamente o visita la sección de Normativa."
       )
-      if (response) {
-        addBotMessage(response[1])
-      } else {
-        addBotMessage(
-          "Entiendo tu consulta. Para brindarte información más precisa, te recomiendo visitar la sección de Normativa donde podés buscar por palabras clave, o contactarnos directamente a través del formulario de contacto. ¿Hay algo más en lo que pueda ayudarte?"
-        )
-      }
-    }, 1500)
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -130,6 +126,20 @@ export default function AsistentePage() {
                 )}
               >
                 {msg.content}
+                {msg.references && msg.references.length > 0 && (
+                  <div className="mt-3 space-y-1.5 border-t pt-2.5">
+                    {msg.references.map((ref, j) => (
+                      <a
+                        key={j}
+                        href={ref.url}
+                        className="flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        {ref.titulo}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
               {msg.role === "user" && (
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">

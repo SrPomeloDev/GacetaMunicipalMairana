@@ -17,6 +17,13 @@ const breadcrumbLabels: Record<string, string> = {
   galeria: "Galería",
   usuarios: "Usuarios",
   configuracion: "Configuración",
+  dependencias: "Dependencias",
+  categorias: "Categorías",
+  concejo: "Concejo",
+  suscripciones: "Suscripciones",
+  contrataciones: "Contrataciones",
+  mensajes: "Mensajes",
+  perfil: "Mi Perfil",
   nueva: "Nueva",
   editar: "Editar",
 }
@@ -69,14 +76,23 @@ export default function AdminHeader({ onMenuToggle }: { onMenuToggle?: () => voi
         <Button variant="ghost" size="icon" className="text-muted-foreground">
           <Bell className="h-5 w-5" />
         </Button>
-        <div className="flex items-center gap-2 pl-2 border-l">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-            {(user?.nombre || "U").charAt(0).toUpperCase()}
-          </div>
+        <Link href="/admin/perfil" className="flex items-center gap-2 pl-2 border-l group">
+          {user?.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={user.avatar_url}
+              alt="Mi perfil"
+              className="h-8 w-8 rounded-full object-cover ring-2 ring-primary/30"
+            />
+          ) : (
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+              {(user?.nombre || "U").charAt(0).toUpperCase()}
+            </div>
+          )}
           <div className="hidden sm:block">
-            <p className="text-sm font-medium leading-tight truncate max-w-40">{user?.nombre || "Usuario"}</p>
+            <p className="text-sm font-medium leading-tight truncate max-w-40 group-hover:text-primary transition-colors">{user?.nombre || "Usuario"}</p>
           </div>
-        </div>
+        </Link>
       </div>
     </header>
   )

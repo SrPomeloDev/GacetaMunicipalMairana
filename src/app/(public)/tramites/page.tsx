@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -77,7 +78,9 @@ export default function TramitesPage() {
                     <ClipboardList className="h-6 w-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-xl font-semibold text-card-foreground">{tramite.titulo}</h3>
+                    <Link href={`/tramites/${tramite.slug}`}>
+                      <h3 className="text-xl font-semibold text-card-foreground hover:text-primary transition-colors">{tramite.titulo}</h3>
+                    </Link>
                     {tramite.descripcion && (
                       <p className="mt-2 text-muted-foreground leading-relaxed">{tramite.descripcion}</p>
                     )}

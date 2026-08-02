@@ -1,21 +1,24 @@
 import { NextResponse } from "next/server"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 
 export async function POST(request: Request) {
-  const supabase = await createServerSupabaseClient()
-
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
+  let permiso: PermisosUsuario | null
+  try {
+    permiso = await requirePermiso("noticias", "crear")
+  } catch {
+    return NextResponse.json({ error: "No tienes permiso para crear noticias" }, { status: 403 })
+  }
+  if (!permiso) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 
   const body = await request.json()
 
-  const { data, error } = await supabase
+  const { data, error } = await permiso.supabase
     .from("noticias")
     .insert({
       ...body,
-      autor_id: session.user.id,
+      autor_id: permiso.id,
     })
     .select()
     .single()

@@ -1,11 +1,12 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import Link from "next/link"
 import { cn, formatDate } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import PageHeader from "@/components/layout/page-header"
-import { FileText, Download, Calendar, Search, FolderOpen, ShieldCheck, FileCheck2, Eye } from "lucide-react"
+import { FileText, Download, Calendar, Search, FolderOpen, ShieldCheck, FileCheck2, Eye, Gavel } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { Transparencia } from "@/types"
 
@@ -82,6 +83,16 @@ export default function TransparenciaPage() {
           <Eye className="h-4 w-4 text-emerald-600" />
           <span className="text-xs font-medium text-foreground">Acceso libre y gratuito</span>
         </div>
+        <Link
+          href="/contrataciones"
+          className={cn(
+            buttonVariants({ variant: "outline" }),
+            "flex items-center gap-2 rounded-xl border-primary/30 px-4 py-2 backdrop-blur"
+          )}
+        >
+          <Gavel className="h-4 w-4 text-primary" />
+          <span className="text-xs font-medium text-foreground">Ver Contrataciones Públicas</span>
+        </Link>
       </PageHeader>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

@@ -131,7 +131,7 @@ export default function AutoridadFormPage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">{isNew ? "Nueva Autoridad" : "Editar Autoridad"}</h1>
         <Link href="/admin/autoridades">
           <Button variant="outline">Cancelar</Button>

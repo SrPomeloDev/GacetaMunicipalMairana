@@ -166,6 +166,40 @@ export interface Suscripcion {
   created_at: string
 }
 
+export interface Contratacion {
+  id: string
+  titulo: string
+  slug: string
+  tipo: 'licitacion' | 'apoyo_nacional' | 'compras_menores' | 'contratacion_directa' | 'emergencia'
+  modalidad: string | null
+  objeto: string | null
+  monto: number | null
+  empresa_adjudicada: string | null
+  fecha_publicacion: string | null
+  fecha_presentacion: string | null
+  fecha_adjudicacion: string | null
+  archivo_pdf: string | null
+  estado: 'borrador' | 'publicada' | 'adjudicada' | 'desierta' | 'concluida'
+  publicada: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface MensajeContacto {
+  id: string
+  nombre: string
+  email: string
+  asunto: string | null
+  mensaje: string
+  categoria: 'general' | 'tramite' | 'reclamo' | 'denuncia' | 'sugerencia' | 'informacion_publica' | 'normativa'
+  anonimo: boolean
+  leido: boolean
+  estado: 'nuevo' | 'en_revision' | 'respondido' | 'cerrado'
+  respuesta: string | null
+  respondido_en: string | null
+  created_at: string
+}
+
 export interface NormativaEmbedding {
   id: string
   normativa_id: string

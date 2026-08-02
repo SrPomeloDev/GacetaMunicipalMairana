@@ -9,6 +9,7 @@ import { ToastProvider } from "@/components/ui/toast"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClient()
@@ -46,9 +47,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <ToastProvider>
       <div className="flex min-h-screen bg-background antialiased">
-        <SidebarAdmin />
+        <SidebarAdmin open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="flex flex-1 flex-col lg:pl-64">
-          <AdminHeader />
+          <AdminHeader onMenuToggle={() => setSidebarOpen(true)} />
           <main className="flex-1 p-4 sm:p-6 lg:p-8">
             {children}
           </main>

@@ -225,9 +225,11 @@ body {
   background-image: radial-gradient(ellipse 120% 55% at 50% -12%, rgba(38, 33, 28, 0.7), transparent 60%);
 }
 
-main > section {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 640px;
+@supports (content-visibility: auto) and (contain-intrinsic-size: 640px 640px) {
+  main > section {
+    content-visibility: auto;
+    contain-intrinsic-size: 640px 640px;
+  }
 }
 
 /* ===== Animaciones y transiciones suaves ===== */

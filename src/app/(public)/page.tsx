@@ -69,19 +69,19 @@ export default async function HomePage() {
   const ultimaNormativa = await getUltimaNormativa()
 
   const statItems = [
-    { icon: ScrollText, label: "Normativas Promulgadas", value: `${stats.normativas}`, color: "bg-primary/10 text-primary" },
-    { icon: Newspaper, label: "Publicaciones Oficiales", value: `${stats.noticias}`, color: "bg-primary/10 text-primary" },
-    { icon: Users, label: "Autoridades Electas", value: `${stats.autoridades}`, color: "bg-primary/10 text-primary" },
-    { icon: Calendar, label: "Año de Fundación", value: "1875", color: "bg-primary/10 text-primary" },
+    { icon: ScrollText, label: "Normativas Promulgadas", value: `${stats.normativas}`, color: "bg-primary text-primary-foreground" },
+    { icon: Newspaper, label: "Publicaciones Oficiales", value: `${stats.noticias}`, color: "bg-primary text-primary-foreground" },
+    { icon: Users, label: "Autoridades Electas", value: `${stats.autoridades}`, color: "bg-primary text-primary-foreground" },
+    { icon: Calendar, label: "Año de Fundación", value: "1875", color: "bg-primary text-primary-foreground" },
   ]
 
   const quickAccess = [
-    { icon: ScrollText, title: "Normativa Legal", desc: "Consulte Leyes, Decretos Ediles y Ordenanzas", href: "/normativa", badge: "Acceso Abierto", color: "bg-primary/10 text-primary" },
-    { icon: Newspaper, title: "Noticias & Boletines", desc: "Boletines de prensa e informes oficiales", href: "/noticias", badge: "Actualizado", color: "bg-primary/10 text-primary" },
-    { icon: Users, title: "Autoridades", desc: "Conozca a la estructura del GAM Mairana", href: "/autoridades", badge: "Gestión 2026", color: "bg-primary/10 text-primary" },
-    { icon: Scale, title: "Transparencia Ley 341", desc: "Rendición de cuentas y ejecución presupuestaria", href: "/transparencia", badge: "Oficial", color: "bg-primary/10 text-primary" },
-    { icon: ClipboardCheck, title: "Trámites Municipales", desc: "Guía de requisitos y licencias de funcionamiento", href: "/tramites", badge: "Servicios", color: "bg-primary/10 text-primary" },
-    { icon: MessagesSquare, title: "Ventanilla Ciudadana", desc: "Atención de consultas y solicitudes oficiales", href: "/contacto", badge: "Atención 24/7", color: "bg-primary/10 text-primary" },
+    { icon: ScrollText, title: "Normativa Legal", desc: "Consulte Leyes, Decretos Ediles y Ordenanzas", href: "/normativa", badge: "Acceso Abierto", color: "bg-primary text-primary-foreground" },
+    { icon: Newspaper, title: "Noticias & Boletines", desc: "Boletines de prensa e informes oficiales", href: "/noticias", badge: "Actualizado", color: "bg-primary text-primary-foreground" },
+    { icon: Users, title: "Autoridades", desc: "Conozca a la estructura del GAM Mairana", href: "/autoridades", badge: "Gestión 2026", color: "bg-primary text-primary-foreground" },
+    { icon: Scale, title: "Transparencia Ley 341", desc: "Rendición de cuentas y ejecución presupuestaria", href: "/transparencia", badge: "Oficial", color: "bg-primary text-primary-foreground" },
+    { icon: ClipboardCheck, title: "Trámites Municipales", desc: "Guía de requisitos y licencias de funcionamiento", href: "/tramites", badge: "Servicios", color: "bg-primary text-primary-foreground" },
+    { icon: MessagesSquare, title: "Ventanilla Ciudadana", desc: "Atención de consultas y solicitudes oficiales", href: "/contacto", badge: "Atención 24/7", color: "bg-primary text-primary-foreground" },
   ]
 
   const newsList = ultimasNoticias.length > 0
@@ -214,7 +214,7 @@ export default async function HomePage() {
           <Reveal delay={80}>
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
             <div className="space-y-3 max-w-3xl">
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/15 border border-primary/30 px-3 py-1 text-xs font-bold text-primary dark:text-primary">
+              <div className="inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
                 <Award className="h-3.5 w-3.5" />
                 <span>Última Promulgación Destacada</span>
               </div>
@@ -278,7 +278,7 @@ export default async function HomePage() {
                   <div className="h-full rounded-2xl border border-border/70 bg-card p-6 shadow-sm hover:shadow-lg hover:border-primary/40 flex flex-col justify-between">
                     <div>
                     <div className="flex items-center justify-between mb-4">
-                      <div className={cn("flex h-13 w-13 items-center justify-center rounded-2xl ring-4 ring-primary/10 transition-transform duration-300 group-hover:scale-110", item.color)}>
+                      <div className={cn("flex h-13 w-13 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-110", item.color)}>
                         <Icon className="h-6 w-6" />
                       </div>
                         <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-muted text-muted-foreground">
@@ -389,7 +389,7 @@ export default async function HomePage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-3 rounded-xl border border-primary/15 bg-card p-4 shadow-sm">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shrink-0">
                     <MapPin className="h-5 w-5" />
                   </div>
                   <div>
@@ -399,7 +399,7 @@ export default async function HomePage() {
                 </div>
 
                 <div className="flex items-center gap-3 rounded-xl border border-primary/15 bg-card p-4 shadow-sm">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shrink-0">
                     <UsersRound className="h-5 w-5" />
                   </div>
                   <div>
@@ -409,7 +409,7 @@ export default async function HomePage() {
                 </div>
 
                 <div className="flex items-center gap-3 rounded-xl border border-primary/15 bg-card p-4 shadow-sm">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shrink-0">
                     <Building2 className="h-5 w-5" />
                   </div>
                   <div>
@@ -419,7 +419,7 @@ export default async function HomePage() {
                 </div>
 
                 <div className="flex items-center gap-3 rounded-xl border border-primary/15 bg-card p-4 shadow-sm">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shrink-0">
                     <Thermometer className="h-5 w-5" />
                   </div>
                   <div>

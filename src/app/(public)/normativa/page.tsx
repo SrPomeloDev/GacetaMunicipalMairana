@@ -230,7 +230,7 @@ function NormativaContent() {
             {activeFilters.map((f) => (
               <span
                 key={f.key}
-                className="inline-flex items-center gap-1 rounded-full border bg-primary/5 px-3 py-1 text-xs font-medium text-primary"
+                className="inline-flex items-center gap-1 rounded-full border bg-primary px-3 py-1 text-xs font-medium text-primary-foreground"
               >
                 {f.label}
                 <X

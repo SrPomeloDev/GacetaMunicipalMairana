@@ -390,7 +390,7 @@ export default function NormativaFormPage() {
                     <div key={m.id} className="flex items-center justify-between gap-4 p-3">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                          <span className="rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
                             {TIPO_MODIFICACION_LABEL[m.tipo_modificacion] || m.tipo_modificacion}
                           </span>
                           <span className="text-sm font-medium">

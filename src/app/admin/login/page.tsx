@@ -78,7 +78,7 @@ function LoginContent() {
               <p className="mt-1 text-sm text-muted-foreground">
                 {mode === "login" ? "Panel de administración de la Gaceta Municipal" : "Registrate para gestionar la Gaceta"}
               </p>
-              <div className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-medium text-primary">
+              <div className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary px-3 py-1 text-[11px] font-medium text-primary-foreground">
                 <ShieldCheck className="h-3 w-3" />
                 Acceso restringido a funcionarios
               </div>

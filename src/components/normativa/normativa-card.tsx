@@ -49,7 +49,7 @@ export function NormativaCard({ normativa }: NormativaCardProps) {
             )}
           </div>
 
-          <span className="text-[11px] font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+          <span className="text-[11px] font-mono font-bold text-primary-foreground bg-primary px-2 py-0.5 rounded-md">
             {normativa.numero}
           </span>
         </div>

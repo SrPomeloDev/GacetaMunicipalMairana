@@ -167,7 +167,7 @@ export default function Header() {
                   className={cn(
                     "flex items-center px-3 py-2.5 text-sm font-semibold rounded-lg border shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]",
                     isActive
-                      ? "text-primary bg-primary/20 border-primary/40"
+                      ? "text-primary-foreground bg-primary border-primary/40"
                       : "text-muted-foreground hover:text-foreground bg-white/25 dark:bg-white/5 border-white/40 dark:border-white/10 hover:bg-white/40 dark:hover:bg-white/10"
                   )}
                 >

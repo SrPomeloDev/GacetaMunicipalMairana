@@ -162,7 +162,7 @@ export default function ContratacionesPublicPage() {
                         <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{c.objeto}</p>
                       )}
                       <div className="mt-3 flex flex-wrap items-center gap-3">
-                        <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                        <span className="inline-flex items-center rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">
                           {TIPO_LABEL[c.tipo] || c.tipo}
                         </span>
                         <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium", ESTADO_COLOR[c.estado])}>

@@ -131,7 +131,7 @@ export default function NoticiasPage() {
                   )}
                 </div>
                 <CardContent className="p-5">
-                  <div className="mb-3 inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                  <div className="mb-3 inline-block rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
                     {CATEGORIA_LABEL[item.categoria] || item.categoria}
                   </div>
                   <h3 className="mb-2 text-lg font-semibold leading-snug text-card-foreground group-hover:text-primary transition-colors line-clamp-2">

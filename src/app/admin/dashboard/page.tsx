@@ -134,7 +134,7 @@ export default function AdminDashboardPage() {
     : []
 
   const typeColors: Record<string, string> = {
-    normativa: "bg-primary/10 text-primary",
+    normativa: "bg-primary/10 text-primary-foreground",
     noticia: "bg-blue-100 text-blue-700",
     autoridad: "bg-green-100 text-green-700",
     transparencia: "bg-purple-100 text-purple-700",

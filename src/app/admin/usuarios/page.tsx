@@ -13,7 +13,7 @@ import { Search, Plus, Pencil, Trash2, CheckCircle2, XCircle, User } from "lucid
 import type { Usuario } from "@/types"
 
 const roles: Record<string, { label: string; color: string }> = {
-  admin: { label: "Administrador", color: "bg-primary/10 text-primary" },
+  admin: { label: "Administrador", color: "bg-primary/10 text-primary-foreground" },
   editor: { label: "Editor", color: "bg-blue-100 text-blue-700" },
   publicador: { label: "Publicador", color: "bg-green-100 text-green-700" },
 }

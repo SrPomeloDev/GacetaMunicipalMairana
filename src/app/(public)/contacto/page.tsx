@@ -93,7 +93,7 @@ export default function ContactoPage() {
                 const Icon = item.icon
                 return (
                   <div key={item.label} className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary-foreground">
                       <Icon className="h-5 w-5" />
                     </div>
                     <div>
@@ -139,7 +139,7 @@ export default function ContactoPage() {
 
             {submitted ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary mb-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary-foreground mb-4">
                   <Send className="h-8 w-8" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground">{esDenuncia ? "Denuncia Recibida" : "Mensaje Enviado"}</h3>

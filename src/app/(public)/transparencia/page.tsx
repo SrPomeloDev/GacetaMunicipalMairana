@@ -16,14 +16,14 @@ const CATEGORIA_LABEL: Record<string, string> = {
 }
 
 const categoryColors: Record<string, string> = {
-  presupuesto: "bg-primary/10 text-primary",
-  poa: "bg-primary/10 text-primary",
-  pei: "bg-primary/10 text-primary",
-  contratacion: "bg-primary/10 text-primary",
-  auditoria: "bg-primary/10 text-primary",
-  financiero: "bg-primary/10 text-primary",
-  declaracion: "bg-primary/10 text-primary",
-  informe: "bg-primary/10 text-primary",
+  presupuesto: "bg-primary/10 text-primary-foreground",
+  poa: "bg-primary/10 text-primary-foreground",
+  pei: "bg-primary/10 text-primary-foreground",
+  contratacion: "bg-primary/10 text-primary-foreground",
+  auditoria: "bg-primary/10 text-primary-foreground",
+  financiero: "bg-primary/10 text-primary-foreground",
+  declaracion: "bg-primary/10 text-primary-foreground",
+  informe: "bg-primary/10 text-primary-foreground",
 }
 
 export default function TransparenciaPage() {
@@ -149,7 +149,7 @@ export default function TransparenciaPage() {
             <Card key={doc.id} className="group transition-all hover:shadow-md">
               <CardContent className="p-5">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary-foreground">
                     <FileText className="h-5 w-5" />
                   </div>
                   <div className="flex-1 min-w-0">

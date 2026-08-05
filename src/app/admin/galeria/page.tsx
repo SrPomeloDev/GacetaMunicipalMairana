@@ -90,7 +90,7 @@ export default function AdminGaleriaPage() {
                   <h3 className="font-medium text-sm truncate hover:text-primary transition-colors">{img.titulo}</h3>
                 </Link>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-medium">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary-foreground px-2 py-0.5 text-xs font-medium">
                     <FolderOpen className="h-3 w-3" />
                     {img.album}
                   </span>

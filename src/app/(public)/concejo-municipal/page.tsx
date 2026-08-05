@@ -189,7 +189,7 @@ export default function ConcejoPage() {
                     <div className="space-y-4">
                       {comisiones.map((com) => (
                         <div key={com.id} className="flex items-start gap-3 rounded-lg border bg-card p-4">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-foreground">
                             <Shield className="h-4 w-4" />
                           </div>
                           <div className="flex-1">
@@ -219,7 +219,7 @@ export default function ConcejoPage() {
                     <div className="space-y-4">
                       {sesiones.map((ses) => (
                         <div key={ses.id} className="flex items-start gap-3 rounded-lg border bg-card p-4">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-foreground">
                             <FileText className="h-4 w-4" />
                           </div>
                           <div className="flex-1 min-w-0">

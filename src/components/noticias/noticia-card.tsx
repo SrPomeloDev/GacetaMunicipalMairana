@@ -18,11 +18,11 @@ interface NoticiaCardProps {
 }
 
 const categoriaColores: Record<string, string> = {
-  noticias: "bg-primary/10 text-primary border-primary/20",
-  eventos: "bg-primary/10 text-primary border-primary/20",
-  comunicados: "bg-primary/10 text-primary border-primary/20",
-  convocatorias: "bg-primary/10 text-primary border-primary/20",
-  transparencia: "bg-primary/10 text-primary border-primary/20",
+  noticias: "bg-primary/10 text-primary-foreground border-primary/20",
+  eventos: "bg-primary/10 text-primary-foreground border-primary/20",
+  comunicados: "bg-primary/10 text-primary-foreground border-primary/20",
+  convocatorias: "bg-primary/10 text-primary-foreground border-primary/20",
+  transparencia: "bg-primary/10 text-primary-foreground border-primary/20",
 }
 
 export function NoticiaCard({ noticia }: NoticiaCardProps) {

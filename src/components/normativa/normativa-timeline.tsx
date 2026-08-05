@@ -17,11 +17,11 @@ interface NormativaTimelineProps {
 }
 
 const tipoColores: Record<string, string> = {
-  modificacion: "bg-primary/10 text-primary dark:text-primary border-primary/20",
-  derogacion: "bg-primary/10 text-primary dark:text-primary border-primary/20",
-  suspension: "bg-primary/10 text-primary dark:text-primary border-primary/20",
-  prorroga: "bg-primary/10 text-primary dark:text-primary border-primary/20",
-  actualizacion: "bg-primary/10 text-primary dark:text-primary border-primary/20",
+  modificacion: "bg-primary/10 text-primary-foreground dark:text-primary-foreground border-primary/20",
+  derogacion: "bg-primary/10 text-primary-foreground dark:text-primary-foreground border-primary/20",
+  suspension: "bg-primary/10 text-primary-foreground dark:text-primary-foreground border-primary/20",
+  prorroga: "bg-primary/10 text-primary-foreground dark:text-primary-foreground border-primary/20",
+  actualizacion: "bg-primary/10 text-primary-foreground dark:text-primary-foreground border-primary/20",
 }
 
 const tipoLabels: Record<string, string> = {

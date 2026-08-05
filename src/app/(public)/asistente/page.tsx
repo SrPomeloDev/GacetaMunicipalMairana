@@ -94,7 +94,7 @@ export default function AsistentePage() {
 
       <Card className="flex flex-1 flex-col overflow-hidden rounded-2xl border shadow-lg">
         <div className="flex items-center gap-3 border-b bg-muted/30 px-6 py-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary-foreground">
             <Bot className="h-5 w-5" />
           </div>
           <div>
@@ -113,7 +113,7 @@ export default function AsistentePage() {
               )}
             >
               {msg.role === "bot" && (
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-foreground">
                   <Bot className="h-4 w-4" />
                 </div>
               )}
@@ -142,7 +142,7 @@ export default function AsistentePage() {
                 )}
               </div>
               {msg.role === "user" && (
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-foreground">
                   <User className="h-4 w-4" />
                 </div>
               )}
@@ -150,7 +150,7 @@ export default function AsistentePage() {
           ))}
           {isTyping && (
             <div className="flex gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary-foreground">
                 <Bot className="h-4 w-4" />
               </div>
               <div className="rounded-2xl rounded-tl-sm border-l-4 border-primary bg-muted/50 px-4 py-3">

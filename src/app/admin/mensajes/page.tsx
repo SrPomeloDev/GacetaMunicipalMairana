@@ -271,7 +271,7 @@ export default function MensajesPage() {
                     <div className="pt-1" onClick={(e) => e.stopPropagation()}>
                       <Checkbox id={`sel-${m.id}`} checked={isSelected} onChange={() => toggleSelect(m.id)} />
                     </div>
-                    <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-full", m.categoria === "denuncia" ? "bg-destructive/10 text-destructive" : m.leido ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary")}>
+                    <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-full", m.categoria === "denuncia" ? "bg-destructive/10 text-destructive" : m.leido ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary-foreground")}>
                       {m.categoria === "denuncia" ? <ShieldAlert className="h-5 w-5" /> : <User className="h-5 w-5" />}
                     </div>
                     <div className="flex-1 min-w-0">

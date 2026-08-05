@@ -202,6 +202,27 @@
   --font-serif: var(--font-merriweather, Georgia, "Times New Roman", serif);
 }
 
+@layer utilities {
+  .bg-primary\/5 {
+    background-color: rgba(228, 98, 18, 0.05);
+  }
+  .bg-primary\/10 {
+    background-color: rgba(228, 98, 18, 0.1);
+  }
+  .bg-primary\/20 {
+    background-color: rgba(228, 98, 18, 0.2);
+  }
+  .dark .bg-primary\/5 {
+    background-color: rgba(248, 112, 37, 0.05);
+  }
+  .dark .bg-primary\/10 {
+    background-color: rgba(248, 112, 37, 0.1);
+  }
+  .dark .bg-primary\/20 {
+    background-color: rgba(248, 112, 37, 0.2);
+  }
+}
+
 :root {
   color-scheme: light;
 }

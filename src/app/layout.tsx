@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { DemoPendiente } from "@/components/demo-pendiente";
 import "@/styles/globals.css";
 
 const geistSans = Geist({
@@ -41,6 +42,7 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
+        {process.env.NEXT_PUBLIC_DEMO_EXPIRED === "true" && <DemoPendiente />}
       </body>
     </html>
   );

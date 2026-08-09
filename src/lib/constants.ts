@@ -7,6 +7,9 @@ export const DEV_CREDIT = {
   nombre: 'Pablo Salomón Moya Peña',
   rol: 'Desarrollador',
   ci: '13727173',
+  telefono: '+591 678 23905',
+  whatsapp: 'https://wa.me/59167823905',
+  email: 'pabloxzad77@gmail.com',
 }
 
 export const MAIRANA = {

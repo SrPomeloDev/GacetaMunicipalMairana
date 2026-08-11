@@ -54,14 +54,14 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
         <div
           ref={ref}
           className={cn(
-            "relative z-50 w-full rounded-xl border bg-background p-6 shadow-2xl",
+            "relative z-50 w-full rounded-2xl border border-border/60 bg-background p-6 shadow-2xl",
             "animate-in zoom-in-95 fade-in duration-200",
             "mx-4",
             sizeClasses[size],
             className
           )}
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex items-center justify-between border-b border-border/50 pb-4">
             {title && (
               <h2 className="text-lg font-semibold leading-none tracking-tight">
                 {title}
@@ -69,7 +69,8 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
             )}
             <button
               onClick={onClose}
-              className="ml-auto rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              aria-label="Cerrar"
+              className="ml-auto rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
               <X className="h-5 w-5" />
             </button>

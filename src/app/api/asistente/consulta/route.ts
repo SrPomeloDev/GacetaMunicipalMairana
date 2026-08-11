@@ -5,17 +5,17 @@ const respuestas: Record<string, { respuesta: string; referencias: { titulo: str
     respuesta:
       "Soy el asistente virtual de la Gaceta Municipal de Mairana. Puedo ayudarte a consultar normativas, noticias, trámites y transparencia municipal. ¿Sobre qué tema deseas información?",
     referencias: [
-      { titulo: "Gaceta Municipal de Mairana", url: "/" },
-      { titulo: "Normativa Municipal", url: "/normativa" },
+      { titulo: "Gaceta Municipal de Mairana", url: "/gaceta" },
+      { titulo: "Normativa Municipal", url: "/gaceta" },
       { titulo: "Trámites", url: "/tramites" },
     ],
   },
   normativa: {
     respuesta:
-      "La normativa municipal de Mairana está disponible en nuestra sección de Normativa. Puedes consultar Leyes Municipales, Decretos, Resoluciones, Ordenanzas y Acuerdos. Utiliza el buscador para filtrar por categoría o estado.",
+      "La normativa municipal de Mairana está disponible en la Gaceta Oficial. Puedes consultar Leyes Municipales, Decretos, Resoluciones, Ordenanzas y Acuerdos. Utiliza el buscador para filtrar por categoría o estado.",
     referencias: [
-      { titulo: "Normativa Municipal", url: "/normativa" },
-      { titulo: "Categorías de Normativa", url: "/normativa?categoria=ordenanza" },
+      { titulo: "Gaceta Oficial", url: "/gaceta" },
+      { titulo: "Categorías de Normativa", url: "/gaceta?categoria=ordenanza" },
     ],
   },
   tramite: {

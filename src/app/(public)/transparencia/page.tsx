@@ -6,7 +6,7 @@ import { cn, formatDate } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import PageHeader from "@/components/layout/page-header"
-import { FileText, Download, Calendar, Search, FolderOpen, ShieldCheck, FileCheck2, Eye, Gavel } from "lucide-react"
+import { FileText, Download, Calendar, Search, FolderOpen, FileCheck2, Eye, Gavel } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { Transparencia } from "@/types"
 
@@ -72,7 +72,13 @@ export default function TransparenciaPage() {
         title="Transparencia Municipal"
         description="Accedé a la información pública del Gobierno Autónomo Municipal de Mairana: presupuestos, planes, auditorías y más documentos de interés público, en cumplimiento de la Ley N° 482 y la Ley N° 341."
         crumbs={[{ label: "Transparencia" }]}
-        icon={<ShieldCheck className="hidden h-8 w-8 text-primary sm:block" />}
+        icon={
+          <img
+            src="/images/transparencia-ley341.png"
+            alt="Logo Transparencia Ley 341"
+            className="hidden h-12 w-12 rounded-xl border border-border/60 bg-white object-contain p-1 shadow-sm sm:block"
+          />
+        }
       >
         <div className="flex items-center gap-2 rounded-xl border border-primary/15 bg-card/80 px-4 py-2 backdrop-blur">
           <FileCheck2 className="h-4 w-4 text-primary" />

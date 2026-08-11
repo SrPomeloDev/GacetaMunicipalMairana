@@ -1,0 +1,15 @@
+{
+  "name": "gaceta-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Suite E2E con Playwright para Gaceta Municipal",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
+  }
+}

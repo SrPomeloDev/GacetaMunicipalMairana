@@ -102,6 +102,10 @@ src/
 - Primario `#EA580C` (oklch 0.65 0.18 45); variables CSS en `globals.css` para light + `.dark`
 - Estados de normativa: vigente/derogada/modificada/suspendida (variables `--estado-*`)
 - Assets locales: `escudo-mairana.jpg` (vertical 384x479 → `object-contain` + fondo blanco), `mairana-bandera.svg`, `plaza.jpg`, `AlcaldeMairana.png`
+- Fuentes: `Inter` y `Merriweather` vía `next/font/google` definidas en el **layout raíz** (`src/app/layout.tsx`, vars `--font-inter`/`--font-merriweather`); `--font-sans`/`--font-serif` en `@theme` las consumen (Merriweather para títulos con clase `font-serif`).
+- Sistema de diseño (`globals.css`): tokens `--shadow-card`/`--shadow-lifted`/`--shadow-glow` (→ `shadow-card` etc.), utilidad `.glass-bar` (header sticky con blur + saturación, fallback sólido sin `backdrop-filter`), `.heading-kicker`, `@layer base` (antialias, `text-wrap: balance` en h1-h3, `::selection` naranja, anillo de foco global `0 0 0 2px background + 4px ring`).
+- Componentes UI pulidos: `button` (active:scale, sombra primary en default, ring-offset-background), `card` (shadow-card + hover shadow-lifted, CardHeader con divider), `input/textarea/select/search-input` (foco `border-ring/70` + `ring-ring/25`, shadow sutil), `badge` (variants soft-*), `data-table` (thead sticky con labels uppercase, filas `hover:bg-accent/50`), `modal` (rounded-2xl + header con divider, botón cerrar con aria-label "Cerrar").
+- Login (`/admin/login`): layout split en lg (panel institucional naranja a la izquierda + formulario); mantiene ids #email/#password, h1 "Iniciar Sesión", textos y botones que validan los tests E2E.
 
 ## Despliegue
 - GitHub: `https://github.com/SrPomeloDev/GacetaMunicipalMairana.git` (rama `main`, auto-deploy en Vercel)
@@ -110,3 +114,15 @@ src/
 ## Datos de Mairana
 - Fundación: 24-sep-1875 | Alcalde: Andres Fidel Rocha Rosales | "Capital Tabacalera de Bolivia"
 - Población: 12,735 | 137 km de Santa Cruz | Temp: 19°C | Provincia Florida | AMDECRUZ: Región Valles
+
+## E2E (Playwright)
+- Suite en `e2e/` (package.json propio, en `node_modules` raíz no está instalado). Espacio `GACETA~1` en shell.
+- Instalar: `cd "C:\Users\lenov\Desktop\Gaceta Municipal\e2e" && npm install` (instala chromium automáticamente).
+- Correr: `cd e2e && npm test` (o `npm run test:headed` para ver). Reporte HTML: `npm run report`.
+- El webServer levanta `npm run dev` en el puerto **3100** (`PORT=3100`) para no pisar el dev manual en 3000. No correr la suite con el `.next` corrupto ni con `NEXT_PUBLIC_DEMO_EXPIRED=true` (ver layout raíz).
+- Credenciales por defecto (sobreescribibles con `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`, `E2E_EDITOR_EMAIL`, `E2E_EDITOR_PASSWORD`): admin `andresfidelrocha@hotmail.com/13727173`, editor `profpbz@gmail.com/13727173`.
+- Los tests de CRUD crean registros reales con prefijo `E2E-` en el proyecto Supabase dev y los limpian en `afterAll` (el editor no puede borrar por RLS: solo admin).
+- Credenciales admin reales se leen de `e2e/.admin-credentials.json` (creado por `node e2e/provision.js` — idempotente, guarda admin+editor). `e2e/cleanup.js` limpia los registros `E2E-` restantes vía service-role (ambos en `.gitignore`).
+- Login en tests: helper `loginAs(page, "admin"|"editor")` en `e2e/helpers/actions.js` (hace login por UI y espera el redirect). NO usar storageState/setup.
+- 38 tests en 5 specs: `auth.spec.js`, `portal.spec.js`, `theme.spec.js`, `admin-sesion.spec.js`, `permisos-admin.spec.js`, `permisos-editor.spec.js`, `normativa-crud.spec.js`, `noticias-crud.spec.js`, `mobile.spec.js` (2 proyectos: desktop Chromium + móvil Pixel 5). Estado: ✅ suite completa verde.
+- La pantalla de bloqueo "Prueba Demo Finalizada" fue ELIMINADA (archivo `demo-pendiente.tsx` borrado, no reintroducir).

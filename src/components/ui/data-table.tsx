@@ -52,7 +52,7 @@ export function DataTable<T>({
       {Array.from({ length: 5 }).map((_, rowIdx) => (
         <tr key={`skeleton-${rowIdx}`}>
           {columns.map((col) => (
-            <td key={col.key} className="p-3">
+            <td key={col.key} className="px-4 py-3">
               <Skeleton className="h-4 w-full" />
             </td>
           ))}
@@ -62,15 +62,15 @@ export function DataTable<T>({
   )
 
   return (
-    <div ref={ref} className={cn("w-full overflow-auto", className)}>
+    <div ref={ref} className={cn("w-full overflow-auto rounded-xl border border-border/60 shadow-sm", className)}>
       <table className="w-full caption-bottom text-sm">
-        <thead>
-          <tr className="border-b bg-muted/50">
+        <thead className="sticky top-0 z-10">
+          <tr className="border-b bg-muted/70 backdrop-blur-sm">
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={cn(
-                  "h-10 px-3 text-left align-middle font-medium text-muted-foreground",
+                  "h-11 px-4 text-left align-middle text-[11px] font-bold uppercase tracking-wider text-muted-foreground",
                   col.sortable && onSort && "cursor-pointer select-none hover:text-foreground",
                   col.className
                 )}
@@ -91,8 +91,14 @@ export function DataTable<T>({
             renderSkeletonRows()
           ) : data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="h-24 text-center text-muted-foreground">
-                {emptyMessage}
+              <td colSpan={columns.length} className="h-28 text-center text-muted-foreground">
+                <div className="flex flex-col items-center gap-1 py-4">
+                  <svg className="h-8 w-8 text-border" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <circle cx="12" cy="12" r="9" />
+                    <line x1="3" y1="21" x2="9.5" y2="14.5" />
+                  </svg>
+                  {emptyMessage}
+                </div>
               </td>
             </tr>
           ) : (
@@ -101,10 +107,10 @@ export function DataTable<T>({
               return (
                 <tr
                   key={(rowRecord.id as string | undefined) ?? rowIdx}
-                  className="border-b transition-colors hover:bg-muted/50"
+                  className="border-b border-border/60 last:border-0 transition-colors hover:bg-accent/50"
                 >
                   {columns.map((col) => (
-                    <td key={col.key} className={cn("p-3 align-middle", col.className)}>
+                    <td key={col.key} className={cn("px-4 py-3 align-middle", col.className)}>
                       {col.render
                         ? col.render(rowRecord[col.key], row)
                         : ((rowRecord[col.key] ?? "-") as React.ReactNode)}

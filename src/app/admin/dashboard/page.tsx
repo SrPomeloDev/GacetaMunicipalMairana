@@ -134,18 +134,21 @@ export default function AdminDashboardPage() {
     : []
 
   const typeColors: Record<string, string> = {
-    normativa: "bg-primary/10 text-primary-foreground",
-    noticia: "bg-blue-100 text-blue-700",
-    autoridad: "bg-green-100 text-green-700",
-    transparencia: "bg-purple-100 text-purple-700",
-    tramite: "bg-rose-100 text-rose-700",
+    normativa: "bg-primary/10 text-primary border border-primary/20",
+    noticia: "bg-blue-100 text-blue-700 border border-blue-200",
+    autoridad: "bg-green-100 text-green-700 border border-green-200",
+    transparencia: "bg-purple-100 text-purple-700 border border-purple-200",
+    tramite: "bg-rose-100 text-rose-700 border border-rose-200",
   }
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Bienvenido al Panel de Administración</h1>
-        <p className="mt-1 text-muted-foreground capitalize">{currentDate}</p>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <span className="heading-kicker">Panel de Control</span>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Bienvenido al Panel de Administración</h1>
+          <p className="mt-1 text-sm text-muted-foreground capitalize">{currentDate}</p>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -153,16 +156,19 @@ export default function AdminDashboardPage() {
           const Icon = kpi.icon
           return (
             <Card key={kpi.label}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl text-white", kpi.bg)}>
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <span className="text-2xl font-bold text-foreground">{kpi.value}</span>
+              <CardContent className="flex items-start justify-between gap-3 p-5">
+                <div>
+                  <p className="text-sm font-medium text-foreground">{kpi.label}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{kpi.desc}</p>
                 </div>
-                <p className="mt-3 font-medium text-foreground">{kpi.label}</p>
-                <p className="text-sm text-muted-foreground">{kpi.desc}</p>
+                <div className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm", kpi.bg)}>
+                  <Icon className="h-5 w-5" />
+                </div>
               </CardContent>
+              <div className="flex items-end justify-between border-t border-border/50 bg-muted/30 px-5 py-3">
+                <span className="text-2xl font-extrabold tabular-nums tracking-tight text-foreground">{kpi.value}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Total registrado</span>
+              </div>
             </Card>
           )
         }) : (
@@ -290,13 +296,15 @@ export default function AdminDashboardPage() {
               ) : (
                 <div className="space-y-1">
                   {activity.map((item, i) => (
-                    <div key={i} className="flex items-start gap-4 rounded-lg p-3 transition-colors hover:bg-muted/50">
-                      <div className="flex h-2 w-2 mt-2 shrink-0 rounded-full bg-primary" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground">{item.action}</p>
-                        <p className="text-sm text-muted-foreground truncate">{item.item}</p>
+                    <div key={i} className="flex items-start gap-4 rounded-xl border border-transparent p-3 transition-colors hover:border-border/60 hover:bg-muted/40">
+                      <div className="mt-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20">
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-foreground">{item.action}</p>
+                        <p className="truncate text-sm text-muted-foreground">{item.item}</p>
+                      </div>
+                      <div className="flex shrink-0 flex-col items-end gap-1">
                         <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium uppercase", typeColors[item.type])}>
                           {item.type}
                         </span>

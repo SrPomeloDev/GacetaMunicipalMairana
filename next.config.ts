@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
     return [
       { source: "/login", destination: "/admin/login", permanent: false },
       { source: "/admin", destination: "/admin/dashboard", permanent: false },
+      { source: "/normativa", destination: "/gaceta", permanent: false },
     ]
   },
 }

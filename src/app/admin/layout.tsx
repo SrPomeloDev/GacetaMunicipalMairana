@@ -51,7 +51,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="flex flex-1 flex-col lg:pl-64">
           <AdminHeader onMenuToggle={() => setSidebarOpen(true)} />
           <main className="flex-1 p-4 sm:p-6 lg:p-8">
-            {children}
+            <div className="mx-auto w-full max-w-7xl">{children}</div>
           </main>
         </div>
       </div>

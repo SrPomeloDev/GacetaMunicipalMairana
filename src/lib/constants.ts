@@ -32,7 +32,6 @@ export const MAIRANA = {
 
 export const NAV_LINKS = [
   { href: '/', label: 'Inicio' },
-  { href: '/normativa', label: 'Normativa' },
   { href: '/noticias', label: 'Noticias' },
   { href: '/autoridades', label: 'Autoridades' },
   { href: '/transparencia', label: 'Transparencia' },
@@ -40,6 +39,20 @@ export const NAV_LINKS = [
   { href: '/galeria', label: 'Galería' },
   { href: '/contacto', label: 'Contacto' },
 ]
+
+export const GACETA_NAV = [
+  { href: '/gaceta', label: 'Gaceta Oficial' },
+  { href: '/asistente', label: 'Asistente IA' },
+]
+
+export function isGacetaPath(pathname: string): boolean {
+  return (
+    pathname === '/gaceta' ||
+    pathname.startsWith('/gaceta') ||
+    pathname.startsWith('/normativa') ||
+    pathname.startsWith('/asistente')
+  )
+}
 
 export const ADMIN_NAV = [
   { href: '/admin/dashboard', label: 'Panel de Control', icon: 'LayoutDashboard', modulo: 'configuracion' as const },

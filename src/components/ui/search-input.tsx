@@ -26,10 +26,10 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
           onChange={handleChange}
           placeholder={placeholder}
           className={cn(
-            "flex h-10 w-full rounded-lg border border-input bg-background pl-10 pr-8 py-2 text-sm",
-            "ring-offset-background transition-colors",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            "placeholder:text-muted-foreground",
+            "flex h-10 w-full rounded-lg border border-input bg-background pl-10 pr-8 py-2 text-sm shadow-sm shadow-black/[0.02] transition-all",
+            "ring-offset-background",
+            "focus-visible:outline-none focus-visible:border-ring/70 focus-visible:ring-2 focus-visible:ring-ring/25 focus-visible:ring-offset-0",
+            "placeholder:text-muted-foreground/80",
             className
           )}
           {...props}

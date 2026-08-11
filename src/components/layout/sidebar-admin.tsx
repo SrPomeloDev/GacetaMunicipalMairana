@@ -58,20 +58,23 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
   const sidebarContent = (
     <div className={cn(
       "flex h-full flex-col liquid-glass border-r border-sidebar-border transition-all duration-300",
-      collapsed ? "w-16" : "w-64"
+      collapsed ? "w-[68px]" : "w-64"
     )}>
       <div className={cn(
-        "flex h-16 items-center border-b border-sidebar-border px-4",
+        "flex h-16 shrink-0 items-center border-b border-sidebar-border px-4",
         collapsed ? "justify-center" : "justify-between"
       )}>
         {!collapsed && (
-          <Link href="/admin/dashboard" className="flex items-center gap-2" onClick={onClose}>
+          <Link href="/admin/dashboard" className="flex items-center gap-2.5" onClick={onClose}>
             <img
               src="/images/escudo-mairana.jpg"
               alt="Escudo de Mairana"
-              className="h-9 w-9 rounded-lg bg-white object-contain p-0.5"
+              className="h-9 w-9 rounded-lg bg-white object-contain p-0.5 shadow-sm ring-1 ring-border"
             />
-            <span className="text-sm font-semibold text-sidebar-foreground">Administración</span>
+            <div className="min-w-0 leading-tight">
+              <span className="block text-sm font-semibold text-sidebar-foreground">Administración</span>
+              <span className="block text-[10px] text-muted-foreground">G.A.M. Mairana</span>
+            </div>
           </Link>
         )}
         <Button
@@ -94,7 +97,7 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
         </Button>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto p-2">
+      <nav className="flex-1 space-y-1 overflow-y-auto p-2.5">
         {ADMIN_NAV.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
           if (item.href !== "/admin/dashboard" && !canView(user, item.modulo)) return null
@@ -104,15 +107,20 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
               href={item.href}
               onClick={onClose}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
                 collapsed && "justify-center px-2",
                 isActive
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
               title={collapsed ? item.label : undefined}
             >
-              <span className="shrink-0">{iconMap[item.icon]}</span>
+              {isActive && !collapsed && (
+                <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary-foreground/70" aria-hidden />
+              )}
+              <span className={cn("shrink-0 transition-all", !isActive && "text-muted-foreground group-hover:text-primary")}>
+                {iconMap[item.icon]}
+              </span>
               {!collapsed && <span>{item.label}</span>}
             </Link>
           )
@@ -120,52 +128,52 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
       </nav>
 
       <div className={cn(
-        "border-t border-sidebar-border p-3",
+        "shrink-0 border-t border-sidebar-border p-3",
         collapsed && "flex flex-col items-center"
       )}>
-        <div className={cn("flex items-center gap-3", collapsed && "flex-col")}>
+        <div className={cn("flex items-center gap-3 rounded-xl bg-muted/40 p-2", collapsed && "flex-col bg-transparent p-0")}>
           <Link href="/admin/perfil" className="shrink-0">
             {user?.avatar_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={user.avatar_url}
                 alt="Mi perfil"
-                className="h-8 w-8 rounded-full object-cover ring-2 ring-primary/30"
+                className="h-9 w-9 rounded-full object-cover ring-2 ring-primary/30"
               />
             ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-sm shadow-primary/25">
                 {(user?.nombre || "U").charAt(0).toUpperCase()}
               </div>
             )}
           </Link>
           {!collapsed && (
-            <Link href="/admin/perfil" className="flex-1 min-w-0 group">
-              <p className="text-sm font-medium text-sidebar-foreground truncate group-hover:text-primary transition-colors">{user?.nombre || "Usuario"}</p>
-              <p className="text-xs text-muted-foreground truncate">{user ? rolLabel(user.rol) : ""}</p>
+            <Link href="/admin/perfil" className="group min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-sidebar-foreground transition-colors group-hover:text-primary">{user?.nombre || "Usuario"}</p>
+              <p className="truncate text-xs text-muted-foreground">{user ? rolLabel(user.rol) : ""}</p>
             </Link>
           )}
         </div>
         {!collapsed && (
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="mt-2 w-full justify-start text-muted-foreground hover:text-destructive">
+          <Button variant="ghost" size="sm" onClick={handleLogout} className="mt-2 w-full justify-start text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
             <LogOut className="mr-2 h-4 w-4" />
             Cerrar Sesión
           </Button>
         )}
         {collapsed && (
-          <Button variant="ghost" size="icon" onClick={handleLogout} className="mt-2 text-muted-foreground hover:text-destructive">
+          <Button variant="ghost" size="icon" onClick={handleLogout} className="mt-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
             <LogOut className="h-4 w-4" />
           </Button>
         )}
       </div>
 
       {DEV_CREDIT.visible && (
-        <div className="border-t border-sidebar-border px-3 py-3">
+        <div className="shrink-0 border-t border-sidebar-border px-3 py-3">
           <div className={cn("flex items-center gap-2", collapsed && "justify-center")}>
-            <Code2 className={cn("h-4 w-4 text-primary shrink-0", collapsed && "h-5 w-5")} />
+            <Code2 className={cn("h-4 w-4 shrink-0 text-primary", collapsed && "h-5 w-5")} />
             {!collapsed && (
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-sidebar-foreground truncate">{DEV_CREDIT.nombre}</p>
-                <p className="text-[11px] text-muted-foreground truncate">
+                <p className="truncate text-xs font-semibold text-sidebar-foreground">{DEV_CREDIT.nombre}</p>
+                <p className="truncate text-[11px] text-muted-foreground">
                   {DEV_CREDIT.rol} • CI {DEV_CREDIT.ci}
                 </p>
               </div>

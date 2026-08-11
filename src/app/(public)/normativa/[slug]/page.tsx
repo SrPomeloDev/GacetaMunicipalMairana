@@ -58,7 +58,7 @@ export default async function NormativaDetailPage({ params }: { params: Promise<
     <div className="pb-16">
       <PageHeader
         title={n.titulo}
-        crumbs={[{ label: "Normativa", href: "/normativa" }, { label: n.titulo }]}
+        crumbs={[{ label: "Gaceta Oficial", href: "/gaceta" }, { label: n.titulo }]}
         icon={<ScrollText className="hidden h-8 w-8 shrink-0 text-primary sm:block" />}
       >
         <div className="flex flex-wrap items-center gap-2">
@@ -261,9 +261,9 @@ export default async function NormativaDetailPage({ params }: { params: Promise<
             </CardContent>
           </Card>
 
-          <Link href="/normativa" className="flex items-center gap-2 text-sm text-primary hover:underline">
+          <Link href="/gaceta" className="flex items-center gap-2 text-sm text-primary hover:underline">
             <ArrowLeft className="h-4 w-4" />
-            Volver a Normativa
+            Volver a la Gaceta Oficial
           </Link>
         </div>
       </div>

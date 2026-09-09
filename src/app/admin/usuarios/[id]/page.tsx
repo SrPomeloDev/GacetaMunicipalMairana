@@ -47,6 +47,9 @@ export default function EditarUsuarioPage() {
   const [loading, setLoading] = useState(true)
   const [dirty, setDirty] = useState(false)
   useDirtyGuard(dirty)
+  const [pass1, setPass1] = useState("")
+  const [pass2, setPass2] = useState("")
+  const [resetting, setResetting] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -117,6 +120,36 @@ export default function EditarUsuarioPage() {
       router.push("/admin/usuarios")
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (pass1.length < 8) {
+      addToast("La contraseña debe tener al menos 8 caracteres", "error")
+      return
+    }
+    if (pass1 !== pass2) {
+      addToast("Las contraseñas no coinciden", "error")
+      return
+    }
+    setResetting(true)
+    try {
+      const res = await fetch(`/api/admin/usuarios/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: pass1 }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        addToast(data.error || "Error al restablecer la contraseña", "error")
+        return
+      }
+      setPass1("")
+      setPass2("")
+      addToast("Contraseña restablecida. Pasala al funcionario para que entre y la cambie en Mi Perfil.", "success")
+    } finally {
+      setResetting(false)
     }
   }
 
@@ -196,6 +229,32 @@ export default function EditarUsuarioPage() {
         </CardHeader>
         <CardContent>
           <PermisosEditor permisos={permisos} rol={form.rol} onChange={handlePermisosChange} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Restablecer Contraseña</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Fijá una clave temporal y pasala al funcionario. Él podrá cambiarla en Mi Perfil.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handlePasswordReset} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Nueva Contraseña</Label>
+              <Input type="password" value={pass1} onChange={(e) => setPass1(e.target.value)} placeholder="Mínimo 8 caracteres" minLength={8} />
+            </div>
+            <div className="space-y-2">
+              <Label>Confirmar Contraseña</Label>
+              <Input type="password" value={pass2} onChange={(e) => setPass2(e.target.value)} placeholder="Repetí la nueva contraseña" minLength={8} />
+            </div>
+            <div className="md:col-span-2 flex justify-end">
+              <Button type="submit" variant="outline" loading={resetting}>
+                Restablecer Contraseña
+              </Button>
+            </div>
+          </form>
         </CardContent>
       </Card>
     </div>

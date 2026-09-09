@@ -60,6 +60,29 @@ test.describe("CRUD de usuarios (admin)", () => {
     await expect(page.locator("tbody tr", { hasText: EMAIL })).toContainText("Activo");
   });
 
+  test("restablecer contraseña permite entrar con la clave nueva", async ({ page }) => {
+    const NUEVA = `E2eNueva-${TS}`;
+    await page.goto("/admin/usuarios");
+    await page.getByPlaceholder("Buscar usuarios...").fill(EMAIL);
+    await page.locator("tbody tr", { hasText: EMAIL }).getByTitle("Editar").click();
+
+    await expect(page.getByRole("heading", { name: "Editar Usuario" })).toBeVisible();
+    await page.getByPlaceholder("Mínimo 8 caracteres").fill(NUEVA);
+    await page.getByPlaceholder("Repetí la nueva contraseña").fill(NUEVA);
+    await page.getByRole("button", { name: "Restablecer Contraseña" }).click();
+    await expect(page.getByText("Contraseña restablecida")).toBeVisible();
+
+    await page.getByRole("button", { name: "Cerrar Sesión" }).click();
+    await page.waitForURL("**/admin/login");
+    await page.fill("#email", EMAIL);
+    await page.fill("#password", NUEVA);
+    await page.getByRole("button", { name: "Iniciar Sesión" }).click();
+    await page.waitForURL("**/admin/dashboard");
+    await expect(
+      page.getByRole("heading", { name: "Bienvenido al Panel de Administración" })
+    ).toBeVisible();
+  });
+
   test("eliminar usuario con confirmación", async ({ page }) => {
     await page.goto("/admin/usuarios");
     await page.getByPlaceholder("Buscar usuarios...").fill(EMAIL);

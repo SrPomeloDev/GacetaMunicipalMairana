@@ -72,12 +72,14 @@ export async function PATCH(
   if (parsed.data.activo !== undefined) update.activo = parsed.data.activo
   if (parsed.data.dependencia_id !== undefined) update.dependencia_id = parsed.data.dependencia_id
 
-  const { data: usuario, error } = await admin
-    .from("usuarios")
-    .update(update as never)
-    .eq("id", id)
-    .select()
-    .single()
+  const { data: usuario, error } = Object.keys(update).length > 0
+    ? await admin
+        .from("usuarios")
+        .update(update as never)
+        .eq("id", id)
+        .select()
+        .single()
+    : { data: null, error: null }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
@@ -106,7 +108,19 @@ export async function PATCH(
     }
   }
 
-  return NextResponse.json(usuario)
+  if (parsed.data.password !== undefined) {
+    const { error: passError } = await admin.auth.admin.updateUserById(id, {
+      password: parsed.data.password,
+    })
+    if (passError) {
+      return NextResponse.json(
+        { error: "Usuario actualizado, pero no se pudo cambiar la contraseña: " + passError.message },
+        { status: 500 }
+      )
+    }
+  }
+
+  return NextResponse.json(usuario ?? { ok: true })
 }
 
 export async function DELETE(

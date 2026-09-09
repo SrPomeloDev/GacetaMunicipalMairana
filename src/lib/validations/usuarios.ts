@@ -21,6 +21,7 @@ export const usuarioEditarSchema = z.object({
   dependencia_id: dependenciaId,
   activo: z.boolean().optional(),
   permisos: z.record(z.array(z.string())).optional(),
+  password: z.string().min(8).optional(),
 })
 
 export type UsuarioCrearInput = z.infer<typeof usuarioCrearSchema>

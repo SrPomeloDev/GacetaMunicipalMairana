@@ -57,14 +57,14 @@ export default async function NoticiaDetailPage({ params }: { params: Promise<{ 
         <div className="relative mb-8 aspect-video overflow-hidden rounded-2xl">
           <Image src={n.imagen_principal} alt={n.titulo} fill sizes="(min-width: 896px) 896px, 100vw" className="object-cover" />
         </div>
-      ) : (
+      ) : !n.facebook_url ? (
         <div className="aspect-video rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-8">
           <div className="text-center text-muted-foreground">
             <ImageIcon className="mx-auto h-12 w-12 mb-2" />
             <p>Imagen destacada</p>
           </div>
         </div>
-      )}
+      ) : null}
 
       <article className="max-w-none pt-8">
         {n.resumen && (

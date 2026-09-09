@@ -215,7 +215,7 @@ export default function NoticiaFormPage() {
           <CardHeader><CardTitle>Contenido</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Imagen Principal</Label>
+              <Label>Imagen Principal (opcional si hay enlace de Facebook)</Label>
               <FileUpload
                 bucket="noticias-imagenes"
                 accept="image/*"
@@ -252,7 +252,7 @@ export default function NoticiaFormPage() {
               )}
             </div>
             <div className="space-y-2">
-              <Label>Resumen</Label>
+              <Label>Resumen (opcional si hay enlace de Facebook)</Label>
               <textarea
                 name="resumen"
                 value={formData.resumen}

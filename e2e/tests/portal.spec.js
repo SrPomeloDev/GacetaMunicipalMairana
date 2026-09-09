@@ -57,4 +57,16 @@ test.describe("Portal público", () => {
     await expect(page.getByRole("heading", { name: /Andres Fidel Rocha/i })).toBeVisible();
     await expect(page.getByText("Alcalde Municipal", { exact: true }).first()).toBeVisible();
   });
+
+  test("ayuda: el footer lleva a la guía rápida", async ({ page }) => {
+    await page.goto("/");
+    await page.locator("footer").getByRole("link", { name: "Ayuda" }).click();
+    await expect(page).toHaveURL(/\/ayuda/);
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Ayuda y Acerca de" })
+    ).toBeVisible();
+    await expect(page.getByText("Buscá por número, título o estado.")).toBeVisible();
+    await expect(page.getByText("¿Sos funcionario?")).toBeVisible();
+    await expect(page.getByText("¿Cómo busco una ley u ordenanza?")).toBeVisible();
+  });
 });

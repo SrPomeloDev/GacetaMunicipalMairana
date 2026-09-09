@@ -148,6 +148,10 @@ export default function Footer() {
             <span className="ml-1 block font-medium text-foreground sm:inline">
               &ldquo;Capital Tabacalera de Bolivia&rdquo;
             </span>
+            <span className="mx-1 opacity-50">•</span>
+            <Link href="/ayuda" className="underline-offset-4 hover:text-primary hover:underline">
+              Ayuda
+            </Link>
           </p>
           <div className="flex items-center gap-2 rounded-full border border-primary/20 bg-card px-3 py-1.5 shadow-sm">
             <FileCheck2 className="h-4 w-4 text-emerald-600" />

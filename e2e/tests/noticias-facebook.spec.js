@@ -115,6 +115,36 @@ test.describe("Noticias de Facebook (admin + público)", () => {
     await expect(page.getByText("No se pudo obtener la URL directa")).toBeVisible();
   });
 
+  test("solo link sin imagen ni resumen muestra tarjeta Facebook", async ({ page }) => {
+    const titulo = `SoloLink E2E ${TS}`;
+    await page.goto("/admin/noticias/nueva");
+    await page.fill('input[name="titulo"]', titulo);
+    await page.getByPlaceholder("https://www.facebook.com/.../posts/...").fill(FB_URL);
+    await page.getByRole("button", { name: "Crear Noticia" }).click();
+    await page.waitForURL("**/admin/noticias");
+
+    await page.getByPlaceholder("Buscar noticia...").fill(titulo);
+    const row = page.locator("tbody tr", { hasText: titulo });
+    await expect(row).toHaveCount(1);
+    await row.getByRole("button", { name: "Borrador" }).click();
+    await expect(row.getByRole("button", { name: "Publicada" })).toBeVisible();
+
+    await page.goto("/noticias");
+    const card = page.locator("div", { hasText: titulo }).filter({ hasText: "Publicación de Facebook" }).first();
+    await expect(card).toBeVisible();
+
+    await page.getByRole("heading", { name: titulo }).click();
+    await expect(page).toHaveURL(/\/noticias\/.+/);
+    await expect(page.locator('iframe[title^="Publicación de Facebook"]')).toBeVisible();
+    await expect(page.getByText("Imagen destacada")).toHaveCount(0);
+
+    await page.goto("/admin/noticias");
+    await page.getByPlaceholder("Buscar noticia...").fill(titulo);
+    await page.locator("tbody tr", { hasText: titulo }).getByRole("button", { name: "Eliminar" }).click();
+    await confirmarEliminacion(page, "Eliminar noticia");
+    await expect(page.locator("tbody tr", { hasText: titulo })).toHaveCount(0);
+  });
+
   test.afterAll(async ({ browser }) => {
     const ctx = await browser.newContext({ baseURL: "http://localhost:3100" });
     const page = await ctx.newPage();

@@ -6,7 +6,7 @@ import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { NAV_LINKS, isGacetaPath, MAIRANA } from "@/lib/constants"
-import { Menu, X, ShieldCheck, Phone, Clock, Lock, Sun, Moon, ScrollText, MessageCircle } from "@/lib/icons"
+import { Menu, X, ShieldCheck, Phone, Clock, Lock, Sun, Moon, ScrollText, MessageCircle, Headset } from "@/lib/icons"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "@/components/theme-provider"
 
@@ -141,6 +141,15 @@ export default function Header() {
               <Moon className="h-5 w-5 transition-transform duration-500 hover:-rotate-90 dark:hidden" />
             </Button>
 
+            <Link
+              href="/ayuda"
+              aria-label="Ayuda"
+              title="Ayuda"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+            >
+              <Headset className="h-5 w-5" />
+            </Link>
+
             <Button
               variant="ghost"
               size="icon"
@@ -199,6 +208,15 @@ export default function Header() {
               <Button variant="outline" className="w-full justify-center text-xs">
                 <MessageCircle className="h-3.5 w-3.5" /> Consulta
               </Button>
+            </Link>
+          </div>
+          <div className="px-4 pb-4 text-center">
+            <Link
+              href="/ayuda"
+              onClick={() => setMobileOpen(false)}
+              className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-primary hover:underline"
+            >
+              ¿Necesitás ayuda?
             </Link>
           </div>
         </div>

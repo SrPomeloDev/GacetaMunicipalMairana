@@ -25,6 +25,6 @@ module.exports = defineConfig({
     { name: "unauthenticated", testMatch: /(portal|auth|theme|share-buttons|transparencia-filter|login-redirect)\.spec\.js/ },
     { name: "admin", testMatch: /(admin-sesion|permisos-admin|normativa-crud|noticias-crud|noticias-facebook|autoridades-crud|tramites-crud|galeria-crud|transparencia-crud|contrataciones-crud|categorias-crud|dependencias-crud|concejo-crud|configuracion|usuarios-crud|mensajes|suscripciones|perfil|admin-filters)\.spec\.js/ },
     { name: "editor", testMatch: /permisos-editor\.spec\.js/ },
-    { name: "mobile", testMatch: /(mobile|admin-overflow)\.spec\.js/, use: { ...devices["Pixel 5"] } },
+    { name: "mobile", testMatch: /(mobile|admin-overflow|public-overflow)\.spec\.js/, use: { ...devices["Pixel 5"] } },
   ],
 });

@@ -143,6 +143,15 @@ export default function NoticiasPage() {
                       fetchPriority={idx === 0 ? "high" : undefined}
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
+                  ) : item.facebook_url ? (
+                    <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[#1877F2]">
+                      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-2xl font-extrabold text-[#1877F2]">
+                        f
+                      </span>
+                      <span className="text-xs font-semibold uppercase tracking-wider text-white/90">
+                        Publicación de Facebook
+                      </span>
+                    </div>
                   ) : (
                     <ImageIcon className="h-10 w-10 text-muted-foreground/50" />
                   )}

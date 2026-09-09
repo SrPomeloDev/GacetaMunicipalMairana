@@ -13,7 +13,7 @@ import { RichTextEditor } from "@/components/admin/rich-text-editor"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/lib/supabase/client"
-import { slugify, esUrlFacebook } from "@/lib/utils"
+import { slugify, esUrlFacebook, esUrlFacebookCanonico } from "@/lib/utils"
 import { ArrowLeft } from "lucide-react"
 import type { Noticia } from "@/types"
 
@@ -47,6 +47,7 @@ export default function NoticiaFormPage() {
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(!isNew)
   const [slugTouched, setSlugTouched] = useState(false)
+  const [verificandoFb, setVerificandoFb] = useState(false)
   const [tab, setTab] = useState<"editar" | "vista">("editar")
 
   useEffect(() => {
@@ -91,14 +92,46 @@ export default function NoticiaFormPage() {
     })
   }
 
+  const handleVerificarFb = async () => {
+    const raw = formData.facebook_url.trim()
+    if (!raw) {
+      addToast("Pegá primero el enlace de Facebook", "error")
+      return
+    }
+    setVerificandoFb(true)
+    try {
+      const res = await fetch(`/api/admin/facebook/resolver?url=${encodeURIComponent(raw)}`)
+      const data = await res.json()
+      if (!res.ok) {
+        addToast(data.error || "No se pudo verificar el enlace", "error")
+        return
+      }
+      setFormData((prev) => ({
+        ...prev,
+        facebook_url: data.url,
+        titulo: prev.titulo.trim() ? prev.titulo : (data.titulo || prev.titulo),
+      }))
+      addToast("Enlace verificado", "success")
+    } catch {
+      addToast("No se pudo verificar el enlace", "error")
+    } finally {
+      setVerificandoFb(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.titulo.trim()) {
       addToast("El título es obligatorio", "error")
       return
     }
-    if (formData.facebook_url.trim() && !esUrlFacebook(formData.facebook_url)) {
+    const fbUrl = formData.facebook_url.trim()
+    if (fbUrl && !esUrlFacebook(fbUrl)) {
       addToast("El enlace de Facebook no es válido (debe ser una URL de facebook.com)", "error")
+      return
+    }
+    if (fbUrl && !esUrlFacebookCanonico(fbUrl)) {
+      addToast("Usá el botón Verificar para convertir el enlace en la URL directa del post", "error")
       return
     }
     setSubmitting(true)
@@ -193,8 +226,13 @@ export default function NoticiaFormPage() {
             </div>
             <div className="space-y-2">
               <Label>Enlace de Facebook (opcional)</Label>
-              <Input name="facebook_url" value={formData.facebook_url} onChange={handleChange} placeholder="https://www.facebook.com/.../posts/..." />
-              <p className="text-xs text-muted-foreground">Pegá el enlace de la publicación. Se mostrará incrustada en la web (el post debe ser público).</p>
+              <div className="flex gap-2">
+                <Input name="facebook_url" value={formData.facebook_url} onChange={handleChange} placeholder="https://www.facebook.com/.../posts/..." className="flex-1" />
+                <Button type="button" variant="outline" onClick={handleVerificarFb} loading={verificandoFb}>
+                  Verificar
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">Acepta links para compartir: se convierten solos a la URL directa. El post debe ser público.</p>
               {formData.facebook_url.trim() && esUrlFacebook(formData.facebook_url) && (
                 <div className="overflow-hidden rounded-xl border border-border/60 bg-muted/30 p-3">
                   <p className="mb-2 text-xs font-medium text-muted-foreground">Vista previa</p>

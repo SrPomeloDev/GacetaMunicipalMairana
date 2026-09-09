@@ -58,6 +58,24 @@ export function esUrlFacebook(url: string): boolean {
   return /^https?:\/\/(www\.|m\.)?(facebook\.com|fb\.watch)\/.+/i.test(url.trim())
 }
 
+const FB_HOSTS = new Set([
+  "facebook.com",
+  "www.facebook.com",
+  "m.facebook.com",
+  "fb.watch",
+  "www.fb.watch",
+])
+
+export function esUrlFacebookCanonico(url: string): boolean {
+  try {
+    const u = new URL(url.trim())
+    if (!FB_HOSTS.has(u.hostname.toLowerCase())) return false
+    return /\/(posts|videos|photos|reel)\/|watch\?/i.test(u.pathname + u.search)
+  } catch {
+    return false
+  }
+}
+
 export function absoluteUrl(path: string): string {
   return `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}${path}`
 }

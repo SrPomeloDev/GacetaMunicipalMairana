@@ -64,6 +64,57 @@ test.describe("Noticias de Facebook (admin + público)", () => {
     await expect(page.locator("tbody tr", { hasText: TITULO })).toHaveCount(0);
   });
 
+  test("verificar convierte un link para compartir y autocompleta el título", async ({ page }) => {
+    const TITULO_AUTO = `PaginaFb E2E ${TS}`;
+    const CANONICA = "https://www.facebook.com/gammariana/posts/999";
+    await page.route("**/api/admin/facebook/resolver**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true, url: CANONICA, titulo: TITULO_AUTO }),
+      });
+    });
+    await page.goto("/admin/noticias/nueva");
+    await page.getByPlaceholder("https://www.facebook.com/.../posts/...").fill(
+      "https://www.facebook.com/share/p/1YmJYTzDXz/"
+    );
+    await page.getByRole("button", { name: "Verificar" }).click();
+    await expect(page.getByText("Enlace verificado")).toBeVisible();
+    await expect(page.locator('input[name="facebook_url"]')).toHaveValue(CANONICA);
+    await expect(page.locator('input[name="titulo"]')).toHaveValue(TITULO_AUTO);
+    await expect(
+      page.locator('iframe[title="Vista previa de la publicación de Facebook"]')
+    ).toHaveAttribute(
+      "src",
+      `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(CANONICA)}&show_text=true&width=500`
+    );
+
+    await page.getByRole("button", { name: "Crear Noticia" }).click();
+    await page.waitForURL("**/admin/noticias");
+    await page.getByPlaceholder("Buscar noticia...").fill(TITULO_AUTO);
+    const row = page.locator("tbody tr", { hasText: TITULO_AUTO });
+    await expect(row).toHaveCount(1);
+    await row.getByRole("button", { name: "Eliminar" }).click();
+    await confirmarEliminacion(page, "Eliminar noticia");
+    await expect(page.locator("tbody tr", { hasText: TITULO_AUTO })).toHaveCount(0);
+  });
+
+  test("verificar avisa cuando el link no se puede incrustar", async ({ page }) => {
+    await page.route("**/api/admin/facebook/resolver**", async (route) => {
+      await route.fulfill({
+        status: 422,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "No se pudo obtener la URL directa del post." }),
+      });
+    });
+    await page.goto("/admin/noticias/nueva");
+    await page.getByPlaceholder("https://www.facebook.com/.../posts/...").fill(
+      "https://www.facebook.com/share/p/xxxx/"
+    );
+    await page.getByRole("button", { name: "Verificar" }).click();
+    await expect(page.getByText("No se pudo obtener la URL directa")).toBeVisible();
+  });
+
   test.afterAll(async ({ browser }) => {
     const ctx = await browser.newContext({ baseURL: "http://localhost:3100" });
     const page = await ctx.newPage();

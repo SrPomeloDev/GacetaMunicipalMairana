@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
+import { noticiaUpdateSchema } from "@/lib/validations/noticias"
 
 export async function PUT(
   request: Request,
@@ -18,13 +19,14 @@ export async function PUT(
   }
 
   const body = await request.json()
-
-  const { autor_id: _autor, ...datosEditables } = body
-  void _autor
+  const parsed = noticiaUpdateSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
+  }
 
   const { data, error } = await permiso.supabase
     .from("noticias")
-    .update(datosEditables)
+    .update(parsed.data as never)
     .eq("id", id)
     .select()
     .single()

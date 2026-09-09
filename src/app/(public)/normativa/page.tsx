@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { NormativaCard } from "@/components/normativa/normativa-card"
 import PageHeader from "@/components/layout/page-header"
 import { Reveal } from "@/components/ui/reveal"
-import { SlidersHorizontal, X, Filter, FileText, Landmark } from "lucide-react"
+import { SlidersHorizontal, X, Filter, FileText, Landmark } from "@/lib/icons"
 import { useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import type { Normativa, CategoriaNormativa } from "@/types"
@@ -62,6 +62,7 @@ function NormativaContent() {
       setError(normativaRes.error.message)
     } else {
       setNormativas(normativaRes.data || [])
+      setError(null)
     }
     if (catRes.error) {
       setError(catRes.error.message)
@@ -122,7 +123,7 @@ function NormativaContent() {
         if (!match) return false
       }
       if (categoria) {
-        const cat = catById[item.categoria_id]
+        const cat = catById[item.categoria_id ?? '']
         if (!cat || cat.slug !== categoria) return false
       }
       if (estado && item.estado !== estado) return false
@@ -201,7 +202,7 @@ function NormativaContent() {
                   <input
                     type="date"
                     value={fechaDesde}
-                    onChange={(e) => setFechaDesde(e.target.value)}
+                    onChange={(e) => { setFechaDesde(e.target.value); setCurrentPage(1) }}
                     className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
                 </div>
@@ -210,7 +211,7 @@ function NormativaContent() {
                   <input
                     type="date"
                     value={fechaHasta}
-                    onChange={(e) => setFechaHasta(e.target.value)}
+                    onChange={(e) => { setFechaHasta(e.target.value); setCurrentPage(1) }}
                     className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
                 </div>
@@ -283,10 +284,10 @@ function NormativaContent() {
           </Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
-            {pageItems.map((item, i) => {
-              const cat = catById[item.categoria_id]
+            {pageItems.map((item) => {
+              const cat = catById[item.categoria_id ?? '']
               return (
-                <Reveal key={item.id} delay={(i % 2) * 90}>
+                <Reveal key={item.id}>
                   <NormativaCard
                     normativa={{
                       numero: item.numero,

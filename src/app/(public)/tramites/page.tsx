@@ -6,13 +6,15 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import PageHeader from "@/components/layout/page-header"
-import { CheckCircle, Clock, DollarSign, Download, ClipboardList, FileCheck2 } from "lucide-react"
+import { IconBox } from "@/components/ui/icon-box"
+import { CheckCircle, Clock, DollarSign, Download, ClipboardList, FileCheck2 } from "@/lib/icons"
 import { createClient } from "@/lib/supabase/client"
 import type { Tramite } from "@/types"
 
 export default function TramitesPage() {
   const [tramites, setTramites] = useState<Tramite[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
 
   const fetchTramites = useCallback(async () => {
@@ -21,7 +23,12 @@ export default function TramitesPage() {
       .select("*")
       .eq("activo", true)
       .order("created_at")
-    if (!error && data) setTramites(data)
+    if (error) {
+      setError(error.message)
+    } else {
+      setTramites(data || [])
+      setError(null)
+    }
     setLoading(false)
   }, [supabase])
 
@@ -62,6 +69,12 @@ export default function TramitesPage() {
             </Card>
           ))}
         </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
+          <ClipboardList className="h-12 w-12 text-muted-foreground/50 mb-3" />
+          <p className="text-lg font-medium text-foreground">Error al cargar</p>
+          <p className="text-sm text-muted-foreground mt-1">{error}</p>
+        </div>
       ) : tramites.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
           <ClipboardList className="h-12 w-12 text-muted-foreground/50 mb-3" />
@@ -71,12 +84,12 @@ export default function TramitesPage() {
       ) : (
         <div className="space-y-6">
           {tramites.map((tramite) => (
-            <Card key={tramite.id} className="transition-all hover:shadow-md">
+            <Card key={tramite.id} className="group transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary-foreground">
+                  <IconBox size="lg" className="rounded-xl transition-transform duration-300 group-hover:scale-110 group-hover:shadow-sm">
                     <ClipboardList className="h-6 w-6" />
-                  </div>
+                  </IconBox>
                   <div className="flex-1 min-w-0">
                     <Link href={`/tramites/${tramite.slug}`}>
                       <h3 className="text-xl font-semibold text-card-foreground hover:text-primary transition-colors">{tramite.titulo}</h3>
@@ -85,7 +98,7 @@ export default function TramitesPage() {
                       <p className="mt-2 text-muted-foreground leading-relaxed">{tramite.descripcion}</p>
                     )}
 
-                    {tramite.requisitos.length > 0 && (
+                    {(tramite.requisitos?.length ?? 0) > 0 && (
                       <div className="mt-4">
                         <p className="mb-2 text-sm font-medium text-foreground flex items-center gap-2">
                           <CheckCircle className="h-4 w-4 text-primary" />

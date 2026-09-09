@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import PageHeader from "@/components/layout/page-header"
-import { MapPin, Phone, Mail, Clock, Send, MessageSquare, Headset, Loader2, ShieldAlert, AlertTriangle } from "lucide-react"
+import { IconBox } from "@/components/ui/icon-box"
+import { Loader2 } from "lucide-react"
+import { MapPin, Phone, Mail, Clock, Send, MessageSquare, Headset, ShieldAlert, AlertTriangle } from "@/lib/icons"
 
 const contactInfo = [
   { icon: MapPin, label: "Dirección", value: `${MAIRANA.direccion}, ${MAIRANA.nombre}, ${MAIRANA.provincia}, ${MAIRANA.departamento}` },
@@ -93,9 +95,9 @@ export default function ContactoPage() {
                 const Icon = item.icon
                 return (
                   <div key={item.label} className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary-foreground">
+                    <IconBox size="md">
                       <Icon className="h-5 w-5" />
-                    </div>
+                    </IconBox>
                     <div>
                       <p className="text-sm font-medium text-foreground">{item.label}</p>
                       <p className="text-sm text-muted-foreground mt-0.5">{item.value}</p>
@@ -139,9 +141,9 @@ export default function ContactoPage() {
 
             {submitted ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary-foreground mb-4">
+                <IconBox size="xl" shape="full" className="mb-4">
                   <Send className="h-8 w-8" />
-                </div>
+                </IconBox>
                 <h3 className="text-lg font-semibold text-foreground">{esDenuncia ? "Denuncia Recibida" : "Mensaje Enviado"}</h3>
                 <p className="text-sm text-muted-foreground mt-2">
                   {esDenuncia ? "Gracias por tu confianza. Tu denuncia será evaluada por el personal correspondiente." : "Gracias por contactarnos. Te responderemos a la brevedad."}

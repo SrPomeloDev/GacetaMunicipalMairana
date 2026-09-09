@@ -45,7 +45,13 @@ export async function PATCH(
   const update: Record<string, unknown> = {}
   if (body.autoridad_id !== undefined) update.autoridad_id = body.autoridad_id
   if (body.comision !== undefined) update.comision = body.comision
-  if (body.cargo_comision !== undefined) update.cargo_comision = body.cargo_comision
+  if (body.cargo_comision !== undefined) {
+    const cargo = typeof body.cargo_comision === "string" ? body.cargo_comision.trim().toLowerCase() : ""
+    if (!["presidente", "secretario", "vocal", "miembro"].includes(cargo)) {
+      return NextResponse.json({ error: "Cargo inválido: debe ser Presidente, Secretario, Vocal o Miembro" }, { status: 400 })
+    }
+    update.cargo_comision = cargo
+  }
 
   const { data, error } = await admin
     .from("concejales_comisiones")

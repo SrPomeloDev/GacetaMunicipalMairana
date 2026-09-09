@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import PageHeader from "@/components/layout/page-header"
+import { IconBox } from "@/components/ui/icon-box"
 import { createClient } from "@/lib/supabase/client"
-import { Phone, Mail, Building2, Target, FileText, ChevronRight, Landmark } from "lucide-react"
+import { Phone, Mail, Building2, Target, FileText, ChevronRight, Landmark } from "@/lib/icons"
 
 interface AutoridadEjecutiva {
   id: string
@@ -33,17 +34,26 @@ export default function OrganoEjecutivoPage() {
   const [secretarias, setSecretarias] = useState<DependenciaEjecutiva[]>([])
   const [directores, setDirectores] = useState<AutoridadEjecutiva[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const cargar = useCallback(async () => {
     const [autoridades, dependencias] = await Promise.all([
       supabase.from("autoridades").select("*").eq("activo", true).order("orden"),
       supabase.from("dependencias").select("*").order("orden"),
     ])
+    const firstError = autoridades.error || dependencias.error
+    if (firstError) {
+      setError(firstError.message)
+    } else {
+      setError(null)
+    }
     const autoridadesData = (autoridades.data || []) as AutoridadEjecutiva[]
     const dependenciasData = (dependencias.data || []) as DependenciaEjecutiva[]
     setAlcalde(autoridadesData.find((a) => a.cargo.toLowerCase().includes("alcalde")) || null)
     setSecretarias(dependenciasData)
-    setDirectores(autoridadesData.filter((a) => !a.cargo.toLowerCase().includes("alcalde") && !a.cargo.toLowerCase().includes("concejal")))
+    const isConcejo = (cargo: string) =>
+      cargo.toLowerCase().includes("concejo") || cargo.toLowerCase().includes("concejal")
+    setDirectores(autoridadesData.filter((a) => !a.cargo.toLowerCase().includes("alcalde") && !isConcejo(a.cargo)))
     setLoading(false)
   }, [supabase])
 
@@ -72,9 +82,15 @@ export default function OrganoEjecutivoPage() {
             <Skeleton className="h-48 w-full" />
             <div className="grid gap-6 lg:grid-cols-2">{Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-64 w-full" />)}</div>
           </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
+            <Landmark className="h-12 w-12 text-muted-foreground/50 mb-3" />
+            <p className="text-lg font-medium text-foreground">Error al cargar</p>
+            <p className="mt-1 text-sm text-muted-foreground">{error}</p>
+          </div>
         ) : (
           <>
-            <Card className="mb-10 overflow-hidden border-primary/20 transition-all hover:shadow-lg">
+            <Card className="mb-10 overflow-hidden border-primary/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted">
               <div className="h-3 bg-gradient-to-r from-primary via-primary/80 to-primary/60" />
               <CardContent className="p-8">
                 <div className="flex flex-col items-center text-center lg:flex-row lg:text-left lg:items-start lg:gap-8">
@@ -129,12 +145,12 @@ export default function OrganoEjecutivoPage() {
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {secretarias.map((sec) => (
-                    <Card key={sec.id} className="group transition-all hover:shadow-md">
+                    <Card key={sec.id} className="group transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted">
                       <CardContent className="p-5">
                         <div className="flex items-start gap-4">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary-foreground">
+                          <IconBox size="md" className="transition-transform duration-300 group-hover:scale-110 group-hover:shadow-sm">
                             <Building2 className="h-5 w-5" />
-                          </div>
+                          </IconBox>
                           <div className="flex-1 min-w-0">
                             <h3 className="font-semibold text-card-foreground group-hover:text-primary transition-colors">{sec.nombre}</h3>
                             {sec.descripcion && <p className="mt-1 text-xs text-muted-foreground">{sec.descripcion}</p>}
@@ -158,7 +174,7 @@ export default function OrganoEjecutivoPage() {
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {directores.map((dir) => (
-                    <Card key={dir.id} className="transition-all hover:shadow-md">
+                     <Card key={dir.id} className="transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted">
                       <CardContent className="p-5">
                         <h3 className="font-semibold text-card-foreground">{dir.nombre_completo}</h3>
                         <p className="text-sm text-muted-foreground">{dir.cargo}</p>

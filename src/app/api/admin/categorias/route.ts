@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { requireVerModulo, requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { slugify } from "@/lib/utils"
+import { categoriaInsertSchema } from "@/lib/validations/categorias"
 
 export async function GET() {
   let permiso: PermisosUsuario | null
@@ -27,18 +28,22 @@ export async function POST(request: Request) {
   if (!permiso) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
 
   const body = await request.json()
+  const parsed = categoriaInsertSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
+  }
   const admin = createAdminClient()
 
   const { data, error } = await admin
     .from("categorias_normativa")
     .insert({
-      nombre: body.nombre,
-      slug: body.slug || slugify(body.nombre),
-      descripcion: body.descripcion || null,
-      color: body.color || "orange",
-      icono: body.icono || null,
-      orden: Number(body.orden ?? 0),
-    })
+      nombre: parsed.data.nombre,
+      slug: parsed.data.slug || slugify(parsed.data.nombre),
+      descripcion: parsed.data.descripcion ?? null,
+      color: parsed.data.color || "orange",
+      icono: parsed.data.icono ?? null,
+      orden: Number(parsed.data.orden ?? 0),
+    } as never)
     .select()
     .single()
 

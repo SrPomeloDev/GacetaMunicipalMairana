@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Mail, Lock, User, LogIn, Loader2, ShieldCheck, ArrowLeft, Landmark, MapPin } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 const REGISTRO_HABILITADO = false
 
@@ -30,7 +31,11 @@ function LoginContent() {
     if (mode === "login") {
       const { error: err } = await supabase.auth.signInWithPassword({ email, password })
       if (err) { setError("Credenciales inválidas"); setLoading(false); return }
-      router.push("/admin/dashboard")
+      const redirect = searchParams.get("redirect")
+      const destino = redirect && redirect.startsWith("/admin") && !redirect.startsWith("//")
+        ? redirect
+        : "/admin/dashboard"
+      router.push(destino)
       router.refresh()
     } else {
       if (password.length < 6) { setError("Mínimo 6 caracteres"); setLoading(false); return }
@@ -54,13 +59,13 @@ function LoginContent() {
 
       <div className="relative grid w-full max-w-4xl overflow-hidden rounded-3xl liquid-glass shadow-2xl shadow-primary/10 lg:grid-cols-5">
         <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-primary via-[#C7500B] to-[#8F3A08] p-10 text-primary-foreground lg:col-span-2 lg:flex">
-          <img src="/images/plaza.jpg" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover opacity-20" />
+          <Image src="/images/plaza.jpg" alt="" aria-hidden fill sizes="33vw" className="object-cover opacity-20" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#7A2F06]/90 via-[#A8440B]/60 to-transparent" aria-hidden />
 
           <div className="relative">
             <div className="mb-8 flex items-center gap-3">
               <div className="h-14 w-14 rounded-2xl bg-white p-1 shadow-lg">
-                <img src="/images/escudo-mairana.jpg" alt="Escudo de Mairana" className="h-full w-full rounded-xl object-contain" />
+                <Image src="/images/escudo-mairana.jpg" alt="Escudo de Mairana" width={48} height={48} className="h-full w-full rounded-xl object-contain" />
               </div>
               <div>
                 <p className="font-serif text-xl font-extrabold leading-tight">Gaceta Municipal</p>
@@ -77,9 +82,11 @@ function LoginContent() {
 
             <div className="mt-8 space-y-3 text-xs text-white/85">
               <div className="flex items-center gap-2.5 rounded-xl bg-white/10 px-3.5 py-2.5 backdrop-blur-sm">
-                <img
+                <Image
                   src="/images/transparencia-ley341.png"
                   alt="Logo Transparencia Ley 341"
+                  width={24}
+                  height={24}
                   className="h-6 w-6 shrink-0 rounded bg-white/95 object-contain p-0.5"
                 />
                 Ley N° 482 y Ley N° 341 de Control Social
@@ -111,9 +118,11 @@ function LoginContent() {
 
           <div className="mb-6 text-center lg:text-left">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white p-1 shadow-md ring-4 ring-primary/10 lg:mx-0">
-              <img
+              <Image
                 src="/images/escudo-mairana.jpg"
                 alt="Escudo de Mairana"
+                width={56}
+                height={56}
                 className="h-full w-full rounded-xl object-contain"
               />
             </div>
@@ -123,7 +132,7 @@ function LoginContent() {
             <p className="mt-1 text-sm text-muted-foreground">
               {mode === "login" ? "Panel de administración de la Gaceta Municipal" : "Registrate para gestionar la Gaceta"}
             </p>
-            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
+            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground">
               <ShieldCheck className="h-3 w-3" />
               Acceso restringido a funcionarios
             </div>

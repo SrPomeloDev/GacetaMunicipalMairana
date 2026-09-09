@@ -90,16 +90,17 @@ function ToastProvider({ children }: ToastProviderProps) {
   )
 
   React.useEffect(() => {
+    const timers = timersRef.current
     return () => {
-      timersRef.current.forEach((timer) => clearTimeout(timer))
-      timersRef.current.clear()
+      timers.forEach((timer) => clearTimeout(timer))
+      timers.clear()
     }
   }, [])
 
   return (
     <ToastContext.Provider value={{ addToast, removeToast }}>
       {children}
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
+      <div className="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex flex-col gap-2 sm:left-auto sm:w-96">
         {toasts.map((toast) => (
           <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
         ))}

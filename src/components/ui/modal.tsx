@@ -46,7 +46,7 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
     if (!open) return null
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4">
         <div
           className="fixed inset-0 bg-black/60 animate-in fade-in duration-200"
           onClick={onClose}
@@ -56,7 +56,7 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
           className={cn(
             "relative z-50 w-full rounded-2xl border border-border/60 bg-background p-6 shadow-2xl",
             "animate-in zoom-in-95 fade-in duration-200",
-            "mx-4",
+            "mx-4 my-auto max-h-[calc(100dvh-2rem)] overflow-y-auto",
             sizeClasses[size],
             className
           )}

@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Select } from "@/components/ui/select"
 import { FileUpload } from "@/components/admin/file-upload"
 import { useToast } from "@/components/ui/toast"
-import { createClient } from "@/lib/supabase/client"
+import type { Transparencia } from "@/types"
 import { ArrowLeft, Save } from "lucide-react"
 
 const CATEGORIAS_OPTIONS = [
@@ -29,7 +29,6 @@ const CATEGORIAS_OPTIONS = [
 export default function NuevoDocumentoPage() {
   const router = useRouter()
   const { addToast } = useToast()
-  const supabase = createClient()
 
   const [form, setForm] = useState({
     titulo: "",
@@ -49,16 +48,21 @@ export default function NuevoDocumentoPage() {
     }
     setSubmitting(true)
     try {
-      const { error } = await supabase.from("transparencia").insert({
-        titulo: form.titulo,
-        categoria: form.categoria,
-        descripcion: form.descripcion || null,
-        archivo_pdf: form.archivo_pdf,
-        fecha: form.fecha || new Date().toISOString().slice(0, 10),
-        publicada: form.publicada,
+      const res = await fetch("/api/admin/transparencia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo: form.titulo,
+          categoria: form.categoria as Transparencia["categoria"],
+          descripcion: form.descripcion || null,
+          archivo_pdf: form.archivo_pdf,
+          fecha: form.fecha || new Date().toISOString().slice(0, 10),
+          publicada: form.publicada,
+        }),
       })
-      if (error) {
-        addToast(error.message, "error")
+      const data = await res.json()
+      if (!res.ok) {
+        addToast(data.error || "Error al guardar", "error")
         return
       }
       addToast("Documento creado", "success")
@@ -72,8 +76,9 @@ export default function NuevoDocumentoPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/admin/transparencia">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4" />
+            Volver
           </Button>
         </Link>
         <div>
@@ -124,14 +129,14 @@ export default function NuevoDocumentoPage() {
               />
               <Label htmlFor="publicada" className="cursor-pointer">Publicada (visible al público)</Label>
             </div>
-            <div className="flex gap-4">
+            <div className="sticky bottom-0 -mx-6 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur">
+              <Link href="/admin/transparencia">
+                <Button type="button" variant="outline">Cancelar</Button>
+              </Link>
               <Button type="submit" loading={submitting}>
                 <Save className="mr-2 h-4 w-4" />
                 Guardar Documento
               </Button>
-              <Link href="/admin/transparencia">
-                <Button variant="outline" type="button">Cancelar</Button>
-              </Link>
             </div>
           </form>
         </CardContent>

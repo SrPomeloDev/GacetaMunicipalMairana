@@ -1,11 +1,13 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ConfirmDialog } from "@/components/admin/confirm-dialog"
+import { IconBox } from "@/components/ui/icon-box"
 import { useToast } from "@/components/ui/toast"
 import { formatDate } from "@/lib/utils"
 import { useCurrentUser, can } from "@/hooks/use-current-user"
@@ -51,11 +53,14 @@ interface Mensaje {
   created_at: string
 }
 
-export default function MensajesPage() {
+function MensajesContent() {
+  const searchParams = useSearchParams()
   const [mensajes, setMensajes] = useState<Mensaje[]>([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [filtro, setFiltro] = useState<"todos" | "no_leidos" | "denuncias" | "sin_responder">("todos")
+  const [filtro, setFiltro] = useState<"todos" | "no_leidos" | "denuncias" | "sin_responder">(
+    () => (searchParams.get("no_leidos") === "true" ? "no_leidos" : "todos")
+  )
   const [filtroEstado, setFiltroEstado] = useState<string>("")
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [respuestaDraft, setRespuestaDraft] = useState("")
@@ -271,9 +276,14 @@ export default function MensajesPage() {
                     <div className="pt-1" onClick={(e) => e.stopPropagation()}>
                       <Checkbox id={`sel-${m.id}`} checked={isSelected} onChange={() => toggleSelect(m.id)} />
                     </div>
-                    <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-full", m.categoria === "denuncia" ? "bg-destructive/10 text-destructive" : m.leido ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary-foreground")}>
+                    <IconBox
+                      size="md"
+                      shape="full"
+                      tone={m.categoria === "denuncia" ? "destructive" : m.leido ? "muted" : "primary"}
+                      className={m.categoria !== "denuncia" && m.leido ? "text-muted-foreground" : undefined}
+                    >
                       {m.categoria === "denuncia" ? <ShieldAlert className="h-5 w-5" /> : <User className="h-5 w-5" />}
-                    </div>
+                    </IconBox>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-foreground">{m.nombre}</span>
@@ -321,7 +331,7 @@ export default function MensajesPage() {
 
                     {m.respuesta && (
                       <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3">
-                        <p className="text-xs font-medium text-emerald-700 mb-1">Respuesta del equipo {m.respondido_en ? `(el ${formatDate(m.respondido_en, "short")})` : ""}</p>
+                        <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300 mb-1">Respuesta del equipo {m.respondido_en ? `(el ${formatDate(m.respondido_en, "short")})` : ""}</p>
                         <p className="text-sm text-foreground whitespace-pre-wrap">{m.respuesta}</p>
                       </div>
                     )}
@@ -380,5 +390,12 @@ export default function MensajesPage() {
         onCancel={() => { setDeleteTarget(null); setDeleteBulk(false) }}
       />
     </div>
+  )
+}
+export default function MensajesPage() {
+  return (
+    <Suspense fallback={<div className="space-y-4">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>}>
+      <MensajesContent />
+    </Suspense>
   )
 }

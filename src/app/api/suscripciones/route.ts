@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { checkRateLimit, getClientIp, rateLimitExceededResponse } from "@/lib/rate-limit"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(request: Request) {
+  const rl = checkRateLimit(`suscripciones:${getClientIp(request)}`, { limit: 10, windowMs: 60000 })
+  if (!rl.ok) return rateLimitExceededResponse(rl.retryAfter)
+
   const body = await request.json().catch(() => null)
   const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : ""
 
@@ -14,6 +18,13 @@ export async function POST(request: Request) {
   const categorias = Array.isArray(body?.categorias)
     ? body.categorias.filter((c: unknown) => typeof c === "string")
     : []
+
+  if (categorias.length > 10) {
+    return NextResponse.json({ error: "Máximo 10 categorías permitidas" }, { status: 400 })
+  }
+  if (categorias.some((c: string) => c.length > 40)) {
+    return NextResponse.json({ error: "Cada categoría no puede superar los 40 caracteres" }, { status: 400 })
+  }
 
   const admin = createAdminClient()
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { requireVerModulo, requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { contratacionUpdateSchema } from "@/lib/validations/contrataciones"
 
 export async function GET(
   _request: Request,
@@ -36,22 +37,26 @@ export async function PATCH(
   if (!permiso) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
 
   const body = await request.json()
+  const parsed = contratacionUpdateSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
+  }
   const admin = createAdminClient()
 
   const update: Record<string, unknown> = {}
-  if (body.titulo !== undefined) update.titulo = body.titulo
-  if (body.slug !== undefined) update.slug = body.slug
-  if (body.tipo !== undefined) update.tipo = body.tipo
-  if (body.modalidad !== undefined) update.modalidad = body.modalidad || null
-  if (body.objeto !== undefined) update.objeto = body.objeto || null
-  if (body.monto !== undefined) update.monto = body.monto ?? null
-  if (body.empresa_adjudicada !== undefined) update.empresa_adjudicada = body.empresa_adjudicada || null
-  if (body.fecha_publicacion !== undefined) update.fecha_publicacion = body.fecha_publicacion
-  if (body.fecha_presentacion !== undefined) update.fecha_presentacion = body.fecha_presentacion || null
-  if (body.fecha_adjudicacion !== undefined) update.fecha_adjudicacion = body.fecha_adjudicacion || null
-  if (body.archivo_pdf !== undefined) update.archivo_pdf = body.archivo_pdf || null
-  if (body.estado !== undefined) update.estado = body.estado
-  if (body.publicada !== undefined) update.publicada = body.publicada
+  if (parsed.data.titulo !== undefined) update.titulo = parsed.data.titulo
+  if (parsed.data.slug !== undefined) update.slug = parsed.data.slug
+  if (parsed.data.tipo !== undefined) update.tipo = parsed.data.tipo
+  if (parsed.data.modalidad !== undefined) update.modalidad = parsed.data.modalidad ?? null
+  if (parsed.data.objeto !== undefined) update.objeto = parsed.data.objeto ?? null
+  if (parsed.data.monto !== undefined) update.monto = parsed.data.monto ?? null
+  if (parsed.data.empresa_adjudicada !== undefined) update.empresa_adjudicada = parsed.data.empresa_adjudicada ?? null
+  if (parsed.data.fecha_publicacion !== undefined) update.fecha_publicacion = parsed.data.fecha_publicacion
+  if (parsed.data.fecha_presentacion !== undefined) update.fecha_presentacion = parsed.data.fecha_presentacion ?? null
+  if (parsed.data.fecha_adjudicacion !== undefined) update.fecha_adjudicacion = parsed.data.fecha_adjudicacion ?? null
+  if (parsed.data.archivo_pdf !== undefined) update.archivo_pdf = parsed.data.archivo_pdf ?? null
+  if (parsed.data.estado !== undefined) update.estado = parsed.data.estado
+  if (parsed.data.publicada !== undefined) update.publicada = parsed.data.publicada
 
   const { data, error } = await admin
     .from("contrataciones")

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { requireVerModulo, requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { slugify } from "@/lib/utils"
+import { dependenciaUpdateSchema } from "@/lib/validations/dependencias"
 
 export async function GET(
   _request: Request,
@@ -37,20 +38,24 @@ export async function PATCH(
   if (!permiso) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
 
   const body = await request.json()
+  const parsed = dependenciaUpdateSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
+  }
   const admin = createAdminClient()
 
   const update: Record<string, unknown> = {}
-  if (body.nombre !== undefined) {
-    update.nombre = body.nombre
-    if (body.slug === undefined) update.slug = slugify(body.nombre)
+  if (parsed.data.nombre !== undefined) {
+    update.nombre = parsed.data.nombre
+    if (parsed.data.slug === undefined) update.slug = slugify(parsed.data.nombre)
   }
-  if (body.slug !== undefined) update.slug = body.slug
-  if (body.tipo !== undefined) update.tipo = body.tipo
-  if (body.descripcion !== undefined) update.descripcion = body.descripcion || null
-  if (body.telefono !== undefined) update.telefono = body.telefono || null
-  if (body.correo !== undefined) update.correo = body.correo || null
-  if (body.horario !== undefined) update.horario = body.horario || null
-  if (body.orden !== undefined) update.orden = Number(body.orden ?? 0)
+  if (parsed.data.slug !== undefined) update.slug = parsed.data.slug
+  if (parsed.data.tipo !== undefined) update.tipo = parsed.data.tipo
+  if (parsed.data.descripcion !== undefined) update.descripcion = parsed.data.descripcion ?? null
+  if (parsed.data.telefono !== undefined) update.telefono = parsed.data.telefono ?? null
+  if (parsed.data.correo !== undefined) update.correo = parsed.data.correo ?? null
+  if (parsed.data.horario !== undefined) update.horario = parsed.data.horario ?? null
+  if (parsed.data.orden !== undefined) update.orden = Number(parsed.data.orden ?? 0)
 
   const { data, error } = await admin
     .from("dependencias")

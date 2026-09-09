@@ -5,7 +5,8 @@ import { cn, formatDate } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import PageHeader from "@/components/layout/page-header"
-import { Gavel, Download, Calendar, Search, FileText, BadgeCheck } from "lucide-react"
+import { IconBox } from "@/components/ui/icon-box"
+import { Gavel, Download, Calendar, Search, FileText, FileCheck2 } from "@/lib/icons"
 import type { Contratacion } from "@/types"
 
 const TIPO_LABEL: Record<string, string> = {
@@ -33,6 +34,7 @@ const ESTADO_COLOR: Record<string, string> = {
 export default function ContratacionesPublicPage() {
   const [contrataciones, setContrataciones] = useState<Contratacion[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [activeTipo, setActiveTipo] = useState("Todas")
   const [search, setSearch] = useState("")
 
@@ -40,6 +42,9 @@ export default function ContratacionesPublicPage() {
     const res = await fetch("/api/contrataciones")
     if (res.ok) {
       setContrataciones(await res.json())
+      setError(null)
+    } else {
+      setError("No se pudo cargar la información. Intentá nuevamente más tarde.")
     }
     setLoading(false)
   }, [])
@@ -76,7 +81,7 @@ export default function ContratacionesPublicPage() {
         icon={<Gavel className="hidden h-8 w-8 text-primary sm:block" />}
       >
         <div className="flex items-center gap-2 rounded-xl border border-primary/15 bg-card/80 px-4 py-2 backdrop-blur">
-          <BadgeCheck className="h-4 w-4 text-primary" />
+          <FileCheck2 className="h-4 w-4 text-primary" />
           <span className="text-2xl font-extrabold font-serif text-foreground">{contrataciones.length}</span>
           <span className="text-xs text-muted-foreground">convocatorias públicas</span>
         </div>
@@ -124,6 +129,12 @@ export default function ContratacionesPublicPage() {
               </Card>
             ))}
           </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 text-center">
+            <Gavel className="h-12 w-12 text-muted-foreground/50 mb-3" />
+            <p className="text-lg font-medium text-foreground">Error al cargar</p>
+            <p className="text-sm text-muted-foreground mt-1">{error}</p>
+          </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 text-center">
             <Gavel className="h-12 w-12 text-muted-foreground/50 mb-3" />
@@ -133,15 +144,15 @@ export default function ContratacionesPublicPage() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
             {filtered.map((c) => (
-              <Card key={c.id} className="group transition-all hover:shadow-md">
+               <Card key={c.id} className="group transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary-foreground">
+                    <IconBox size="md">
                       <FileText className="h-5 w-5" />
-                    </div>
+                    </IconBox>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-semibold text-card-foreground">{c.titulo}</h3>
+                        <h3 className="line-clamp-2 font-semibold text-card-foreground">{c.titulo}</h3>
                         {c.archivo_pdf && (
                           <a
                             href={c.archivo_pdf}

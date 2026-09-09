@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { usuarioCrearSchema } from "@/lib/validations/usuarios"
 
 export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient()
@@ -16,23 +17,23 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { nombre, email, password, rol: nuevoRol, dependencia_id } = body
-
-  if (!nombre || !email || !password || !nuevoRol) {
-    return NextResponse.json({ error: "Faltan campos obligatorios" }, { status: 400 })
+  const parsed = usuarioCrearSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
   }
+  const { nombre, email, password, rol: nuevoRol, dependencia_id } = parsed.data
 
   const admin = createAdminClient()
 
-  const { data: user, error: authError } = await admin.auth.admin.createUser({
+  const { data: { user }, error: authError } = await admin.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
     user_metadata: { nombre, rol: nuevoRol },
   })
 
-  if (authError) {
-    return NextResponse.json({ error: authError.message }, { status: 500 })
+  if (authError || !user) {
+    return NextResponse.json({ error: authError?.message ?? "No se pudo crear el usuario" }, { status: 500 })
   }
 
   const { error } = await admin
@@ -42,7 +43,8 @@ export async function POST(request: Request) {
       nombre,
       email,
       rol: nuevoRol,
-      dependencia_id: dependencia_id || null,
+      dependencia_id: dependencia_id ?? null,
+      activo: parsed.data.activo ?? true,
     })
     .select()
     .single()

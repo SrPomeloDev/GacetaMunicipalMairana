@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/admin/confirm-dialog"
 import { useToast } from "@/components/ui/toast"
 import { formatDate } from "@/lib/utils"
+import { Mail } from "lucide-react"
 import type { Column } from "@/components/ui/data-table"
 import type { Suscripcion } from "@/types"
 
@@ -18,6 +19,7 @@ export default function SuscripcionesPage() {
   const [search, setSearch] = useState("")
   const [selected, setSelected] = useState<string[]>([])
   const [deleteAll, setDeleteAll] = useState(false)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
   const { addToast } = useToast()
 
   const fetchSuscripciones = useCallback(async () => {
@@ -39,18 +41,24 @@ export default function SuscripcionesPage() {
   }, [fetchSuscripciones])
 
   const toggleActivo = async (s: Suscripcion) => {
-    const res = await fetch(`/api/admin/suscripciones/${s.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ activo: !s.activo }),
-    })
-    const data = await res.json()
-    if (!res.ok) {
-      addToast(data.error || "Error al actualizar", "error")
-      return
+    if (togglingId) return
+    setTogglingId(s.id)
+    try {
+      const res = await fetch(`/api/admin/suscripciones/${s.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ activo: !s.activo }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        addToast(data.error || "Error al actualizar", "error")
+        return
+      }
+      addToast(s.activo ? "Suscripción desactivada" : "Suscripción activada", "success")
+      fetchSuscripciones()
+    } finally {
+      setTogglingId(null)
     }
-    addToast(s.activo ? "Suscripción desactivada" : "Suscripción activada", "success")
-    fetchSuscripciones()
   }
 
   const handleDeleteSelected = async () => {
@@ -136,7 +144,7 @@ export default function SuscripcionesPage() {
       render: (_val, row) => {
         const s = row as Suscripcion
         return (
-          <Button variant="outline" size="sm" onClick={() => toggleActivo(s)}>
+          <Button variant="outline" size="sm" onClick={() => toggleActivo(s)} disabled={togglingId === s.id}>
             {s.activo ? "Desactivar" : "Activar"}
           </Button>
         )
@@ -169,6 +177,7 @@ export default function SuscripcionesPage() {
         </div>
       ) : suscripciones.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
+          <Mail className="h-12 w-12 text-muted-foreground/50 mb-3" />
           <p className="text-lg font-medium text-foreground">No hay suscripciones</p>
           <p className="mt-1 text-sm text-muted-foreground">Las personas que se suscriban desde la página pública aparecerán aquí.</p>
         </div>

@@ -2,18 +2,20 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { ADMIN_NAV, SITE_NAME, DEV_CREDIT } from "@/lib/constants"
+import { ADMIN_NAV, DEV_CREDIT } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
+import { IconBox } from "@/components/ui/icon-box"
 import { createClient } from "@/lib/supabase/client"
 import { useCurrentUser, rolLabel } from "@/hooks/use-current-user"
 import { canView } from "@/hooks/use-current-user"
 import {
   PanelLeftClose, PanelLeft, LogOut, X,
   LayoutDashboard, FileText, Newspaper, Users, Shield,
-  ClipboardList, Image, UserCog, Settings, Code2,
-  Building2, Tags, Landmark, Gavel, Mail, Inbox
+  ClipboardList, Image as ImageIcon, UserCog, Settings, Code2,
+  Building2, Tags, Landmark, Gavel, Mail, Inbox, ExternalLink
 } from "lucide-react"
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -23,7 +25,7 @@ const iconMap: Record<string, React.ReactNode> = {
   Users: <Users className="h-5 w-5" />,
   Shield: <Shield className="h-5 w-5" />,
   ClipboardList: <ClipboardList className="h-5 w-5" />,
-  Image: <Image className="h-5 w-5" />,
+  Image: <ImageIcon className="h-5 w-5" />,
   UserCog: <UserCog className="h-5 w-5" />,
   Settings: <Settings className="h-5 w-5" />,
   Building2: <Building2 className="h-5 w-5" />,
@@ -40,6 +42,23 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
   const router = useRouter()
   const supabase = createClient()
   const { user } = useCurrentUser()
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const client = createClient()
+        const { count, error } = await client
+          .from("contacto_mensajes")
+          .select("id", { count: "exact", head: true })
+          .eq("leido", false)
+        if (!error && typeof count === "number") setUnreadCount(count)
+      } catch {
+        setUnreadCount(0)
+      }
+    }
+    fetchUnread()
+  }, [])
 
   useEffect(() => {
     if (open) {
@@ -66,9 +85,11 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
       )}>
         {!collapsed && (
           <Link href="/admin/dashboard" className="flex items-center gap-2.5" onClick={onClose}>
-            <img
+            <Image
               src="/images/escudo-mairana.jpg"
               alt="Escudo de Mairana"
+              width={36}
+              height={36}
               className="h-9 w-9 rounded-lg bg-white object-contain p-0.5 shadow-sm ring-1 ring-border"
             />
             <div className="min-w-0 leading-tight">
@@ -122,10 +143,35 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
                 {iconMap[item.icon]}
               </span>
               {!collapsed && <span>{item.label}</span>}
+              {!collapsed && item.href === "/admin/mensajes" && unreadCount > 0 && (
+                <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">
+                  {unreadCount}
+                </span>
+              )}
             </Link>
           )
         })}
       </nav>
+
+      <div className="shrink-0 border-t border-sidebar-border p-2.5">
+        <Link
+          href="/"
+          target="_blank"
+          rel="noreferrer"
+          onClick={onClose}
+          title={collapsed ? "Ver sitio" : undefined}
+          className={cn(
+            "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
+            collapsed && "justify-center px-2",
+            "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          )}
+        >
+          <span className="shrink-0 text-muted-foreground transition-all group-hover:text-primary">
+            <ExternalLink className="h-5 w-5" />
+          </span>
+          {!collapsed && <span>Ver sitio</span>}
+        </Link>
+      </div>
 
       <div className={cn(
         "shrink-0 border-t border-sidebar-border p-3",
@@ -138,12 +184,12 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
               <img
                 src={user.avatar_url}
                 alt="Mi perfil"
-                className="h-9 w-9 rounded-full object-cover ring-2 ring-primary/30"
+                className="h-8 w-8 rounded-full object-cover ring-2 ring-primary/30"
               />
             ) : (
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-sm shadow-primary/25">
+              <IconBox size="sm" shape="full" className="text-xs font-bold shadow-sm shadow-primary/25">
                 {(user?.nombre || "U").charAt(0).toUpperCase()}
-              </div>
+              </IconBox>
             )}
           </Link>
           {!collapsed && (
@@ -194,7 +240,7 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
       <div
         className={cn(
           "fixed inset-0 z-40 lg:hidden",
-          open ? "pointer-events-auto" : "pointer-events-none"
+          open ? "pointer-events-auto" : "pointer-events-none hidden"
         )}
         aria-hidden={!open}
       >

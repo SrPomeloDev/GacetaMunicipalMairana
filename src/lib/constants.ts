@@ -40,11 +40,6 @@ export const NAV_LINKS = [
   { href: '/contacto', label: 'Contacto' },
 ]
 
-export const GACETA_NAV = [
-  { href: '/gaceta', label: 'Gaceta Oficial' },
-  { href: '/asistente', label: 'Asistente IA' },
-]
-
 export function isGacetaPath(pathname: string): boolean {
   return (
     pathname === '/gaceta' ||

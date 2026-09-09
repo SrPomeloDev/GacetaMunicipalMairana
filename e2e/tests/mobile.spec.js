@@ -6,17 +6,17 @@ test.describe("Móvil", () => {
     await loginAs(page, "admin");
   });
 
-  test("home muestra menú hamburguesa y navega a normativa", async ({ page }) => {
+  test("home muestra menú hamburguesa y navega a la Gaceta Oficial", async ({ page }) => {
     await page.goto("/");
     await expect(
-      page.getByRole("heading", { level: 1, name: "Gaceta Municipal Oficial" })
+      page.getByRole("heading", { level: 1, name: "Portal Municipal de Mairana" })
     ).toBeVisible();
     await page.getByRole("button", { name: "Abrir menú" }).click();
-    const drawerNav = page.locator("header div.liquid-glass.xl\\:hidden").getByRole("navigation");
-    await expect(drawerNav.getByRole("link", { name: "Normativa", exact: true })).toBeVisible();
-    await drawerNav.getByRole("link", { name: "Normativa", exact: true }).click();
+    const drawer = page.locator("#menu-movil");
+    await expect(drawer.getByRole("link", { name: "Gaceta Oficial" })).toBeVisible();
+    await drawer.getByRole("link", { name: "Gaceta Oficial" }).click();
     await expect(
-      page.getByRole("heading", { level: 1, name: "Normativa Municipal" })
+      page.getByRole("heading", { level: 1, name: "Gaceta Municipal Oficial" })
     ).toBeVisible();
   });
 

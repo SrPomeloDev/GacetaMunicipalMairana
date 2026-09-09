@@ -11,7 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileUpload } from "@/components/admin/file-upload"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
-import { createClient } from "@/lib/supabase/client"
+import { ArrowLeft } from "lucide-react"
+import type { Autoridad } from "@/types"
 
 const TIPOS_OPTIONS = [
   { value: "alcalde", label: "Alcalde" },
@@ -27,7 +28,6 @@ export default function AutoridadFormPage() {
   const router = useRouter()
   const isNew = params.id === "nueva"
   const { addToast } = useToast()
-  const supabase = createClient()
 
   const [dependencias, setDependencias] = useState<{ value: string; label: string }[]>([])
   const [formData, setFormData] = useState({
@@ -49,20 +49,22 @@ export default function AutoridadFormPage() {
 
   useEffect(() => {
     const init = async () => {
-      const [depRes, autoridadRes] = await Promise.all([
-        supabase.from("dependencias").select("id,nombre").order("orden"),
-        isNew
-          ? Promise.resolve({ data: null, error: null })
-          : supabase.from("autoridades").select("*").eq("id", params.id as string).single(),
-      ])
-      if (depRes.error) addToast(depRes.error.message, "error")
-      setDependencias((depRes.data || []).map((d) => ({ value: d.id, label: d.nombre })))
+      const depRes = await fetch("/api/admin/dependencias")
+      const depData = await depRes.json()
+      if (!depRes.ok) {
+        addToast(depData.error || "Error al cargar dependencias", "error")
+      }
+      setDependencias(((depRes.ok ? depData : []) || []).map((d: { id: string; nombre: string }) => ({ value: d.id, label: d.nombre })))
 
-      if (autoridadRes.error) {
-        addToast(autoridadRes.error.message, "error")
-        if (!isNew) router.push("/admin/autoridades")
-      } else if (autoridadRes.data) {
-        const a = autoridadRes.data
+      if (!isNew) {
+        const autRes = await fetch(`/api/admin/autoridades/${params.id}`)
+        const autData = await autRes.json()
+        if (!autRes.ok) {
+          addToast(autData.error || "Error al cargar", "error")
+          router.push("/admin/autoridades")
+          return
+        }
+        const a = autData
         setFormData({
           nombre_completo: a.nombre_completo,
           cargo: a.cargo,
@@ -81,7 +83,7 @@ export default function AutoridadFormPage() {
       setLoading(false)
     }
     init()
-  }, [isNew, params.id, supabase, router, addToast])
+  }, [isNew, params.id, router, addToast])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
@@ -100,7 +102,7 @@ export default function AutoridadFormPage() {
       const payload = {
         nombre_completo: formData.nombre_completo,
         cargo: formData.cargo,
-        tipo_autoridad: formData.tipo_autoridad,
+        tipo_autoridad: formData.tipo_autoridad as Autoridad["tipo_autoridad"],
         foto: formData.foto,
         biografia: formData.biografia || null,
         formacion: formData.formacion || null,
@@ -111,11 +113,14 @@ export default function AutoridadFormPage() {
         activo: formData.activo,
         orden: formData.orden ? Number(formData.orden) : 0,
       }
-      const { error } = isNew
-        ? await supabase.from("autoridades").insert(payload)
-        : await supabase.from("autoridades").update(payload).eq("id", params.id as string)
-      if (error) {
-        addToast(error.message, "error")
+      const res = await fetch(isNew ? "/api/admin/autoridades" : `/api/admin/autoridades/${params.id}`, {
+        method: isNew ? "POST" : "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        addToast(data.error || "Error al guardar", "error")
         return
       }
       addToast(isNew ? "Autoridad creada" : "Autoridad actualizada", "success")
@@ -131,11 +136,14 @@ export default function AutoridadFormPage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">{isNew ? "Nueva Autoridad" : "Editar Autoridad"}</h1>
+      <div className="flex flex-wrap items-center gap-3">
         <Link href="/admin/autoridades">
-          <Button variant="outline">Cancelar</Button>
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4" />
+            Volver
+          </Button>
         </Link>
+        <h1 className="text-2xl font-bold">{isNew ? "Nueva Autoridad" : "Editar Autoridad"}</h1>
       </div>
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
@@ -231,7 +239,7 @@ export default function AutoridadFormPage() {
             </div>
           </CardContent>
         </Card>
-        <div className="flex gap-4 justify-end">
+        <div className="sticky bottom-0 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur">
           <Link href="/admin/autoridades">
             <Button type="button" variant="outline">Cancelar</Button>
           </Link>

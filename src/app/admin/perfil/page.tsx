@@ -72,6 +72,7 @@ function PerfilForm({ user }: { user: CurrentUser }) {
         return
       }
       addToast("Perfil actualizado", "success")
+      window.dispatchEvent(new Event("perfil-actualizado"))
     } finally {
       setSaving(false)
     }
@@ -208,7 +209,7 @@ function PerfilForm({ user }: { user: CurrentUser }) {
                 className={cn(
                   "rounded-xl border p-4 text-left transition-all",
                   theme === t
-                    ? "border-primary bg-primary/10 ring-2 ring-primary/30"
+                    ? "border-primary bg-muted ring-2 ring-primary/30"
                     : "border-border hover:border-primary/40"
                 )}
               >

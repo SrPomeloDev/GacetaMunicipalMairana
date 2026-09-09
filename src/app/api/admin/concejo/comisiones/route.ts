@@ -31,12 +31,22 @@ export async function POST(request: Request) {
   const body = await request.json()
   const admin = createAdminClient()
 
+  const autoridad_id = typeof body.autoridad_id === "string" ? body.autoridad_id : ""
+  const comision = typeof body.comision === "string" ? body.comision.trim() : ""
+  const cargo = typeof body.cargo_comision === "string" ? body.cargo_comision.trim().toLowerCase() : ""
+  if (!autoridad_id || !comision) {
+    return NextResponse.json({ error: "El concejal y la comisión son obligatorios" }, { status: 400 })
+  }
+  if (!["presidente", "secretario", "vocal", "miembro"].includes(cargo)) {
+    return NextResponse.json({ error: "Cargo inválido: debe ser Presidente, Secretario, Vocal o Miembro" }, { status: 400 })
+  }
+
   const { data, error } = await admin
     .from("concejales_comisiones")
     .insert({
-      autoridad_id: body.autoridad_id,
-      comision: body.comision,
-      cargo_comision: body.cargo_comision,
+      autoridad_id,
+      comision,
+      cargo_comision: cargo,
     })
     .select()
     .single()

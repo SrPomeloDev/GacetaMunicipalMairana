@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import PageHeader from "@/components/layout/page-header"
-import { Send, Bot, User, Sparkles, MessageCircle, Search, ExternalLink } from "lucide-react"
+import { IconBox } from "@/components/ui/icon-box"
+import { Send, Bot, User, MessageCircle, Search, ExternalLink } from "@/lib/icons"
 
 interface Message {
   role: "user" | "bot"
@@ -22,7 +23,7 @@ const suggestedQuestions = [
 const initialMessages: Message[] = [
   {
     role: "bot",
-    content: "¡Hola! Soy el asistente virtual de la Gaceta Municipal de Mairana. ¿En qué puedo ayudarte? Puedes preguntarme sobre leyes, decretos, ordenanzas, trámites y transparencia.",
+    content: "Hola. Puedo orientarte sobre la Gaceta Municipal de Mairana: leyes, decretos, ordenanzas, trámites y transparencia. Escribí tu consulta o elegí una de las sugerencias.",
     timestamp: new Date(),
   },
 ]
@@ -57,6 +58,12 @@ export default function AsistentePage() {
         body: JSON.stringify({ pregunta: messageText }),
       })
       const data = await res.json()
+      if (!res.ok || !data.respuesta) {
+        addBotMessage(
+          "Lo siento, no pude procesar tu consulta en este momento. Intenta nuevamente o visita la sección de Normativa."
+        )
+        return
+      }
       addBotMessage(data.respuesta, data.referencias)
     } catch {
       addBotMessage(
@@ -76,16 +83,12 @@ export default function AsistentePage() {
     <div className="pb-16">
       <PageHeader
         title="Asistente Virtual"
-        description="Consultá sobre la normativa municipal de Mairana: leyes, decretos, ordenanzas y trámites."
+        description="Consulta guiada sobre leyes, decretos, ordenanzas y trámites municipales de Mairana."
         crumbs={[{ label: "Asistente" }]}
         icon={<MessageCircle className="hidden h-8 w-8 text-primary sm:block" />}
       >
-        <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-2 backdrop-blur">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
-          </span>
-          <span className="text-xs font-medium text-foreground">En línea — respuestas inmediatas</span>
+        <div className="flex items-center gap-2 rounded-xl border border-border bg-card/80 px-4 py-2 backdrop-blur">
+          <span className="text-xs font-medium text-muted-foreground">Orientación sobre normativa y trámites</span>
         </div>
       </PageHeader>
 
@@ -94,12 +97,12 @@ export default function AsistentePage() {
 
       <Card className="flex flex-1 flex-col overflow-hidden rounded-2xl border shadow-lg">
         <div className="flex items-center gap-3 border-b bg-muted/30 px-6 py-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary-foreground">
+          <IconBox size="md" shape="full">
             <Bot className="h-5 w-5" />
-          </div>
+          </IconBox>
           <div>
-            <p className="font-semibold text-foreground">Asistente Gaceta Municipal</p>
-            <p className="text-xs text-muted-foreground">Conocé la normativa de Mairana</p>
+            <p className="font-semibold text-foreground">Consulta de la Gaceta Municipal</p>
+            <p className="text-xs text-muted-foreground">Leyes, decretos, ordenanzas y trámites</p>
           </div>
         </div>
 
@@ -113,9 +116,9 @@ export default function AsistentePage() {
               )}
             >
               {msg.role === "bot" && (
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-foreground">
+                <IconBox size="sm" shape="full">
                   <Bot className="h-4 w-4" />
-                </div>
+                </IconBox>
               )}
               <div
                 className={cn(
@@ -142,17 +145,17 @@ export default function AsistentePage() {
                 )}
               </div>
               {msg.role === "user" && (
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-foreground">
+                <IconBox size="sm" shape="full">
                   <User className="h-4 w-4" />
-                </div>
+                </IconBox>
               )}
             </div>
           ))}
           {isTyping && (
             <div className="flex gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary-foreground">
+              <IconBox size="sm" shape="full">
                 <Bot className="h-4 w-4" />
-              </div>
+              </IconBox>
               <div className="rounded-2xl rounded-tl-sm border-l-4 border-primary bg-muted/50 px-4 py-3">
                 <div className="flex gap-1">
                   <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/40" style={{ animationDelay: "0ms" }} />
@@ -173,7 +176,7 @@ export default function AsistentePage() {
                 disabled={isTyping}
                 className="inline-flex items-center gap-1.5 rounded-full border bg-muted/30 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
               >
-                <Sparkles className="h-3 w-3 text-primary" />
+                <Search className="h-3 w-3 text-primary" />
                 {q}
               </button>
             ))}

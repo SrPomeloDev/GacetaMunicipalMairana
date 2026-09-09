@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
+import { normativaUpdateSchema } from "@/lib/validations/normativa"
 
 export async function PUT(
   request: Request,
@@ -18,10 +19,14 @@ export async function PUT(
   }
 
   const body = await request.json()
+  const parsed = normativaUpdateSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
+  }
 
   const { data, error } = await permiso.supabase
     .from("normativa")
-    .update(body)
+    .update(parsed.data as never)
     .eq("id", id)
     .select()
     .single()

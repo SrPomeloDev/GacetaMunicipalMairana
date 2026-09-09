@@ -1,9 +1,11 @@
 import Link from "next/link"
+import Image from "next/image"
+import { headers } from "next/headers"
 import { notFound } from "next/navigation"
 import { formatDate } from "@/lib/utils"
 import PageHeader from "@/components/layout/page-header"
-import { Calendar, Share2, ArrowLeft, Image as ImageIcon, Newspaper } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ShareButtons } from "@/components/share/share-buttons"
+import { Calendar, ArrowLeft, ImageIcon, Newspaper } from "@/lib/icons"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { Noticia } from "@/types"
 
@@ -29,6 +31,11 @@ export default async function NoticiaDetailPage({ params }: { params: Promise<{ 
   const n = await getNoticia(slug)
   if (!n) notFound()
 
+  const h = await headers()
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000"
+  const proto = h.get("x-forwarded-proto") ?? (process.env.NODE_ENV === "production" ? "https" : "http")
+  const pageUrl = `${proto}://${host}/noticias/${n.slug}`
+
   return (
     <div className="pb-16">
       <PageHeader
@@ -47,8 +54,8 @@ export default async function NoticiaDetailPage({ params }: { params: Promise<{ 
 
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         {n.imagen_principal ? (
-        <div className="mb-8 overflow-hidden rounded-2xl">
-          <img src={n.imagen_principal} alt={n.titulo} className="w-full aspect-video object-cover" />
+        <div className="relative mb-8 aspect-video overflow-hidden rounded-2xl">
+          <Image src={n.imagen_principal} alt={n.titulo} fill sizes="(min-width: 896px) 896px, 100vw" className="object-cover" />
         </div>
       ) : (
         <div className="aspect-video rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-8">
@@ -85,7 +92,7 @@ export default async function NoticiaDetailPage({ params }: { params: Promise<{ 
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Compartir:</span>
           <a
-            href={`https://wa.me/?text=${encodeURIComponent(n.titulo)}`}
+            href={`https://wa.me/?text=${encodeURIComponent(`${n.titulo} ${pageUrl}`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-input bg-background shadow-sm hover:bg-accent transition-colors"
@@ -93,18 +100,7 @@ export default async function NoticiaDetailPage({ params }: { params: Promise<{ 
           >
             <span className="text-xs font-bold">W</span>
           </a>
-          <a
-            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`/noticias/${n.slug}`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-input bg-background shadow-sm hover:bg-accent transition-colors"
-            aria-label="Compartir en Facebook"
-          >
-            <span className="text-xs font-bold">F</span>
-          </a>
-          <Button variant="outline" size="icon-sm" className="rounded-full">
-            <Share2 className="h-4 w-4" />
-          </Button>
+          <ShareButtons url={pageUrl} title={n.titulo} />
         </div>
       </div>
       </div>

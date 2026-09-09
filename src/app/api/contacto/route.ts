@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { checkRateLimit, getClientIp, rateLimitExceededResponse } from "@/lib/rate-limit"
 
 const CATEGORIAS = ["general", "tramite", "reclamo", "denuncia", "sugerencia", "informacion_publica", "normativa"]
 
 export async function POST(request: Request) {
+  const rl = checkRateLimit(`contacto:${getClientIp(request)}`, { limit: 10, windowMs: 60000 })
+  if (!rl.ok) return rateLimitExceededResponse(rl.retryAfter)
+
   const body = await request.json()
   const categoria = CATEGORIAS.includes(body.categoria) ? body.categoria : "general"
   const anonimo = Boolean(body.anonimo)
@@ -15,6 +19,19 @@ export async function POST(request: Request) {
 
   if (!mensaje) {
     return NextResponse.json({ error: "El mensaje es obligatorio" }, { status: 400 })
+  }
+
+  if (nombre.length > 120) {
+    return NextResponse.json({ error: "El nombre no puede superar los 120 caracteres" }, { status: 400 })
+  }
+  if (email.length > 160) {
+    return NextResponse.json({ error: "El correo no puede superar los 160 caracteres" }, { status: 400 })
+  }
+  if (asunto.length > 200) {
+    return NextResponse.json({ error: "El asunto no puede superar los 200 caracteres" }, { status: 400 })
+  }
+  if (mensaje.length > 5000) {
+    return NextResponse.json({ error: "El mensaje no puede superar los 5000 caracteres" }, { status: 400 })
   }
 
   if (!anonimo) {

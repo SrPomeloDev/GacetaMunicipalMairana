@@ -16,6 +16,7 @@ import { ArrowLeft, Save } from "lucide-react"
 import type { Usuario } from "@/types"
 import { permisosPorRol, tipoPermisos, ROLES, type Permisos } from "@/lib/roles"
 import { PermisosEditor } from "@/components/admin/permisos-editor"
+import { useDirtyGuard } from "@/hooks/use-dirty-guard"
 
 const ROLES_OPTIONS = [
   { value: "admin", label: "Administrador" },
@@ -44,6 +45,8 @@ export default function EditarUsuarioPage() {
   const [permisos, setPermisos] = useState<Permisos>(() => clonarPermisos(permisosPorRol("editor")))
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [dirty, setDirty] = useState(false)
+  useDirtyGuard(dirty)
 
   useEffect(() => {
     const init = async () => {
@@ -76,8 +79,14 @@ export default function EditarUsuarioPage() {
   }, [params.id, supabase, router, addToast])
 
   const handleRolChange = (rol: string) => {
+    setDirty(true)
     setForm((prev) => ({ ...prev, rol }))
     setPermisos(clonarPermisos(permisosPorRol(rol)))
+  }
+
+  const handlePermisosChange = (p: Permisos) => {
+    setDirty(true)
+    setPermisos(p)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -119,8 +128,9 @@ export default function EditarUsuarioPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/admin/usuarios">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4" />
+            Volver
           </Button>
         </Link>
         <div>
@@ -137,7 +147,7 @@ export default function EditarUsuarioPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label>Nombre Completo</Label>
-              <Input value={form.nombre} onChange={(e) => setForm((prev) => ({ ...prev, nombre: e.target.value }))} required />
+              <Input value={form.nombre} onChange={(e) => { setDirty(true); setForm((prev) => ({ ...prev, nombre: e.target.value })) }} required />
             </div>
             <div className="space-y-2">
               <Label>Email</Label>
@@ -152,25 +162,25 @@ export default function EditarUsuarioPage() {
               </div>
               <div className="space-y-2">
                 <Label>Dependencia</Label>
-                <Select value={form.dependencia_id} onChange={(e) => setForm((prev) => ({ ...prev, dependencia_id: e.target.value }))} options={dependencias} placeholder="Sin dependencia" />
+                <Select value={form.dependencia_id} onChange={(e) => { setDirty(true); setForm((prev) => ({ ...prev, dependencia_id: e.target.value })) }} options={dependencias} placeholder="Sin dependencia" />
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Checkbox
                 id="activo"
                 checked={form.activo}
-                onChange={(e) => setForm((prev) => ({ ...prev, activo: e.target.checked }))}
+                onChange={(e) => { setDirty(true); setForm((prev) => ({ ...prev, activo: e.target.checked })) }}
               />
               <Label htmlFor="activo" className="cursor-pointer">Cuenta activa</Label>
             </div>
-            <div className="flex gap-4">
+            <div className="sticky bottom-0 -mx-6 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur">
+              <Link href="/admin/usuarios">
+                <Button type="button" variant="outline">Cancelar</Button>
+              </Link>
               <Button type="submit" loading={submitting}>
                 <Save className="mr-2 h-4 w-4" />
                 Guardar Cambios
               </Button>
-              <Link href="/admin/usuarios">
-                <Button variant="outline" type="button">Cancelar</Button>
-              </Link>
             </div>
           </form>
         </CardContent>
@@ -185,7 +195,7 @@ export default function EditarUsuarioPage() {
           </p>
         </CardHeader>
         <CardContent>
-          <PermisosEditor permisos={permisos} rol={form.rol} onChange={setPermisos} />
+          <PermisosEditor permisos={permisos} rol={form.rol} onChange={handlePermisosChange} />
         </CardContent>
       </Card>
     </div>

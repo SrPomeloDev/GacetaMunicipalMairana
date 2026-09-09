@@ -24,18 +24,22 @@ export interface CurrentUser {
 }
 
 export function useCurrentUser() {
-  const supabase = createClient()
+  const [supabase] = useState(() => createClient())
   const [user, setUser] = useState<CurrentUser | null>(null)
   const [loading, setLoading] = useState(true)
+  const [version, setVersion] = useState(0)
 
   useEffect(() => {
     let active = true
+    let reintentos = 0
     const load = async () => {
-      const { data: authData } = await supabase.auth.getUser()
-      if (!authData.user) {
-        if (active) setLoading(false)
-        return
-      }
+      try {
+        const { data: authData, error: authError } = await supabase.auth.getUser()
+        if (authError) throw authError
+        if (!authData.user) {
+          if (active) setLoading(false)
+          return
+        }
       const meta = authData.user.user_metadata as Record<string, unknown> | undefined
       const metaPermisos = tipoPermisos(meta?.permisos)
 
@@ -67,14 +71,30 @@ export function useCurrentUser() {
         })
         setLoading(false)
       }
+    } catch {
+      if (active && reintentos < 2) {
+        reintentos += 1
+        window.setTimeout(() => {
+          if (active) load()
+        }, 700 * reintentos)
+      } else if (active) {
+        setLoading(false)
+      }
+    }
     }
     load()
     return () => {
       active = false
     }
-  }, [supabase])
+  }, [supabase, version])
 
-  return { user, loading }
+  useEffect(() => {
+    const onPerfilActualizado = () => setVersion((v) => v + 1)
+    window.addEventListener("perfil-actualizado", onPerfilActualizado)
+    return () => window.removeEventListener("perfil-actualizado", onPerfilActualizado)
+  }, [])
+
+  return { user, loading, refetch: () => setVersion((v) => v + 1) }
 }
 
 export function can(user: CurrentUser | null, modulo: Modulo, accion: Accion): boolean {

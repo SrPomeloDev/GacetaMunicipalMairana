@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import SidebarAdmin from "@/components/layout/sidebar-admin"
 import AdminHeader from "@/components/layout/admin-header"
+import CommandPalette from "@/components/admin/command-palette"
 import { ToastProvider } from "@/components/ui/toast"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -46,9 +47,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <ToastProvider>
+      <CommandPalette />
       <div className="flex min-h-screen bg-background antialiased">
         <SidebarAdmin open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <div className="flex flex-1 flex-col lg:pl-64">
+        <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
           <AdminHeader onMenuToggle={() => setSidebarOpen(true)} />
           <main className="flex-1 p-4 sm:p-6 lg:p-8">
             <div className="mx-auto w-full max-w-7xl">{children}</div>

@@ -22,7 +22,7 @@ export async function PATCH(request: Request) {
   if (body.avatar_url !== undefined) perfil.avatar_url = body.avatar_url || null
 
   if (Object.keys(perfil).length > 0) {
-    const { data: usuario, error } = await supabase
+    const { error } = await supabase
       .from("usuarios")
       .update(perfil as never)
       .eq("id", session.user.id)

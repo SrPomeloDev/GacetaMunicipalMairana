@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/admin/confirm-dialog"
 import { useToast } from "@/components/ui/toast"
-import { createClient } from "@/lib/supabase/client"
+import { Pencil, Plus, Trash2 } from "lucide-react"
 import type { Column } from "@/components/ui/data-table"
 import type { Autoridad } from "@/types"
 
@@ -22,7 +22,7 @@ const TIPO_COLOR: Record<string, string> = {
   alcalde: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400",
   concejal: "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400",
   secretario: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400",
-  director: "bg-primary/10 text-primary-foreground border-primary/20 dark:bg-primary/20 dark:text-primary-foreground",
+  director: "bg-primary text-primary-foreground border-primary",
   jefe_unidad: "bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-400",
   subalcalde: "bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400",
 }
@@ -32,18 +32,19 @@ export default function AutoridadesListPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<Autoridad | null>(null)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
   const { addToast } = useToast()
-  const supabase = createClient()
 
   const fetchAutoridades = useCallback(async () => {
-    const { data, error } = await supabase.from("autoridades").select("*").order("orden")
-    if (error) {
-      addToast(error.message, "error")
+    const res = await fetch("/api/admin/autoridades")
+    if (!res.ok) {
+      const data = await res.json()
+      addToast(data.error || "Error al cargar autoridades", "error")
     } else {
-      setAutoridades(data || [])
+      setAutoridades(await res.json())
     }
     setLoading(false)
-  }, [supabase, addToast])
+  }, [addToast])
 
   useEffect(() => {
     const run = async () => {
@@ -54,22 +55,34 @@ export default function AutoridadesListPage() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return
-    const { error } = await supabase.from("autoridades").delete().eq("id", deleteTarget.id)
-    if (error) {
-      addToast(error.message, "error")
-    } else {
-      addToast("Autoridad eliminada", "success")
-      setDeleteTarget(null)
-      fetchAutoridades()
+    const res = await fetch(`/api/admin/autoridades/${deleteTarget.id}`, { method: "DELETE" })
+    const data = await res.json()
+    if (!res.ok) {
+      addToast(data.error || "Error al eliminar", "error")
+      return
     }
+    addToast("Autoridad eliminada", "success")
+    setDeleteTarget(null)
+    fetchAutoridades()
   }
 
   const toggleActivo = async (a: Autoridad) => {
-    const { error } = await supabase.from("autoridades").update({ activo: !a.activo }).eq("id", a.id)
-    if (error) {
-      addToast(error.message, "error")
-    } else {
-      fetchAutoridades()
+    if (togglingId) return
+    setTogglingId(a.id)
+    try {
+      const res = await fetch(`/api/admin/autoridades/${a.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ activo: !a.activo }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        addToast(data.error || "Error al actualizar", "error")
+      } else {
+        fetchAutoridades()
+      }
+    } finally {
+      setTogglingId(null)
     }
   }
 
@@ -96,16 +109,21 @@ export default function AutoridadesListPage() {
         variant={row.activo ? "success" : "secondary"}
         size="sm"
         onClick={() => toggleActivo(row)}
+        disabled={togglingId === row.id}
       >
         {row.activo ? "Activo" : "Inactivo"}
       </Button>
     )},
     { key: "acciones", label: "Acciones", render: (_val, row) => (
-      <div className="flex gap-2">
+      <div className="flex gap-1">
         <Link href={`/admin/autoridades/${(row as Autoridad).id}`}>
-          <Button variant="outline" size="sm">Editar</Button>
+          <Button variant="outline" size="icon-sm" aria-label="Editar" title="Editar">
+            <Pencil className="h-4 w-4" />
+          </Button>
         </Link>
-        <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(row as Autoridad)}>Eliminar</Button>
+        <Button variant="ghost" size="icon-sm" aria-label="Eliminar" title="Eliminar" className="text-destructive hover:text-destructive" onClick={() => setDeleteTarget(row as Autoridad)}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     )},
   ]
@@ -115,7 +133,7 @@ export default function AutoridadesListPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Autoridades</h1>
         <Link href="/admin/autoridades/nueva">
-          <Button>Nueva Autoridad</Button>
+          <Button><Plus className="h-4 w-4" />Nueva Autoridad</Button>
         </Link>
       </div>
       <SearchInput value={search} onChange={setSearch} placeholder="Buscar autoridad..." />

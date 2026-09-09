@@ -21,11 +21,41 @@ function applyTheme(theme: Theme) {
   root.style.colorScheme = theme
 }
 
+// Aplica el cambio de tema en el mismo frame: congela todas las transiciones
+// durante el swap para que superficies y controles cambien juntos, sin oleada.
+function withThemeTransition(swap: () => void) {
+  const root = document.documentElement
+  root.classList.add("theme-no-transition")
+  void root.offsetHeight
+  swap()
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      root.classList.remove("theme-no-transition")
+    })
+  })
+}
+
+function readStoredTheme(): Theme {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    return stored === "dark" || stored === "light" ? stored : "light"
+  } catch {
+    return "light"
+  }
+}
+
+function storeTheme(theme: Theme) {
+  try {
+    localStorage.setItem(STORAGE_KEY, theme)
+  } catch {
+    // almacenamiento bloqueado (modo privado/cookies desactivadas): el tema igual se aplica en memoria
+  }
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window === "undefined") return "light"
-    const stored = localStorage.getItem(STORAGE_KEY)
-    return stored === "dark" || stored === "light" ? stored : "light"
+    return readStoredTheme()
   })
 
   useEffect(() => {
@@ -34,15 +64,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const setTheme = useCallback((next: Theme) => {
     setThemeState(next)
-    applyTheme(next)
-    localStorage.setItem(STORAGE_KEY, next)
+    withThemeTransition(() => applyTheme(next))
+    storeTheme(next)
   }, [])
 
   const toggleTheme = useCallback(() => {
     setThemeState((prev) => {
       const next = prev === "dark" ? "light" : "dark"
-      applyTheme(next)
-      localStorage.setItem(STORAGE_KEY, next)
+      withThemeTransition(() => applyTheme(next))
+      storeTheme(next)
       return next
     })
   }, [])
@@ -55,7 +85,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if ((t === "dark" || t === "light") && t !== theme) {
         setThemeState(t)
         applyTheme(t)
-        localStorage.setItem(STORAGE_KEY, t)
+        storeTheme(t)
       }
     }
     loadUserTheme()

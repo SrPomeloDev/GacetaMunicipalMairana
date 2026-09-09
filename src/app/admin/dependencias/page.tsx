@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/admin/confirm-dialog"
 import { useToast } from "@/components/ui/toast"
+import { Pencil, Plus, Trash2 } from "lucide-react"
 import type { Column } from "@/components/ui/data-table"
 import type { Dependencia } from "@/types"
 
@@ -74,11 +75,15 @@ export default function DependenciasListPage() {
     )},
     { key: "telefono", label: "Teléfono", render: (val) => val ? <span className="text-sm">{val as string}</span> : <span className="text-xs text-muted-foreground">-</span> },
     { key: "acciones", label: "Acciones", render: (_val, row) => (
-      <div className="flex gap-2">
+      <div className="flex gap-1">
         <Link href={`/admin/dependencias/${(row as Dependencia).id}`}>
-          <Button variant="outline" size="sm">Editar</Button>
+          <Button variant="outline" size="icon-sm" aria-label="Editar" title="Editar">
+            <Pencil className="h-4 w-4" />
+          </Button>
         </Link>
-        <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(row as Dependencia)}>Eliminar</Button>
+        <Button variant="ghost" size="icon-sm" aria-label="Eliminar" title="Eliminar" className="text-destructive hover:text-destructive" onClick={() => setDeleteTarget(row as Dependencia)}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     )},
   ]
@@ -88,7 +93,7 @@ export default function DependenciasListPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Dependencias</h1>
         <Link href="/admin/dependencias/nueva">
-          <Button>Nueva Dependencia</Button>
+          <Button><Plus className="h-4 w-4" />Nueva Dependencia</Button>
         </Link>
       </div>
       <SearchInput value={search} onChange={setSearch} placeholder="Buscar dependencia..." />

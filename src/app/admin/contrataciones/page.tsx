@@ -1,14 +1,17 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Select } from "@/components/ui/select"
 import { DataTable } from "@/components/ui/data-table"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/admin/confirm-dialog"
 import { useToast } from "@/components/ui/toast"
 import { formatDate } from "@/lib/utils"
+import { Pencil, Plus, Trash2, Gavel } from "lucide-react"
 import type { Column } from "@/components/ui/data-table"
 
 interface Contratacion {
@@ -44,10 +47,21 @@ const ESTADO_LABEL: Record<string, { label: string; className: string }> = {
   concluida: { label: "Concluida", className: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300" },
 }
 
-export default function ContratacionesPage() {
+const ESTADO_OPTIONS = [
+  { value: "todas", label: "Todos los estados" },
+  { value: "borrador", label: "Borrador" },
+  { value: "publicada", label: "Publicada" },
+  { value: "adjudicada", label: "Adjudicada" },
+  { value: "desierta", label: "Desierta" },
+  { value: "concluida", label: "Concluida" },
+]
+
+function ContratacionesContent() {
+  const searchParams = useSearchParams()
   const [contrataciones, setContrataciones] = useState<Contratacion[]>([])
   const [loading, setLoading] = useState(true)
   const [deleteTarget, setDeleteTarget] = useState<Contratacion | null>(null)
+  const [estadoFilter, setEstadoFilter] = useState(() => searchParams.get("estado") ?? "todas")
   const { addToast } = useToast()
 
   const fetchContrataciones = useCallback(async () => {
@@ -103,14 +117,22 @@ export default function ContratacionesPage() {
       return e ? <Badge className={e.className}>{e.label}</Badge> : <Badge variant="secondary">{val as string}</Badge>
     }},
     { key: "acciones", label: "Acciones", render: (_val, row) => (
-      <div className="flex gap-2">
+      <div className="flex gap-1">
         <Link href={`/admin/contrataciones/${(row as Contratacion).id}`}>
-          <Button variant="outline" size="sm">Editar</Button>
+          <Button variant="outline" size="icon-sm" aria-label="Editar" title="Editar">
+            <Pencil className="h-4 w-4" />
+          </Button>
         </Link>
-        <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(row as Contratacion)}>Eliminar</Button>
+        <Button variant="ghost" size="icon-sm" aria-label="Eliminar" title="Eliminar" className="text-destructive hover:text-destructive" onClick={() => setDeleteTarget(row as Contratacion)}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     )},
   ]
+
+  const filtered = estadoFilter === "todas"
+    ? contrataciones
+    : contrataciones.filter((c) => c.estado === estadoFilter)
 
   return (
     <div className="space-y-6">
@@ -119,23 +141,33 @@ export default function ContratacionesPage() {
           <h1 className="text-2xl font-bold">Contrataciones</h1>
           <p className="mt-1 text-sm text-muted-foreground">Licitaciones, compras menores y contrataciones directas del municipio.</p>
         </div>
-        <Link href="/admin/contrataciones/nueva">
-          <Button>Nueva Contratación</Button>
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <Select
+            className="w-48"
+            value={estadoFilter}
+            onChange={(e) => setEstadoFilter(e.target.value)}
+            options={ESTADO_OPTIONS}
+            aria-label="Filtrar por estado"
+          />
+          <Link href="/admin/contrataciones/nueva">
+            <Button><Plus className="h-4 w-4" />Nueva Contratación</Button>
+          </Link>
+        </div>
       </div>
 
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}
         </div>
-      ) : contrataciones.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
+          <Gavel className="h-12 w-12 text-muted-foreground/50 mb-3" />
           <p className="text-lg font-medium text-foreground">No hay contrataciones registradas</p>
           <p className="mt-1 text-sm text-muted-foreground">Las convocatorias públicas aparecerán aquí.</p>
-          <Link href="/admin/contrataciones/nueva" className="mt-4"><Button>Nueva Contratación</Button></Link>
+          <Link href="/admin/contrataciones/nueva" className="mt-4"><Button><Plus className="h-4 w-4" />Nueva Contratación</Button></Link>
         </div>
       ) : (
-        <DataTable columns={columns} data={contrataciones} />
+        <DataTable columns={columns} data={filtered} />
       )}
 
       <ConfirmDialog
@@ -146,5 +178,13 @@ export default function ContratacionesPage() {
         onCancel={() => setDeleteTarget(null)}
       />
     </div>
+  )
+}
+
+export default function ContratacionesPage() {
+  return (
+    <Suspense fallback={<div className="space-y-4">Cargando contrataciones...</div>}>
+      <ContratacionesContent />
+    </Suspense>
   )
 }

@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/admin/confirm-dialog"
 import { useToast } from "@/components/ui/toast"
 import { formatDate } from "@/lib/utils"
+import { Pencil, Plus, Trash2, Calendar } from "lucide-react"
 import type { Column } from "@/components/ui/data-table"
 import type { SesionConcejo } from "@/types"
 import { cn } from "@/lib/utils"
@@ -66,11 +67,15 @@ export default function ConcejoPage() {
       <a href={val as string} target="_blank" rel="noreferrer" className="text-sm text-primary hover:underline">Ver PDF</a>
     ) : <span className="text-xs text-muted-foreground">-</span> },
     { key: "acciones", label: "Acciones", render: (_val, row) => (
-      <div className="flex gap-2">
+      <div className="flex gap-1">
         <Link href={`/admin/concejo/sesiones/${(row as SesionConcejo).id}`}>
-          <Button variant="outline" size="sm">Editar</Button>
+          <Button variant="outline" size="icon-sm" aria-label="Editar" title="Editar">
+            <Pencil className="h-4 w-4" />
+          </Button>
         </Link>
-        <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(row as SesionConcejo)}>Eliminar</Button>
+        <Button variant="ghost" size="icon-sm" aria-label="Eliminar" title="Eliminar" className="text-destructive hover:text-destructive" onClick={() => setDeleteTarget(row as SesionConcejo)}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     )},
   ]
@@ -80,7 +85,7 @@ export default function ConcejoPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Concejo Municipal</h1>
         <Link href="/admin/concejo/sesiones/nueva">
-          <Button>Nueva Sesión</Button>
+          <Button><Plus className="h-4 w-4" />Nueva Sesión</Button>
         </Link>
       </div>
 
@@ -99,9 +104,10 @@ export default function ConcejoPage() {
         </div>
       ) : sesiones.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
+          <Calendar className="h-12 w-12 text-muted-foreground/50 mb-3" />
           <p className="text-lg font-medium text-foreground">No hay sesiones registradas</p>
           <p className="mt-1 text-sm text-muted-foreground">Las sesiones del concejo aparecerán aquí.</p>
-          <Link href="/admin/concejo/sesiones/nueva" className="mt-4"><Button>Nueva Sesión</Button></Link>
+          <Link href="/admin/concejo/sesiones/nueva" className="mt-4"><Button><Plus className="h-4 w-4" />Nueva Sesión</Button></Link>
         </div>
       ) : (
         <DataTable columns={columns} data={sesiones} />

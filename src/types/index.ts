@@ -1,4 +1,4 @@
-export interface Usuario {
+export type Usuario = {
   id: string
   nombre: string
   email: string
@@ -9,7 +9,7 @@ export interface Usuario {
   created_at: string
 }
 
-export interface CategoriaNormativa {
+export type CategoriaNormativa = {
   id: string
   nombre: string
   slug: string
@@ -20,7 +20,7 @@ export interface CategoriaNormativa {
   created_at: string
 }
 
-export interface Dependencia {
+export type Dependencia = {
   id: string
   nombre: string
   slug: string
@@ -32,15 +32,15 @@ export interface Dependencia {
   orden: number
 }
 
-export interface Normativa {
+export type Normativa = {
   id: string
   numero: string
   slug: string
   titulo: string
   resumen: string | null
   contenido_texto: string | null
-  categoria_id: string
-  dependencia_id: string
+  categoria_id: string | null
+  dependencia_id: string | null
   estado: 'vigente' | 'derogada' | 'modificada' | 'suspendida' | 'abrogada'
   fecha_aprobacion: string | null
   fecha_publicacion: string | null
@@ -57,7 +57,7 @@ export interface Normativa {
   updated_at: string
 }
 
-export interface ModificacionNormativa {
+export type ModificacionNormativa = {
   id: string
   normativa_id: string
   normativa_modificadora_id: string
@@ -68,7 +68,7 @@ export interface ModificacionNormativa {
   created_at: string
 }
 
-export interface Noticia {
+export type Noticia = {
   id: string
   titulo: string
   slug: string
@@ -84,11 +84,11 @@ export interface Noticia {
   updated_at: string
 }
 
-export interface Autoridad {
+export type Autoridad = {
   id: string
   nombre_completo: string
   cargo: string
-  dependencia_id: string
+  dependencia_id: string | null
   tipo_autoridad: 'alcalde' | 'concejal' | 'secretario' | 'director' | 'jefe_unidad' | 'subalcalde'
   partido: string | null
   foto: string | null
@@ -103,7 +103,7 @@ export interface Autoridad {
   updated_at: string
 }
 
-export interface ComisionConcejal {
+export type ComisionConcejal = {
   id: string
   autoridad_id: string
   comision: string
@@ -111,7 +111,7 @@ export interface ComisionConcejal {
   created_at: string
 }
 
-export interface SesionConcejo {
+export type SesionConcejo = {
   id: string
   numero_sesion: string
   fecha: string
@@ -121,7 +121,7 @@ export interface SesionConcejo {
   created_at: string
 }
 
-export interface Transparencia {
+export type Transparencia = {
   id: string
   titulo: string
   categoria: 'presupuesto' | 'poa' | 'pei' | 'contratacion' | 'auditoria' | 'financiero' | 'declaracion' | 'informe'
@@ -132,7 +132,7 @@ export interface Transparencia {
   created_at: string
 }
 
-export interface Tramite {
+export type Tramite = {
   id: string
   titulo: string
   slug: string
@@ -146,7 +146,7 @@ export interface Tramite {
   created_at: string
 }
 
-export interface Galeria {
+export type Galeria = {
   id: string
   titulo: string
   descripcion: string | null
@@ -157,7 +157,7 @@ export interface Galeria {
   created_at: string
 }
 
-export interface Suscripcion {
+export type Suscripcion = {
   id: string
   email: string
   categorias: string[]
@@ -166,7 +166,7 @@ export interface Suscripcion {
   created_at: string
 }
 
-export interface Contratacion {
+export type Contratacion = {
   id: string
   titulo: string
   slug: string
@@ -185,7 +185,7 @@ export interface Contratacion {
   updated_at: string
 }
 
-export interface MensajeContacto {
+export type MensajeContacto = {
   id: string
   nombre: string
   email: string
@@ -200,7 +200,23 @@ export interface MensajeContacto {
   created_at: string
 }
 
-export interface NormativaEmbedding {
+export type Configuracion = {
+  id: number
+  municipio: string
+  lema: string | null
+  direccion: string | null
+  telefono: string | null
+  email: string | null
+  facebook: string | null
+  twitter: string | null
+  youtube: string | null
+  instagram: string | null
+  color_primario: string
+  logo_url: string | null
+  updated_at: string
+}
+
+export type NormativaEmbedding = {
   id: string
   normativa_id: string
   chunk_index: number
@@ -209,7 +225,7 @@ export interface NormativaEmbedding {
   created_at: string
 }
 
-export interface NormativaConRelaciones extends Normativa {
+export type NormativaConRelaciones = Normativa & {
   categoria?: CategoriaNormativa
   dependencia?: Dependencia
   modificaciones?: ModificacionNormativa[]

@@ -10,13 +10,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileUpload } from "@/components/admin/file-upload"
 import { useToast } from "@/components/ui/toast"
-import { createClient } from "@/lib/supabase/client"
 import { ArrowLeft, Save } from "lucide-react"
 
 export default function NuevaGaleriaPage() {
   const router = useRouter()
   const { addToast } = useToast()
-  const supabase = createClient()
 
   const [form, setForm] = useState({
     titulo: "",
@@ -40,16 +38,21 @@ export default function NuevaGaleriaPage() {
     }
     setSubmitting(true)
     try {
-      const { error } = await supabase.from("galeria").insert({
-        titulo: form.titulo,
-        descripcion: form.descripcion || null,
-        imagen: form.imagen,
-        album: form.album || "General",
-        fecha: form.fecha || new Date().toISOString().slice(0, 10),
-        orden: form.orden ? Number(form.orden) : 0,
+      const res = await fetch("/api/admin/galeria", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo: form.titulo,
+          descripcion: form.descripcion || null,
+          imagen: form.imagen,
+          album: form.album || "General",
+          fecha: form.fecha || new Date().toISOString().slice(0, 10),
+          orden: form.orden ? Number(form.orden) : 0,
+        }),
       })
-      if (error) {
-        addToast(error.message, "error")
+      const data = await res.json()
+      if (!res.ok) {
+        addToast(data.error || "Error al guardar", "error")
         return
       }
       addToast("Imagen guardada en la galería", "success")
@@ -63,8 +66,9 @@ export default function NuevaGaleriaPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/admin/galeria">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4" />
+            Volver
           </Button>
         </Link>
         <div>
@@ -145,14 +149,14 @@ export default function NuevaGaleriaPage() {
               </div>
             </div>
 
-            <div className="flex gap-4">
+            <div className="sticky bottom-0 -mx-6 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur">
+              <Link href="/admin/galeria">
+                <Button type="button" variant="outline">Cancelar</Button>
+              </Link>
               <Button type="submit" loading={submitting}>
                 <Save className="mr-2 h-4 w-4" />
                 Guardar Imagen
               </Button>
-              <Link href="/admin/galeria">
-                <Button variant="outline" type="button">Cancelar</Button>
-              </Link>
             </div>
           </form>
         </CardContent>

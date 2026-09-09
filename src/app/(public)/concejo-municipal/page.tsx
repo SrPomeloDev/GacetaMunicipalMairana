@@ -1,13 +1,15 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import PageHeader from "@/components/layout/page-header"
+import { IconBox } from "@/components/ui/icon-box"
 import { createClient } from "@/lib/supabase/client"
 import { formatDate } from "@/lib/utils"
-import { Phone, Mail, Calendar, FileText, Users, Scale, Shield, Landmark } from "lucide-react"
+import { Phone, Mail, Calendar, FileText, Users, Scale, Shield, Landmark, Download } from "@/lib/icons"
 
 interface AutoridadConcejo {
   id: string
@@ -39,6 +41,8 @@ const TIPO_LABEL: Record<string, string> = {
   audiencia_publica: "Audiencia Pública", instalacion: "Instalación",
 }
 
+const FOTO_GRUPAL_URL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/noticias-imagenes/concejo/foto-grupal.jpeg`
+
 export default function ConcejoPage() {
   const supabase = createClient()
   const [concejales, setConcejales] = useState<AutoridadConcejo[]>([])
@@ -46,6 +50,7 @@ export default function ConcejoPage() {
   const [comisiones, setComisiones] = useState<ComisionRow[]>([])
   const [sesiones, setSesiones] = useState<SesionRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const cargar = useCallback(async () => {
     const [autoridades, comisionesRes, sesionesRes] = await Promise.all([
@@ -56,6 +61,12 @@ export default function ConcejoPage() {
         .order("comision"),
       supabase.from("concejo_sesiones").select("*").order("fecha", { ascending: false }).limit(6),
     ])
+    const firstError = autoridades.error || comisionesRes.error || sesionesRes.error
+    if (firstError) {
+      setError(firstError.message)
+    } else {
+      setError(null)
+    }
     const concejales = (autoridades.data || []) as AutoridadConcejo[]
     const presidenciaCargos = ["Presidente", "Presidenta", "Vicepresidente", "Vicepresidenta"]
     setConcejales(concejales.filter((c) => !presidenciaCargos.some((p) => (c.cargo || "").toLowerCase().includes(p.toLowerCase()))))
@@ -75,7 +86,7 @@ export default function ConcejoPage() {
   const initials = (name: string) => name.split(" ").map((n) => n[0]).slice(0, 2).join("")
 
   const renderPersonaCard = (persona: AutoridadConcejo) => (
-    <Card key={persona.id} className="overflow-hidden border-primary/20 transition-all hover:shadow-md">
+    <Card key={persona.id} className="overflow-hidden border-primary/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted">
       <div className="h-2 bg-gradient-to-r from-primary to-primary/60" />
       <CardContent className="p-6">
         <div className="flex flex-col items-center text-center sm:flex-row sm:text-left sm:items-start sm:gap-5">
@@ -127,14 +138,39 @@ export default function ConcejoPage() {
             <Skeleton className="h-48 w-full" />
             <div className="grid gap-6 lg:grid-cols-2">{Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-64 w-full" />)}</div>
           </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
+            <Landmark className="h-12 w-12 text-muted-foreground/50 mb-3" />
+            <p className="text-lg font-medium text-foreground">Error al cargar</p>
+            <p className="mt-1 text-sm text-muted-foreground">{error}</p>
+          </div>
         ) : presidencia.length === 0 && concejales.length === 0 && comisiones.length === 0 && sesiones.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
-            <Landmark className="mb-4 h-10 w-10 text-muted-foreground" />
+            <Landmark className="h-12 w-12 text-muted-foreground/50 mb-3" />
             <p className="text-lg font-medium text-foreground">Sin información del Concejo</p>
             <p className="mt-1 text-sm text-muted-foreground">Los datos del Concejo Municipal se publicarán próximamente.</p>
           </div>
         ) : (
           <>
+            {(presidencia.length > 0 || concejales.length > 0) && (
+              <div className="mb-10 overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-sm">
+                <div className="relative aspect-video w-full sm:aspect-[21/9]">
+                  <Image
+                    src={FOTO_GRUPAL_URL}
+                    alt="Concejo Municipal de Mairana"
+                    fill
+                    sizes="(max-width: 1280px) 100vw, 1280px"
+                    loading="eager"
+                    fetchPriority="high"
+                    className="object-cover"
+                  />
+                </div>
+                <p className="px-4 py-2.5 text-center text-xs text-muted-foreground">
+                  Concejo Municipal de Mairana — Gestión 2026
+                </p>
+              </div>
+            )}
+
             {presidencia.length > 0 && (
               <div className="mb-10 grid gap-6 sm:grid-cols-2">
                 {presidencia.map(renderPersonaCard)}
@@ -149,7 +185,7 @@ export default function ConcejoPage() {
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {concejales.map((concejal) => (
-                    <Card key={concejal.id} className="transition-all hover:shadow-md">
+                     <Card key={concejal.id} className="transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted">
                       <CardContent className="p-5 text-center">
                         <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary/80 to-primary/40 text-xl font-bold text-white">
                           {concejal.foto ? (
@@ -189,9 +225,9 @@ export default function ConcejoPage() {
                     <div className="space-y-4">
                       {comisiones.map((com) => (
                         <div key={com.id} className="flex items-start gap-3 rounded-lg border bg-card p-4">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-foreground">
+                          <IconBox size="sm" shape="full">
                             <Shield className="h-4 w-4" />
-                          </div>
+                          </IconBox>
                           <div className="flex-1">
                             <p className="font-medium text-card-foreground">{com.comision}</p>
                             <p className="text-sm text-muted-foreground">
@@ -219,16 +255,28 @@ export default function ConcejoPage() {
                     <div className="space-y-4">
                       {sesiones.map((ses) => (
                         <div key={ses.id} className="flex items-start gap-3 rounded-lg border bg-card p-4">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-foreground">
+                          <IconBox size="sm" shape="full">
                             <FileText className="h-4 w-4" />
-                          </div>
+                          </IconBox>
                           <div className="flex-1 min-w-0">
                             <p className="font-medium text-card-foreground">{ses.numero_sesion}</p>
                             <p className="text-sm text-muted-foreground">{formatDate(ses.fecha, "long")}</p>
-                            <div className="mt-1 flex items-center gap-2">
-                              <Badge variant="secondary" className="text-[10px]">{TIPO_LABEL[ses.tipo] || ses.tipo}</Badge>
+                            <div className="mt-1 flex flex-wrap items-center gap-2">
+                              <Badge variant="secondary" className="text-xs">{TIPO_LABEL[ses.tipo] || ses.tipo}</Badge>
                               {ses.agenda && <span className="text-xs text-muted-foreground truncate">{ses.agenda}</span>}
                             </div>
+                            {ses.acta_pdf && (
+                              <a
+                                href={ses.acta_pdf}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                download
+                                className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+                              >
+                                <Download className="h-3.5 w-3.5" />
+                                Descargar acta
+                              </a>
+                            )}
                           </div>
                         </div>
                       ))}

@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { slugify } from "@/lib/utils"
+import { ArrowLeft } from "lucide-react"
 
 const TIPOS_OPTIONS = [
   { value: "ejecutivo", label: "Ejecutivo" },
@@ -103,11 +104,14 @@ export default function DependenciaFormPage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">{isNew ? "Nueva Dependencia" : "Editar Dependencia"}</h1>
+      <div className="flex flex-wrap items-center gap-3">
         <Link href="/admin/dependencias">
-          <Button variant="outline">Cancelar</Button>
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4" />
+            Volver
+          </Button>
         </Link>
+        <h1 className="text-2xl font-bold">{isNew ? "Nueva Dependencia" : "Editar Dependencia"}</h1>
       </div>
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
@@ -160,7 +164,7 @@ export default function DependenciaFormPage() {
             </div>
           </CardContent>
         </Card>
-        <div className="flex gap-4 justify-end">
+        <div className="sticky bottom-0 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur">
           <Link href="/admin/dependencias">
             <Button type="button" variant="outline">Cancelar</Button>
           </Link>

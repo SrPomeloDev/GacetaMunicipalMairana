@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/data-table"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Pencil, Plus, Trash2, Users } from "lucide-react"
 import { ConfirmDialog } from "@/components/admin/confirm-dialog"
 import { useToast } from "@/components/ui/toast"
 import type { Column } from "@/components/ui/data-table"
@@ -64,11 +65,15 @@ export default function ComisionesPage() {
       render: (_val, row) => row.autoridad?.nombre_completo ? <span className="text-sm">{row.autoridad.nombre_completo}</span> : <span className="text-xs text-muted-foreground">-</span>,
     },
     { key: "acciones", label: "Acciones", render: (_val, row) => (
-      <div className="flex gap-2">
+      <div className="flex gap-1">
         <Link href={`/admin/concejo/comisiones/${(row as ComisionConcejal).id}`}>
-          <Button variant="outline" size="sm">Editar</Button>
+          <Button variant="outline" size="icon-sm" aria-label="Editar" title="Editar">
+            <Pencil className="h-4 w-4" />
+          </Button>
         </Link>
-        <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(row as ComisionConcejal)}>Eliminar</Button>
+        <Button variant="ghost" size="icon-sm" aria-label="Eliminar" title="Eliminar" className="text-destructive hover:text-destructive" onClick={() => setDeleteTarget(row as ComisionConcejal)}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     )},
   ]
@@ -78,7 +83,7 @@ export default function ComisionesPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Comisiones del Concejo</h1>
         <Link href="/admin/concejo/comisiones/nueva">
-          <Button>Nueva Comisión</Button>
+          <Button><Plus className="h-4 w-4" />Nueva Comisión</Button>
         </Link>
       </div>
 
@@ -97,9 +102,10 @@ export default function ComisionesPage() {
         </div>
       ) : comisiones.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
+          <Users className="h-12 w-12 text-muted-foreground/50 mb-3" />
           <p className="text-lg font-medium text-foreground">No hay comisiones registradas</p>
           <p className="mt-1 text-sm text-muted-foreground">Las comisiones del concejo aparecerán aquí.</p>
-          <Link href="/admin/concejo/comisiones/nueva" className="mt-4"><Button>Nueva Comisión</Button></Link>
+          <Link href="/admin/concejo/comisiones/nueva" className="mt-4"><Button><Plus className="h-4 w-4" />Nueva Comisión</Button></Link>
         </div>
       ) : (
         <DataTable columns={columns} data={comisiones} />

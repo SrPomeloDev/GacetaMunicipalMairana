@@ -9,10 +9,13 @@ import { Select } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileUpload } from "@/components/admin/file-upload"
+import { RichTextEditor } from "@/components/admin/rich-text-editor"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/lib/supabase/client"
 import { slugify } from "@/lib/utils"
+import { ArrowLeft } from "lucide-react"
+import type { Normativa, ModificacionNormativa } from "@/types"
 
 const ESTADOS_OPTIONS = [
   { value: "vigente", label: "Vigente" },
@@ -69,6 +72,7 @@ export default function NormativaFormPage() {
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
   const [slugTouched, setSlugTouched] = useState(false)
+  const [tab, setTab] = useState<"editar" | "vista">("editar")
 
   const [modificaciones, setModificaciones] = useState<ModificacionRow[]>([])
   const [normativasOpts, setNormativasOpts] = useState<{ value: string; label: string }[]>([])
@@ -158,6 +162,18 @@ export default function NormativaFormPage() {
       addToast("El título y el número son obligatorios", "error")
       return
     }
+    if (formData.fecha_aprobacion && formData.fecha_publicacion && formData.fecha_aprobacion > formData.fecha_publicacion) {
+      addToast("La fecha de aprobación no puede ser posterior a la fecha de publicación", "error")
+      return
+    }
+    if (!formData.vigencia_indefinida && formData.fecha_publicacion && formData.fecha_vigencia && formData.fecha_publicacion > formData.fecha_vigencia) {
+      addToast("La fecha de publicación no puede ser posterior a la fecha de vigencia", "error")
+      return
+    }
+    if (!formData.vigencia_indefinida && formData.fecha_aprobacion && formData.fecha_vigencia && formData.fecha_aprobacion > formData.fecha_vigencia) {
+      addToast("La fecha de aprobación no puede ser posterior a la fecha de vigencia", "error")
+      return
+    }
     setSubmitting(true)
     try {
       const payload = {
@@ -168,13 +184,14 @@ export default function NormativaFormPage() {
         contenido_texto: formData.contenido_texto || null,
         categoria_id: formData.categoria_id || null,
         dependencia_id: formData.dependencia_id || null,
-        estado: formData.estado,
+        estado: formData.estado as Normativa["estado"],
         fecha_aprobacion: formData.fecha_aprobacion || null,
         fecha_publicacion: formData.fecha_publicacion || null,
         fecha_vigencia: formData.vigencia_indefinida ? null : formData.fecha_vigencia || null,
         numero_paginas: formData.numero_paginas ? Number(formData.numero_paginas) : null,
         archivo_pdf: formData.archivo_pdf,
         publicada: formData.publicada,
+        metadata: {},
       }
       const { error } = isNew
         ? await supabase.from("normativa").insert(payload)
@@ -211,8 +228,7 @@ export default function NormativaFormPage() {
     run()
   }, [isNew, params.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleAddModificacion = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleAddModificacion = async () => {
     if (!nuevaMod.normativa_modificadora_id) {
       addToast("Selecciona la normativa que modifica", "error")
       return
@@ -222,10 +238,10 @@ export default function NormativaFormPage() {
       const { error } = await supabase.from("modificaciones_normativa").insert({
         normativa_id: params.id as string,
         normativa_modificadora_id: nuevaMod.normativa_modificadora_id,
-        tipo_modificacion: nuevaMod.tipo_modificacion,
+        tipo_modificacion: nuevaMod.tipo_modificacion as ModificacionNormativa["tipo_modificacion"],
         articulos_afectados: nuevaMod.articulos_afectados || null,
         descripcion: nuevaMod.descripcion || null,
-        fecha: nuevaMod.fecha || undefined,
+        fecha: nuevaMod.fecha || new Date().toISOString().slice(0, 10),
       })
       if (error) {
         addToast(error.message, "error")
@@ -255,11 +271,14 @@ export default function NormativaFormPage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">{isNew ? "Nueva Normativa" : "Editar Normativa"}</h1>
+      <div className="flex flex-wrap items-center gap-3">
         <Link href="/admin/normativa">
-          <Button variant="outline">Cancelar</Button>
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4" />
+            Volver
+          </Button>
         </Link>
+        <h1 className="text-2xl font-bold">{isNew ? "Nueva Normativa" : "Editar Normativa"}</h1>
       </div>
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
@@ -367,14 +386,29 @@ export default function NormativaFormPage() {
             </div>
             <div className="space-y-2">
               <Label>Texto (opcional, si no se sube PDF)</Label>
-              <textarea
-                name="contenido_texto"
-                value={formData.contenido_texto}
-                onChange={handleChange}
-                rows={10}
-                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                placeholder="Contenido textual de la norma..."
-              />
+              <div className="flex gap-1">
+                <Button type="button" variant={tab === "editar" ? "default" : "ghost"} size="sm" onClick={() => setTab("editar")}>
+                  Editar
+                </Button>
+                <Button type="button" variant={tab === "vista" ? "default" : "ghost"} size="sm" onClick={() => setTab("vista")}>
+                  Vista previa
+                </Button>
+              </div>
+              {tab === "editar" ? (
+                <RichTextEditor
+                  value={formData.contenido_texto}
+                  onChange={(html) => setFormData((prev) => ({ ...prev, contenido_texto: html }))}
+                />
+              ) : formData.contenido_texto ? (
+                <div
+                  className="min-h-[220px] rounded-lg border border-input bg-background px-4 py-3 text-sm leading-relaxed [&_a]:text-primary [&_a]:underline [&_blockquote]:my-2 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-muted-foreground [&_h2]:mb-2 [&_h2]:mt-4 [&_h2]:text-xl [&_h2]:font-bold [&_h3]:mb-1 [&_h3]:mt-3 [&_h3]:text-lg [&_h3]:font-semibold [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:my-2 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-6"
+                  dangerouslySetInnerHTML={{ __html: formData.contenido_texto }}
+                />
+              ) : (
+                <p className="rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+                  Sin contenido
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -408,7 +442,7 @@ export default function NormativaFormPage() {
                   ))}
                 </div>
               )}
-              <form onSubmit={handleAddModificacion} className="space-y-4 rounded-lg border border-dashed border-border p-4">
+              <div className="space-y-4 rounded-lg border border-dashed border-border p-4">
                 <p className="text-sm font-medium">Registrar modificación</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2 md:col-span-2">
@@ -444,13 +478,13 @@ export default function NormativaFormPage() {
                   </div>
                 </div>
                 <div className="flex justify-end">
-                  <Button type="submit" variant="outline" loading={savingMod}>Agregar Modificación</Button>
+                  <Button type="button" variant="outline" loading={savingMod} onClick={handleAddModificacion}>Agregar Modificación</Button>
                 </div>
-              </form>
+              </div>
             </CardContent>
           </Card>
         )}
-        <div className="flex gap-4 justify-end">
+        <div className="sticky bottom-0 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur">
           <Link href="/admin/normativa">
             <Button type="button" variant="outline">Cancelar</Button>
           </Link>

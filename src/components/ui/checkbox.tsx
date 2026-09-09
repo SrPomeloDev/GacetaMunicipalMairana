@@ -29,9 +29,8 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
               "peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
               className
             )}
-          >
-            <Check className="h-3 w-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
-          </div>
+          />
+          <Check className="pointer-events-none absolute h-3 w-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
         </div>
         {label && (
           <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-50">

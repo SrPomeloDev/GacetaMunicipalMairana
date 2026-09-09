@@ -5,10 +5,10 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { DataTable } from "@/components/ui/data-table"
+import type { Column } from "@/components/ui/data-table"
 import { ConfirmDialog } from "@/components/admin/confirm-dialog"
 import { useToast } from "@/components/ui/toast"
-import { createClient } from "@/lib/supabase/client"
 import { Search, Plus, Pencil, Trash2, CheckCircle2, XCircle } from "lucide-react"
 import type { Tramite } from "@/types"
 
@@ -17,29 +17,31 @@ export default function AdminTramitesPage() {
   const [dependencias, setDependencias] = useState<Record<string, string>>({})
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Tramite | null>(null)
   const { addToast } = useToast()
-  const supabase = createClient()
 
   const fetchTramites = useCallback(async () => {
     const [trRes, depRes] = await Promise.all([
-      supabase.from("tramites").select("*").order("created_at", { ascending: false }),
-      supabase.from("dependencias").select("id,nombre"),
+      fetch("/api/admin/tramites"),
+      fetch("/api/admin/dependencias"),
     ])
-    if (trRes.error) {
-      addToast(trRes.error.message, "error")
+    const trData = await trRes.json()
+    const depData = await depRes.json()
+    if (!trRes.ok) {
+      addToast(trData.error || "Error al cargar trámites", "error")
     } else {
-      setTramites(trRes.data || [])
+      setTramites(trData || [])
     }
-    if (depRes.error) {
-      addToast(depRes.error.message, "error")
+    if (!depRes.ok) {
+      addToast(depData.error || "Error al cargar dependencias", "error")
     } else {
       const map: Record<string, string> = {}
-      depRes.data?.forEach((d) => { map[d.id] = d.nombre })
+      depData?.forEach((d: { id: string; nombre: string }) => { map[d.id] = d.nombre })
       setDependencias(map)
     }
     setLoading(false)
-  }, [supabase, addToast])
+  }, [addToast])
 
   useEffect(() => {
     const run = async () => {
@@ -50,26 +52,75 @@ export default function AdminTramitesPage() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return
-    const { error } = await supabase.from("tramites").delete().eq("id", deleteTarget.id)
-    if (error) {
-      addToast(error.message, "error")
-    } else {
-      addToast("Trámite eliminado", "success")
-      setDeleteTarget(null)
-      fetchTramites()
+    const res = await fetch(`/api/admin/tramites/${deleteTarget.id}`, { method: "DELETE" })
+    const data = await res.json()
+    if (!res.ok) {
+      addToast(data.error || "Error al eliminar", "error")
+      return
     }
+    addToast("Trámite eliminado", "success")
+    setDeleteTarget(null)
+    fetchTramites()
   }
 
   const toggleActivo = async (t: Tramite) => {
-    const { error } = await supabase.from("tramites").update({ activo: !t.activo }).eq("id", t.id)
-    if (error) {
-      addToast(error.message, "error")
-    } else {
-      fetchTramites()
+    if (togglingId) return
+    setTogglingId(t.id)
+    try {
+      const res = await fetch(`/api/admin/tramites/${t.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ activo: !t.activo }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        addToast(data.error || "Error al actualizar", "error")
+      } else {
+        fetchTramites()
+      }
+    } finally {
+      setTogglingId(null)
     }
   }
 
   const filtered = tramites.filter((t) => t.titulo.toLowerCase().includes(search.toLowerCase()))
+
+  const columns: Column<Tramite>[] = [
+    { key: "titulo", label: "Título", render: (val) => (
+      <span className="font-medium">{val}</span>
+    )},
+    { key: "dependencia_id", label: "Dependencia", render: (val) => (
+      <span className="text-muted-foreground">{val ? dependencias[val as string] || "-" : "-"}</span>
+    )},
+    { key: "tiempo_estimado", label: "Tiempo", render: (val) => (
+      <span className="text-muted-foreground">{val || "-"}</span>
+    )},
+    { key: "costo", label: "Costo", render: (val) => val || "-" },
+    { key: "activo", label: "Estado", render: (_val, row) => (
+      <Button
+        variant={row.activo ? "success" : "secondary"}
+        size="sm"
+        onClick={() => toggleActivo(row)}
+        disabled={togglingId === row.id}
+        title="Clic para cambiar estado"
+      >
+        {row.activo ? <CheckCircle2 className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+        {row.activo ? "Activo" : "Inactivo"}
+      </Button>
+    )},
+    { key: "acciones", label: "Acciones", render: (_val, row) => (
+      <div className="flex gap-2">
+        <Link href={`/admin/tramites/${row.id}`}>
+          <Button variant="ghost" size="icon-sm" title="Editar">
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </Link>
+        <Button variant="ghost" size="icon-sm" className="text-destructive" title="Eliminar" onClick={() => setDeleteTarget(row)}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    )},
+  ]
 
   return (
     <div className="space-y-6">
@@ -101,65 +152,7 @@ export default function AdminTramitesPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left">
-                    <th className="pb-3 font-medium">Título</th>
-                    <th className="pb-3 font-medium">Dependencia</th>
-                    <th className="pb-3 font-medium">Costo</th>
-                    <th className="pb-3 font-medium">Tiempo</th>
-                    <th className="pb-3 font-medium">Estado</th>
-                    <th className="pb-3 font-medium">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((tramite) => (
-                    <tr key={tramite.id} className="border-b last:border-0">
-                      <td className="py-3 font-medium">{tramite.titulo}</td>
-                      <td className="py-3 text-muted-foreground">{tramite.dependencia_id ? dependencias[tramite.dependencia_id] || "-" : "-"}</td>
-                      <td className="py-3">{tramite.costo || "-"}</td>
-                      <td className="py-3 text-muted-foreground">{tramite.tiempo_estimado || "-"}</td>
-                      <td className="py-3">
-                        <button
-                          onClick={() => toggleActivo(tramite)}
-                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors ${
-                            tramite.activo ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-muted text-muted-foreground hover:bg-border"
-                          }`}
-                          title="Clic para cambiar estado"
-                        >
-                          {tramite.activo ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
-                          {tramite.activo ? "Activo" : "Inactivo"}
-                        </button>
-                      </td>
-                      <td className="py-3">
-                        <div className="flex gap-2">
-                          <Link href={`/admin/tramites/${tramite.id}`}>
-                            <Button variant="ghost" size="icon-sm" title="Editar">
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </Link>
-                          <Button variant="ghost" size="icon-sm" className="text-destructive" title="Eliminar" onClick={() => setDeleteTarget(tramite)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {filtered.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="py-8 text-center text-muted-foreground">No se encontraron trámites</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <DataTable columns={columns} data={filtered} loading={loading} emptyMessage="No se encontraron trámites" />
         </CardContent>
       </Card>
 

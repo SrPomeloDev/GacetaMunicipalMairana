@@ -11,11 +11,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/lib/supabase/client"
+import { ArrowLeft } from "lucide-react"
 
 interface ConcejalOption {
   id: string
   nombre_completo: string
 }
+
+const CARGOS = [
+  { value: "presidente", label: "Presidente" },
+  { value: "secretario", label: "Secretario" },
+  { value: "vocal", label: "Vocal" },
+  { value: "miembro", label: "Miembro" },
+]
 
 export default function ComisionFormPage() {
   const params = useParams()
@@ -77,8 +85,8 @@ export default function ComisionFormPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.autoridad_id || !formData.comision.trim()) {
-      addToast("El concejal y la comisión son obligatorios", "error")
+    if (!formData.autoridad_id || !formData.comision.trim() || !formData.cargo_comision) {
+      addToast("El concejal, la comisión y el cargo son obligatorios", "error")
       return
     }
     setSubmitting(true)
@@ -106,11 +114,14 @@ export default function ComisionFormPage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">{isNew ? "Nueva Comisión" : "Editar Comisión"}</h1>
+      <div className="flex flex-wrap items-center gap-3">
         <Link href="/admin/concejo/comisiones">
-          <Button variant="outline">Cancelar</Button>
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4" />
+            Volver
+          </Button>
         </Link>
+        <h1 className="text-2xl font-bold">{isNew ? "Nueva Comisión" : "Editar Comisión"}</h1>
       </div>
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
@@ -126,11 +137,11 @@ export default function ComisionFormPage() {
             </div>
             <div className="space-y-2">
               <Label>Cargo</Label>
-              <Input name="cargo_comision" value={formData.cargo_comision} onChange={handleChange} placeholder="Ej: Presidente / Secretario" />
+              <Select name="cargo_comision" value={formData.cargo_comision} onChange={handleChange} options={CARGOS} placeholder="Selecciona un cargo..." required />
             </div>
           </CardContent>
         </Card>
-        <div className="flex gap-4 justify-end">
+        <div className="sticky bottom-0 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur">
           <Link href="/admin/concejo/comisiones">
             <Button type="button" variant="outline">Cancelar</Button>
           </Link>

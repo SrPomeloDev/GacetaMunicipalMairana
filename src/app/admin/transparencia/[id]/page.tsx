@@ -13,7 +13,8 @@ import { Select } from "@/components/ui/select"
 import { FileUpload } from "@/components/admin/file-upload"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
-import { createClient } from "@/lib/supabase/client"
+import type { Transparencia } from "@/types"
+import { useDirtyGuard } from "@/hooks/use-dirty-guard"
 import { ArrowLeft, Save } from "lucide-react"
 
 const CATEGORIAS_OPTIONS = [
@@ -31,7 +32,6 @@ export default function EditarDocumentoPage() {
   const params = useParams()
   const router = useRouter()
   const { addToast } = useToast()
-  const supabase = createClient()
 
   const [form, setForm] = useState({
     titulo: "",
@@ -43,12 +43,20 @@ export default function EditarDocumentoPage() {
   })
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [dirty, setDirty] = useState(false)
+  useDirtyGuard(dirty)
+
+  const patch = (p: Partial<typeof form>) => {
+    setDirty(true)
+    setForm((prev) => ({ ...prev, ...p }))
+  }
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase.from("transparencia").select("*").eq("id", params.id as string).single()
-      if (error) {
-        addToast(error.message, "error")
+      const res = await fetch(`/api/admin/transparencia/${params.id}`)
+      const data = await res.json()
+      if (!res.ok) {
+        addToast(data.error || "Error al cargar", "error")
         router.push("/admin/transparencia")
         return
       }
@@ -63,7 +71,7 @@ export default function EditarDocumentoPage() {
       setLoading(false)
     }
     load()
-  }, [params.id, supabase, router, addToast])
+  }, [params.id, router, addToast])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -73,16 +81,21 @@ export default function EditarDocumentoPage() {
     }
     setSubmitting(true)
     try {
-      const { error } = await supabase.from("transparencia").update({
-        titulo: form.titulo,
-        categoria: form.categoria,
-        descripcion: form.descripcion || null,
-        archivo_pdf: form.archivo_pdf,
-        fecha: form.fecha || null,
-        publicada: form.publicada,
-      }).eq("id", params.id as string)
-      if (error) {
-        addToast(error.message, "error")
+      const res = await fetch(`/api/admin/transparencia/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo: form.titulo,
+          categoria: form.categoria as Transparencia["categoria"],
+          descripcion: form.descripcion || null,
+          archivo_pdf: form.archivo_pdf,
+          fecha: form.fecha || null,
+          publicada: form.publicada,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        addToast(data.error || "Error al guardar", "error")
         return
       }
       addToast("Documento actualizado", "success")
@@ -100,8 +113,9 @@ export default function EditarDocumentoPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/admin/transparencia">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4" />
+            Volver
           </Button>
         </Link>
         <div>
@@ -118,21 +132,21 @@ export default function EditarDocumentoPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label>Título</Label>
-              <Input value={form.titulo} onChange={(e) => setForm((prev) => ({ ...prev, titulo: e.target.value }))} required />
+              <Input value={form.titulo} onChange={(e) => patch({ titulo: e.target.value })} required />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Categoría</Label>
-                <Select value={form.categoria} onChange={(e) => setForm((prev) => ({ ...prev, categoria: e.target.value }))} options={CATEGORIAS_OPTIONS} />
+                <Select value={form.categoria} onChange={(e) => patch({ categoria: e.target.value })} options={CATEGORIAS_OPTIONS} />
               </div>
               <div className="space-y-2">
                 <Label>Fecha</Label>
-                <Input type="date" value={form.fecha} onChange={(e) => setForm((prev) => ({ ...prev, fecha: e.target.value }))} />
+                <Input type="date" value={form.fecha} onChange={(e) => patch({ fecha: e.target.value })} />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Descripción</Label>
-              <Textarea rows={3} value={form.descripcion} onChange={(e) => setForm((prev) => ({ ...prev, descripcion: e.target.value }))} />
+              <Textarea rows={3} value={form.descripcion} onChange={(e) => patch({ descripcion: e.target.value })} />
             </div>
             <div className="space-y-2">
               <Label>Archivo PDF</Label>
@@ -140,7 +154,7 @@ export default function EditarDocumentoPage() {
                 bucket="documentos"
                 accept="application/pdf"
                 value={form.archivo_pdf}
-                onChange={(url) => setForm((prev) => ({ ...prev, archivo_pdf: url }))}
+                onChange={(url) => patch({ archivo_pdf: url })}
                 label="PDF"
               />
             </div>
@@ -148,18 +162,18 @@ export default function EditarDocumentoPage() {
               <Checkbox
                 id="publicada"
                 checked={form.publicada}
-                onChange={(e) => setForm((prev) => ({ ...prev, publicada: e.target.checked }))}
+                onChange={(e) => patch({ publicada: e.target.checked })}
               />
               <Label htmlFor="publicada" className="cursor-pointer">Publicada (visible al público)</Label>
             </div>
-            <div className="flex gap-4">
+            <div className="sticky bottom-0 -mx-6 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur">
+              <Link href="/admin/transparencia">
+                <Button type="button" variant="outline">Cancelar</Button>
+              </Link>
               <Button type="submit" loading={submitting}>
                 <Save className="mr-2 h-4 w-4" />
                 Guardar Cambios
               </Button>
-              <Link href="/admin/transparencia">
-                <Button variant="outline" type="button">Cancelar</Button>
-              </Link>
             </div>
           </form>
         </CardContent>

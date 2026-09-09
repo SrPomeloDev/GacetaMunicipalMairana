@@ -1,14 +1,16 @@
 import Link from "next/link"
+import Image from "next/image"
 import { notFound } from "next/navigation"
 import { headers } from "next/headers"
 import QRCode from "qrcode"
 import { cn, getEstadoColor, getEstadoLabel, formatDate } from "@/lib/utils"
-import { FileText, Download, QrCode, Share2, Clock, Building2, Hash, Calendar, ChevronRight, ArrowLeft, Printer, ScrollText } from "lucide-react"
+import { FileText, Download, QrCode, Share2, Clock, Building2, Hash, Calendar, ArrowLeft, Printer, ScrollText } from "@/lib/icons"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import PageHeader from "@/components/layout/page-header"
 import { PdfViewer } from "@/components/normativa/pdf-viewer"
+import { ShareButtons } from "@/components/share/share-buttons"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { Normativa, CategoriaNormativa, Dependencia, ModificacionNormativa } from "@/types"
 
@@ -24,8 +26,8 @@ async function getNormativa(slug: string) {
   if (error || !normativa) return null
 
   const [catRes, depRes, modRes] = await Promise.all([
-    supabase.from("categorias_normativa").select("*").eq("id", normativa.categoria_id).single(),
-    supabase.from("dependencias").select("*").eq("id", normativa.dependencia_id).single(),
+    supabase.from("categorias_normativa").select("*").eq("id", normativa.categoria_id ?? "").single(),
+    supabase.from("dependencias").select("*").eq("id", normativa.dependencia_id ?? "").single(),
     supabase
       .from("modificaciones_normativa")
       .select("*, normativa_modificadora:normativa!normativa_modificadora_id(numero, titulo, slug)")
@@ -52,6 +54,7 @@ export default async function NormativaDetailPage({ params }: { params: Promise<
   const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000"
   const proto = h.get("x-forwarded-proto") ?? (process.env.NODE_ENV === "production" ? "https" : "http")
   const qrContent = n.archivo_pdf ?? `${proto}://${host}/normativa/${n.slug}`
+  const pageUrl = `${proto}://${host}/normativa/${n.slug}`
   const qrDataUrl = await QRCode.toDataURL(qrContent, { width: 192, margin: 1 }).catch(() => null)
 
   return (
@@ -83,10 +86,12 @@ export default async function NormativaDetailPage({ params }: { params: Promise<
           {n.archivo_pdf ? (
             <PdfViewer url={n.archivo_pdf} titulo={n.titulo} />
           ) : (
-            <div className="aspect-[4/3] rounded-2xl border-2 border-dashed bg-muted/30 flex flex-col items-center justify-center text-muted-foreground">
+            <div className="aspect-[4/3] rounded-2xl border-2 border-dashed bg-muted/30 flex flex-col items-center justify-center text-muted-foreground px-6 text-center">
               <FileText className="h-16 w-16 mb-4 text-muted-foreground/50" />
-              <p className="text-lg font-medium">Visor de PDF - Próximamente</p>
-              <p className="text-sm mt-1">El visor de documentos estará disponible próximamente</p>
+              <p className="text-lg font-medium text-foreground">Documento PDF no adjunto</p>
+              <p className="text-sm mt-1 max-w-md">
+                Esta normativa no tiene archivo PDF. Consultá el resumen y los datos de la ficha en esta página.
+              </p>
             </div>
           )}
 
@@ -224,9 +229,12 @@ export default async function NormativaDetailPage({ params }: { params: Promise<
               <div className="flex flex-col items-center gap-3">
                 <div className="flex h-24 w-24 items-center justify-center rounded-xl border-2 border-dashed bg-white">
                   {qrDataUrl ? (
-                    <img
+                    <Image
                       src={qrDataUrl}
                       alt={`Código QR de ${n.numero}`}
+                      width={80}
+                      height={80}
+                      unoptimized
                       className="h-20 w-20 rounded-lg"
                     />
                   ) : (
@@ -244,20 +252,7 @@ export default async function NormativaDetailPage({ params }: { params: Promise<
                 <Share2 className="h-4 w-4 text-primary" />
                 Compartir
               </p>
-              <div className="flex gap-2">
-                <Button variant="outline" size="icon" className="rounded-full">
-                  <span className="text-xs font-bold">F</span>
-                </Button>
-                <Button variant="outline" size="icon" className="rounded-full">
-                  <span className="text-xs font-bold">X</span>
-                </Button>
-                <Button variant="outline" size="icon" className="rounded-full">
-                  <span className="text-xs font-bold">in</span>
-                </Button>
-                <Button variant="outline" size="icon" className="rounded-full">
-                  <Share2 className="h-4 w-4" />
-                </Button>
-              </div>
+              <ShareButtons url={pageUrl} title={n.titulo} />
             </CardContent>
           </Card>
 

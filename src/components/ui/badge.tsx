@@ -15,7 +15,7 @@ const badgeVariants = cva(
         outline: "border-border text-foreground",
         success: "border-transparent bg-green-600 text-white hover:bg-green-600/80",
         warning: "border-transparent bg-yellow-500 text-white hover:bg-yellow-500/80",
-        "soft-primary": "border-primary/20 bg-primary/10 text-primary",
+        "soft-primary": "border-primary/30 bg-muted text-primary",
         "soft-success": "border-emerald-500/25 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
         "soft-destructive": "border-red-500/25 bg-red-500/10 text-red-600 dark:text-red-400",
         "soft-warning": "border-yellow-500/25 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400",

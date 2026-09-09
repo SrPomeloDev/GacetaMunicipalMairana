@@ -11,14 +11,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileUpload } from "@/components/admin/file-upload"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
-import { createClient } from "@/lib/supabase/client"
+import { useDirtyGuard } from "@/hooks/use-dirty-guard"
 import { ArrowLeft, Save } from "lucide-react"
 
 export default function EditarGaleriaPage() {
   const params = useParams()
   const router = useRouter()
   const { addToast } = useToast()
-  const supabase = createClient()
 
   const [form, setForm] = useState({
     titulo: "",
@@ -30,12 +29,20 @@ export default function EditarGaleriaPage() {
   })
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [dirty, setDirty] = useState(false)
+  useDirtyGuard(dirty)
+
+  const patch = (p: Partial<typeof form>) => {
+    setDirty(true)
+    setForm((prev) => ({ ...prev, ...p }))
+  }
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase.from("galeria").select("*").eq("id", params.id as string).single()
-      if (error) {
-        addToast(error.message, "error")
+      const res = await fetch(`/api/admin/galeria/${params.id}`)
+      const data = await res.json()
+      if (!res.ok) {
+        addToast(data.error || "Error al cargar", "error")
         router.push("/admin/galeria")
         return
       }
@@ -50,7 +57,7 @@ export default function EditarGaleriaPage() {
       setLoading(false)
     }
     load()
-  }, [params.id, supabase, router, addToast])
+  }, [params.id, router, addToast])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,16 +67,21 @@ export default function EditarGaleriaPage() {
     }
     setSubmitting(true)
     try {
-      const { error } = await supabase.from("galeria").update({
-        titulo: form.titulo,
-        descripcion: form.descripcion || null,
-        imagen: form.imagen,
-        album: form.album || "General",
-        fecha: form.fecha || null,
-        orden: form.orden ? Number(form.orden) : 0,
-      }).eq("id", params.id as string)
-      if (error) {
-        addToast(error.message, "error")
+      const res = await fetch(`/api/admin/galeria/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo: form.titulo,
+          descripcion: form.descripcion || null,
+          imagen: form.imagen,
+          album: form.album || "General",
+          fecha: form.fecha || null,
+          orden: form.orden ? Number(form.orden) : 0,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        addToast(data.error || "Error al guardar", "error")
         return
       }
       addToast("Imagen actualizada", "success")
@@ -87,8 +99,9 @@ export default function EditarGaleriaPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/admin/galeria">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4" />
+            Volver
           </Button>
         </Link>
         <div>
@@ -105,15 +118,15 @@ export default function EditarGaleriaPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label>Título</Label>
-              <Input value={form.titulo} onChange={(e) => setForm((prev) => ({ ...prev, titulo: e.target.value }))} required />
+              <Input value={form.titulo} onChange={(e) => patch({ titulo: e.target.value })} required />
             </div>
             <div className="space-y-2">
               <Label>Descripción</Label>
-              <Textarea rows={3} value={form.descripcion} onChange={(e) => setForm((prev) => ({ ...prev, descripcion: e.target.value }))} />
+              <Textarea rows={3} value={form.descripcion} onChange={(e) => patch({ descripcion: e.target.value })} />
             </div>
             <div className="space-y-2">
               <Label>Álbum</Label>
-              <Input value={form.album} onChange={(e) => setForm((prev) => ({ ...prev, album: e.target.value }))} />
+              <Input value={form.album} onChange={(e) => patch({ album: e.target.value })} />
             </div>
             <div className="space-y-2">
               <Label>Imagen</Label>
@@ -121,28 +134,28 @@ export default function EditarGaleriaPage() {
                 bucket="galeria"
                 accept="image/*"
                 value={form.imagen}
-                onChange={(url) => setForm((prev) => ({ ...prev, imagen: url }))}
+                onChange={(url) => patch({ imagen: url })}
                 label="Imagen"
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Fecha</Label>
-                <Input type="date" value={form.fecha} onChange={(e) => setForm((prev) => ({ ...prev, fecha: e.target.value }))} />
+                <Input type="date" value={form.fecha} onChange={(e) => patch({ fecha: e.target.value })} />
               </div>
               <div className="space-y-2">
                 <Label>Orden</Label>
-                <Input type="number" min="0" value={form.orden} onChange={(e) => setForm((prev) => ({ ...prev, orden: e.target.value }))} />
+                <Input type="number" min="0" value={form.orden} onChange={(e) => patch({ orden: e.target.value })} />
               </div>
             </div>
-            <div className="flex gap-4">
+            <div className="sticky bottom-0 -mx-6 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur">
+              <Link href="/admin/galeria">
+                <Button type="button" variant="outline">Cancelar</Button>
+              </Link>
               <Button type="submit" loading={submitting}>
                 <Save className="mr-2 h-4 w-4" />
                 Guardar Cambios
               </Button>
-              <Link href="/admin/galeria">
-                <Button variant="outline" type="button">Cancelar</Button>
-              </Link>
             </div>
           </form>
         </CardContent>

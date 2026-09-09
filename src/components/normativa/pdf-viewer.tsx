@@ -1,7 +1,8 @@
 "use client"
 
-import { FileText, Download, ExternalLink, ShieldCheck } from "lucide-react"
+import { FileText, Download, ExternalLink, ShieldCheck } from "@/lib/icons"
 import { buttonVariants } from "@/components/ui/button"
+import { IconBox } from "@/components/ui/icon-box"
 
 interface PdfViewerProps {
   url?: string | null
@@ -12,9 +13,9 @@ export function PdfViewer({ url, titulo }: PdfViewerProps) {
   if (!url) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[450px] bg-muted/30 rounded-2xl border-2 border-dashed border-border p-8 text-center space-y-3">
-        <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground">
+        <IconBox size="xl" className="rounded-2xl">
           <FileText className="h-8 w-8" />
-        </div>
+        </IconBox>
         <h4 className="text-base font-bold font-serif text-foreground">Documento digital en proceso de digitalización</h4>
         <p className="text-xs text-muted-foreground max-w-md leading-relaxed">
           El texto completo de <span className="font-semibold">{titulo}</span> se encuentra resguardado en el Archivo Físico de la Gaceta Municipal.
@@ -61,7 +62,7 @@ export function PdfViewer({ url, titulo }: PdfViewerProps) {
         <iframe
           src={`${url}#toolbar=1`}
           title={titulo}
-          className="w-full h-[650px] border-0"
+          className="w-full h-[60vh] sm:h-[650px] border-0"
         />
       </div>
     </div>

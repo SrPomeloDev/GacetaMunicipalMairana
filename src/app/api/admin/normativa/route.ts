@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
+import { normativaInsertSchema } from "@/lib/validations/normativa"
 
 export async function POST(request: Request) {
   let permiso: PermisosUsuario | null
@@ -13,13 +14,17 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
+  const parsed = normativaInsertSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
+  }
 
   const { data, error } = await permiso.supabase
     .from("normativa")
     .insert({
-      ...body,
+      ...parsed.data,
       created_by: permiso.id,
-    })
+    } as never)
     .select()
     .single()
 

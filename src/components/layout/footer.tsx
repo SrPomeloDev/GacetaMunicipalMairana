@@ -1,10 +1,12 @@
 import Link from "next/link"
+import Image from "next/image"
 import { MAIRANA, NAV_LINKS, SITE_NAME, DEV_CREDIT } from "@/lib/constants"
-import { MapPin, Phone, Mail, Clock, ShieldCheck, Scale, FileCheck, ExternalLink, Landmark, Building2, Code2 } from "lucide-react"
+import { MapPin, Phone, Mail, Clock, ShieldCheck, Scale, FileCheck2, ExternalLink, Landmark, Building2, Code2 } from "@/lib/icons"
 import NewsletterForm from "./newsletter-form"
 
 const FOOTER_LINKS = [
   { href: "/gaceta", label: "Gaceta Oficial" },
+  { href: "/asistente", label: "Consulta de normativa" },
   ...NAV_LINKS,
 ]
 
@@ -20,18 +22,23 @@ export default function Footer() {
 
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <img
+              <Image
                 src="/images/escudo-mairana.jpg"
                 alt="Escudo de Mairana"
+                width={48}
+                height={48}
                 className="h-12 w-12 rounded-xl bg-white object-contain p-1 shadow-sm ring-1 ring-border"
               />
               <div className="min-w-0">
                 <p className="font-serif text-base font-extrabold tracking-tight text-foreground">Gaceta Municipal</p>
                 <p className="text-xs font-medium text-primary">G.A.M. Mairana - Bolivia</p>
               </div>
-              <img
+              <Image
                 src="/images/mairana-bandera.svg"
                 alt="Bandera de Mairana"
+                width={48}
+                height={32}
+                unoptimized
                 className="h-8 w-12 rounded-md border border-primary/15 object-cover"
               />
             </div>
@@ -39,11 +46,11 @@ export default function Footer() {
               Órgano de publicación oficial de Leyes Municipales, Ordenanzas, Decretos y Resoluciones del Gobierno Autónomo Municipal de Mairana, garantizando el acceso público y la transparencia según Ley N° 482 y Ley N° 341.
             </p>
             <div className="flex items-center gap-3 pt-1">
-              <a href={`mailto:${MAIRANA.email}`} className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary hover:text-primary-foreground">
+              <a href={`mailto:${MAIRANA.email}`} className="inline-flex items-center gap-1.5 rounded-lg border border-primary bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:opacity-90">
                 <Mail className="h-3.5 w-3.5" />
                 Escríbenos
               </a>
-              <a href={`tel:${MAIRANA.telefono}`} className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary hover:text-primary-foreground">
+              <a href={`tel:${MAIRANA.telefono}`} className="inline-flex items-center gap-1.5 rounded-lg border border-primary bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:opacity-90">
                 <Phone className="h-3.5 w-3.5" />
                 Llámanos
               </a>
@@ -77,9 +84,11 @@ export default function Footer() {
               </li>
               <li className="rounded-xl border border-primary/15 bg-primary/5 p-3">
                 <div className="flex items-center gap-2.5">
-                  <img
+                  <Image
                     src="/images/transparencia-ley341.png"
                     alt="Logo Transparencia Ley 341"
+                    width={36}
+                    height={36}
                     className="h-9 w-9 shrink-0 rounded-lg border border-border/60 bg-white object-contain p-0.5 shadow-sm"
                   />
                   <p className="font-semibold text-foreground">Ley N° 341 de Control Social</p>
@@ -141,7 +150,7 @@ export default function Footer() {
             </span>
           </p>
           <div className="flex items-center gap-2 rounded-full border border-primary/20 bg-card px-3 py-1.5 shadow-sm">
-            <FileCheck className="h-4 w-4 text-emerald-600" />
+            <FileCheck2 className="h-4 w-4 text-emerald-600" />
             <span className="text-[11px]">Publicación con Valor Legal e Integridad Digital</span>
           </div>
         </div>

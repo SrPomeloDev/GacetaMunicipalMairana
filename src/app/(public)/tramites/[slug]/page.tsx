@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import PageHeader from "@/components/layout/page-header"
-import { CheckCircle, Clock, DollarSign, Download, ClipboardList, Building2, ArrowLeft, Mail, Phone } from "lucide-react"
+import { CheckCircle, Clock, DollarSign, Download, ClipboardList, Building2, ArrowLeft, Mail, Phone } from "@/lib/icons"
 import type { Tramite } from "@/types"
 
 interface TramiteDetalle extends Tramite {

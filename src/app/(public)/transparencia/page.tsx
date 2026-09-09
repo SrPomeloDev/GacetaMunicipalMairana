@@ -1,12 +1,15 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { cn, formatDate } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import PageHeader from "@/components/layout/page-header"
-import { FileText, Download, Calendar, Search, FolderOpen, FileCheck2, Eye, Gavel } from "lucide-react"
+import { IconBox } from "@/components/ui/icon-box"
+import { FileText, Download, Calendar, Search, FolderOpen, FileCheck2, Eye, Gavel } from "@/lib/icons"
 import { createClient } from "@/lib/supabase/client"
 import type { Transparencia } from "@/types"
 
@@ -16,20 +19,29 @@ const CATEGORIA_LABEL: Record<string, string> = {
 }
 
 const categoryColors: Record<string, string> = {
-  presupuesto: "bg-primary/10 text-primary-foreground",
-  poa: "bg-primary/10 text-primary-foreground",
-  pei: "bg-primary/10 text-primary-foreground",
-  contratacion: "bg-primary/10 text-primary-foreground",
-  auditoria: "bg-primary/10 text-primary-foreground",
-  financiero: "bg-primary/10 text-primary-foreground",
-  declaracion: "bg-primary/10 text-primary-foreground",
-  informe: "bg-primary/10 text-primary-foreground",
+  presupuesto: "bg-primary text-primary-foreground",
+  poa: "bg-primary text-primary-foreground",
+  pei: "bg-primary text-primary-foreground",
+  contratacion: "bg-primary text-primary-foreground",
+  auditoria: "bg-primary text-primary-foreground",
+  financiero: "bg-primary text-primary-foreground",
+  declaracion: "bg-primary text-primary-foreground",
+  informe: "bg-primary text-primary-foreground",
 }
 
-export default function TransparenciaPage() {
+function categoriaDesdeQuery(param: string | null): string {
+  if (!param) return "Todos"
+  if (CATEGORIA_LABEL[param]) return CATEGORIA_LABEL[param]
+  const lower = param.toLowerCase()
+  return Object.values(CATEGORIA_LABEL).find((l) => l.toLowerCase() === lower) ?? "Todos"
+}
+
+function TransparenciaContent() {
+  const searchParams = useSearchParams()
   const [documents, setDocuments] = useState<Transparencia[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeCategory, setActiveCategory] = useState("Todos")
+  const [error, setError] = useState<string | null>(null)
+  const [activeCategory, setActiveCategory] = useState(() => categoriaDesdeQuery(searchParams.get("categoria")))
   const [search, setSearch] = useState("")
   const supabase = createClient()
 
@@ -40,7 +52,12 @@ export default function TransparenciaPage() {
       .eq("publicada", true)
       .order("fecha", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false })
-    if (!error && data) setDocuments(data)
+    if (error) {
+      setError(error.message)
+    } else {
+      setDocuments(data || [])
+      setError(null)
+    }
     setLoading(false)
   }, [supabase])
 
@@ -73,9 +90,11 @@ export default function TransparenciaPage() {
         description="Accedé a la información pública del Gobierno Autónomo Municipal de Mairana: presupuestos, planes, auditorías y más documentos de interés público, en cumplimiento de la Ley N° 482 y la Ley N° 341."
         crumbs={[{ label: "Transparencia" }]}
         icon={
-          <img
+          <Image
             src="/images/transparencia-ley341.png"
             alt="Logo Transparencia Ley 341"
+            width={48}
+            height={48}
             className="hidden h-12 w-12 rounded-xl border border-border/60 bg-white object-contain p-1 shadow-sm sm:block"
           />
         }
@@ -143,6 +162,12 @@ export default function TransparenciaPage() {
             </Card>
           ))}
         </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 text-center">
+          <FileText className="h-12 w-12 text-muted-foreground/50 mb-3" />
+          <p className="text-lg font-medium text-foreground">Error al cargar</p>
+          <p className="text-sm text-muted-foreground mt-1">{error}</p>
+        </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 text-center">
           <FolderOpen className="h-12 w-12 text-muted-foreground/50 mb-3" />
@@ -152,15 +177,15 @@ export default function TransparenciaPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {filtered.map((doc) => (
-            <Card key={doc.id} className="group transition-all hover:shadow-md">
+            <Card key={doc.id} className="group transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted">
               <CardContent className="p-5">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary-foreground">
+                  <IconBox size="md" className="transition-transform duration-300 group-hover:scale-110 group-hover:shadow-sm">
                     <FileText className="h-5 w-5" />
-                  </div>
+                  </IconBox>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-card-foreground">{doc.titulo}</h3>
+                      <h3 className="line-clamp-2 font-semibold text-card-foreground">{doc.titulo}</h3>
                       {doc.archivo_pdf && (
                         <a
                           href={doc.archivo_pdf}
@@ -198,5 +223,17 @@ export default function TransparenciaPage() {
       )}
       </div>
     </div>
+  )
+}
+
+export default function TransparenciaPage() {
+  return (
+    <Suspense fallback={
+      <div className="mx-auto max-w-7xl px-4 py-16 text-center text-muted-foreground">
+        Cargando Transparencia...
+      </div>
+    }>
+      <TransparenciaContent />
+    </Suspense>
   )
 }

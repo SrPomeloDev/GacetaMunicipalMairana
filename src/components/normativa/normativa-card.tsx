@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { getEstadoColor, getEstadoLabel, formatDate, cn } from "@/lib/utils"
-import { FileText, Calendar, ArrowRight } from "lucide-react"
+import { FileText, Calendar, ArrowRight, Download } from "@/lib/icons"
 
 interface NormativaCardProps {
   normativa: {
@@ -23,7 +23,7 @@ export function NormativaCard({ normativa }: NormativaCardProps) {
   const isVigente = normativa.estado?.toLowerCase() === "vigente"
 
   return (
-    <Card className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:border-primary/40 flex flex-col justify-between">
+    <Card className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-border/70 bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted hover:border-primary/40">
       {/* Top Left Accent Line */}
       <div
         className={cn(
@@ -37,7 +37,7 @@ export function NormativaCard({ normativa }: NormativaCardProps) {
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
             <Badge className={cn("px-2.5 py-0.5 text-[11px] font-bold border rounded-full gap-1.5 shadow-2xs", getEstadoColor(normativa.estado))}>
-              <span className={cn("h-1.5 w-1.5 rounded-full animate-pulse", isVigente ? "bg-emerald-500" : "bg-amber-500")} />
+              <span className={cn("h-1.5 w-1.5 rounded-full", isVigente ? "bg-emerald-500" : "bg-amber-500")} />
               {getEstadoLabel(normativa.estado)}
             </Badge>
 
@@ -77,12 +77,24 @@ export function NormativaCard({ normativa }: NormativaCardProps) {
           {formatDate(normativa.fecha_publicacion)}
         </span>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {normativa.archivo_pdf && (
+            <a
+              href={normativa.archivo_pdf}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Download className="h-3.5 w-3.5" />
+              PDF
+            </a>
+          )}
           <Link
             href={`/normativa/${normativa.slug}`}
             className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
           >
-            <span>Ver Texto</span>
+            <span>Ver ficha</span>
             <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>

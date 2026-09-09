@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { requireVerModulo, requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import type { MensajeContacto } from "@/types"
 
 export async function GET(request: Request) {
   let permiso: PermisosUsuario | null
@@ -18,8 +19,8 @@ export async function GET(request: Request) {
 
   let query = permiso.supabase.from("contacto_mensajes").select("*")
   if (soloNoLeidos) query = query.eq("leido", false)
-  if (categoria) query = query.eq("categoria", categoria)
-  if (estado) query = query.eq("estado", estado)
+  if (categoria) query = query.eq("categoria", categoria as MensajeContacto["categoria"])
+  if (estado) query = query.eq("estado", estado as MensajeContacto["estado"])
   query = query.order("created_at", { ascending: false })
 
   const { data, error } = await query

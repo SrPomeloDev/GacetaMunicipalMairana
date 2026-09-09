@@ -9,10 +9,13 @@ import { Select } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileUpload } from "@/components/admin/file-upload"
+import { RichTextEditor } from "@/components/admin/rich-text-editor"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/lib/supabase/client"
 import { slugify } from "@/lib/utils"
+import { ArrowLeft } from "lucide-react"
+import type { Noticia } from "@/types"
 
 const CATEGORIAS_OPTIONS = [
   { value: "institucional", label: "Institucional" },
@@ -43,6 +46,7 @@ export default function NoticiaFormPage() {
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(!isNew)
   const [slugTouched, setSlugTouched] = useState(false)
+  const [tab, setTab] = useState<"editar" | "vista">("editar")
 
   useEffect(() => {
     if (isNew) return
@@ -98,7 +102,7 @@ export default function NoticiaFormPage() {
         slug: formData.slug || slugify(formData.titulo),
         resumen: formData.resumen || null,
         contenido: formData.contenido || null,
-        categoria: formData.categoria,
+        categoria: formData.categoria as Noticia["categoria"],
         destacada: formData.destacada,
         publicada: formData.publicada,
         fecha_publicacion: formData.fecha_publicacion ? new Date(formData.fecha_publicacion).toISOString() : null,
@@ -124,11 +128,14 @@ export default function NoticiaFormPage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">{isNew ? "Nueva Noticia" : "Editar Noticia"}</h1>
+      <div className="flex flex-wrap items-center gap-3">
         <Link href="/admin/noticias">
-          <Button variant="outline">Cancelar</Button>
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4" />
+            Volver
+          </Button>
         </Link>
+        <h1 className="text-2xl font-bold">{isNew ? "Nueva Noticia" : "Editar Noticia"}</h1>
       </div>
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
@@ -190,18 +197,33 @@ export default function NoticiaFormPage() {
             </div>
             <div className="space-y-2">
               <Label>Contenido</Label>
-              <textarea
-                name="contenido"
-                value={formData.contenido}
-                onChange={handleChange}
-                rows={15}
-                className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                placeholder="Contenido completo de la noticia..."
-              />
+              <div className="flex gap-1">
+                <Button type="button" variant={tab === "editar" ? "default" : "ghost"} size="sm" onClick={() => setTab("editar")}>
+                  Editar
+                </Button>
+                <Button type="button" variant={tab === "vista" ? "default" : "ghost"} size="sm" onClick={() => setTab("vista")}>
+                  Vista previa
+                </Button>
+              </div>
+              {tab === "editar" ? (
+                <RichTextEditor
+                  value={formData.contenido}
+                  onChange={(html) => setFormData((prev) => ({ ...prev, contenido: html }))}
+                />
+              ) : formData.contenido ? (
+                <div
+                  className="min-h-[220px] rounded-lg border border-input bg-background px-4 py-3 text-sm leading-relaxed [&_a]:text-primary [&_a]:underline [&_blockquote]:my-2 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-muted-foreground [&_h2]:mb-2 [&_h2]:mt-4 [&_h2]:text-xl [&_h2]:font-bold [&_h3]:mb-1 [&_h3]:mt-3 [&_h3]:text-lg [&_h3]:font-semibold [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:my-2 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-6"
+                  dangerouslySetInnerHTML={{ __html: formData.contenido }}
+                />
+              ) : (
+                <p className="rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+                  Sin contenido
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
-        <div className="flex gap-4 justify-end">
+        <div className="sticky bottom-0 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur">
           <Link href="/admin/noticias">
             <Button type="button" variant="outline">Cancelar</Button>
           </Link>

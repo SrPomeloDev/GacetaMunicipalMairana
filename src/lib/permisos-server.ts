@@ -11,21 +11,22 @@ export interface PermisosUsuario {
 }
 
 export async function getPermisosUsuario(supabase: ServerSupabase): Promise<PermisosUsuario | null> {
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) return null
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+  if (!authUser) return null
 
   const { data: usuario } = await supabase
     .from("usuarios")
-    .select("rol")
-    .eq("id", session.user.id)
+    .select("rol,activo")
+    .eq("id", authUser.id)
     .maybeSingle()
-  const fila = usuario as { rol: string } | null
+  const fila = usuario as { rol: string; activo: boolean } | null
+  if (!fila || fila.activo === false) return null
 
-  const rol = fila?.rol ?? (session.user.user_metadata?.rol as string | undefined) ?? "editor"
-  const overrides = tipoPermisos(session.user.user_metadata?.permisos)
+  const rol = fila?.rol ?? (authUser.user_metadata?.rol as string | undefined) ?? "editor"
+  const overrides = tipoPermisos(authUser.user_metadata?.permisos)
 
   return {
-    id: session.user.id,
+    id: authUser.id,
     rol,
     permisos: permisosEfectivos(rol, overrides),
     supabase,

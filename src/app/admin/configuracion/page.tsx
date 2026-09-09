@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileUpload } from "@/components/admin/file-upload"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
-import { createClient } from "@/lib/supabase/client"
 import { Save, Building2, Share2, Palette } from "lucide-react"
 
 const DEFAULT_CONFIG = {
@@ -27,7 +26,6 @@ const DEFAULT_CONFIG = {
 
 export default function AdminConfiguracionPage() {
   const { addToast } = useToast()
-  const supabase = createClient()
 
   const [form, setForm] = useState({ ...DEFAULT_CONFIG })
   const [loading, setLoading] = useState(true)
@@ -35,9 +33,10 @@ export default function AdminConfiguracionPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase.from("configuracion").select("*").eq("id", 1).maybeSingle()
-      if (error && !error.message.includes("does not exist")) {
-        addToast(error.message, "error")
+      const res = await fetch("/api/admin/configuracion")
+      const data = await res.json()
+      if (!res.ok) {
+        addToast(data.error || "Error al cargar configuración", "error")
         setLoading(false)
         return
       }
@@ -59,21 +58,23 @@ export default function AdminConfiguracionPage() {
       setLoading(false)
     }
     load()
-  }, [supabase, addToast])
+  }, [addToast])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
     try {
-      const { error } = await supabase.from("configuracion").upsert({
-        id: 1,
-        ...form,
+      const res = await fetch("/api/admin/configuracion", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: 1, ...form }),
       })
-      if (error) {
+      const data = await res.json()
+      if (!res.ok) {
         addToast(
-          error.message.includes("does not exist")
+          data.error?.includes("does not exist")
             ? "La tabla 'configuracion' no existe. Ejecuta la migración 00003_configuracion.sql en Supabase SQL Editor."
-            : error.message,
+            : (data.error || "Error al guardar"),
           "error"
         )
         return
@@ -111,26 +112,26 @@ export default function AdminConfiguracionPage() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Nombre del Municipio</Label>
-              <Input value={form.municipio} onChange={(e) => setForm((prev) => ({ ...prev, municipio: e.target.value }))} />
+              <Label htmlFor="cfg-municipio">Nombre del Municipio</Label>
+              <Input id="cfg-municipio" value={form.municipio} onChange={(e) => setForm((prev) => ({ ...prev, municipio: e.target.value }))} />
             </div>
             <div className="space-y-2">
-              <Label>Lema</Label>
-              <Input value={form.lema} onChange={(e) => setForm((prev) => ({ ...prev, lema: e.target.value }))} />
+              <Label htmlFor="cfg-lema">Lema</Label>
+              <Input id="cfg-lema" value={form.lema} onChange={(e) => setForm((prev) => ({ ...prev, lema: e.target.value }))} />
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Dirección</Label>
-            <Input value={form.direccion} onChange={(e) => setForm((prev) => ({ ...prev, direccion: e.target.value }))} placeholder="Plaza Principal s/n, Mairana, Santa Cruz" />
+            <Label htmlFor="cfg-direccion">Dirección</Label>
+            <Input id="cfg-direccion" value={form.direccion} onChange={(e) => setForm((prev) => ({ ...prev, direccion: e.target.value }))} placeholder="Plaza Principal s/n, Mairana, Santa Cruz" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Teléfono</Label>
-              <Input value={form.telefono} onChange={(e) => setForm((prev) => ({ ...prev, telefono: e.target.value }))} placeholder="+591 ..." />
+              <Label htmlFor="cfg-telefono">Teléfono</Label>
+              <Input id="cfg-telefono" value={form.telefono} onChange={(e) => setForm((prev) => ({ ...prev, telefono: e.target.value }))} placeholder="+591 ..." />
             </div>
             <div className="space-y-2">
-              <Label>Email</Label>
-              <Input type="email" value={form.email} onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))} placeholder="info@mairana.gob.bo" />
+              <Label htmlFor="cfg-email">Email</Label>
+              <Input id="cfg-email" type="email" value={form.email} onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))} placeholder="info@mairana.gob.bo" />
             </div>
           </div>
         </CardContent>
@@ -146,20 +147,20 @@ export default function AdminConfiguracionPage() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Facebook</Label>
-              <Input value={form.facebook} onChange={(e) => setForm((prev) => ({ ...prev, facebook: e.target.value }))} placeholder="https://facebook.com/..." />
+              <Label htmlFor="cfg-facebook">Facebook</Label>
+              <Input id="cfg-facebook" value={form.facebook} onChange={(e) => setForm((prev) => ({ ...prev, facebook: e.target.value }))} placeholder="https://facebook.com/..." />
             </div>
             <div className="space-y-2">
-              <Label>Twitter / X</Label>
-              <Input value={form.twitter} onChange={(e) => setForm((prev) => ({ ...prev, twitter: e.target.value }))} placeholder="https://x.com/..." />
+              <Label htmlFor="cfg-twitter">Twitter / X</Label>
+              <Input id="cfg-twitter" value={form.twitter} onChange={(e) => setForm((prev) => ({ ...prev, twitter: e.target.value }))} placeholder="https://x.com/..." />
             </div>
             <div className="space-y-2">
-              <Label>YouTube</Label>
-              <Input value={form.youtube} onChange={(e) => setForm((prev) => ({ ...prev, youtube: e.target.value }))} placeholder="https://youtube.com/@..." />
+              <Label htmlFor="cfg-youtube">YouTube</Label>
+              <Input id="cfg-youtube" value={form.youtube} onChange={(e) => setForm((prev) => ({ ...prev, youtube: e.target.value }))} placeholder="https://youtube.com/@..." />
             </div>
             <div className="space-y-2">
-              <Label>Instagram</Label>
-              <Input value={form.instagram} onChange={(e) => setForm((prev) => ({ ...prev, instagram: e.target.value }))} placeholder="https://instagram.com/..." />
+              <Label htmlFor="cfg-instagram">Instagram</Label>
+              <Input id="cfg-instagram" value={form.instagram} onChange={(e) => setForm((prev) => ({ ...prev, instagram: e.target.value }))} placeholder="https://instagram.com/..." />
             </div>
           </div>
         </CardContent>
@@ -175,21 +176,24 @@ export default function AdminConfiguracionPage() {
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
             <div className="space-y-2 flex-1">
-              <Label>Color Institucional</Label>
+              <Label htmlFor="cfg-color">Color Institucional</Label>
               <div className="flex items-center gap-3">
                 <input
+                  id="cfg-color-picker"
+                  aria-label="Selector de color institucional"
                   type="color"
                   value={form.color_primario}
                   onChange={(e) => setForm((prev) => ({ ...prev, color_primario: e.target.value }))}
                   className="h-10 w-14 cursor-pointer rounded-md border border-input bg-background p-1"
                 />
-                <Input value={form.color_primario} onChange={(e) => setForm((prev) => ({ ...prev, color_primario: e.target.value }))} className="max-w-[140px]" />
+                <Input id="cfg-color" value={form.color_primario} onChange={(e) => setForm((prev) => ({ ...prev, color_primario: e.target.value }))} className="max-w-[140px]" />
               </div>
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Logo del Municipio</Label>
+            <Label htmlFor="cfg-logo">Logo del Municipio</Label>
             <FileUpload
+              id="cfg-logo"
               bucket="noticias-imagenes"
               accept="image/*"
               value={form.logo_url}

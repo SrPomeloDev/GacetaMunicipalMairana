@@ -2,9 +2,6 @@ import type { Metadata } from "next"
 import { SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants"
 import Header from "@/components/layout/header"
 import Footer from "@/components/layout/footer"
-import { GacetaSwitcher } from "@/components/layout/gaceta-switcher"
-import Link from "next/link"
-import { Bot } from "lucide-react"
 
 export const metadata: Metadata = {
   title: {
@@ -18,15 +15,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <div className="min-h-screen font-sans antialiased overflow-x-clip">
       <Header />
-      <main className="min-h-screen pt-16">{children}</main>
+      <main className="min-h-screen pt-16 sm:pt-[100px] xl:pt-[104px]">{children}</main>
       <Footer />
-      <GacetaSwitcher />
-      <Link
-        href="/asistente"
-        className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] right-5 z-40 flex h-13 w-13 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90"
-      >
-        <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
-      </Link>
     </div>
   )
 }

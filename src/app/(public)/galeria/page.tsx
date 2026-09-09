@@ -1,16 +1,19 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 import PageHeader from "@/components/layout/page-header"
-import { Image as ImageIcon, Camera, Images } from "lucide-react"
+import { ImageIcon, Camera, Images, X } from "@/lib/icons"
 import { createClient } from "@/lib/supabase/client"
 import type { Galeria } from "@/types"
 
 export default function GaleriaPage() {
   const [images, setImages] = useState<Galeria[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [activeAlbum, setActiveAlbum] = useState("Todas")
+  const [lightbox, setLightbox] = useState<Galeria | null>(null)
   const supabase = createClient()
 
   const fetchImages = useCallback(async () => {
@@ -19,7 +22,12 @@ export default function GaleriaPage() {
       .select("*")
       .order("orden")
       .order("created_at", { ascending: false })
-    if (!error && data) setImages(data)
+    if (error) {
+      setError(error.message)
+    } else {
+      setImages(data || [])
+      setError(null)
+    }
     setLoading(false)
   }, [supabase])
 
@@ -29,6 +37,20 @@ export default function GaleriaPage() {
     }
     run()
   }, [fetchImages])
+
+  useEffect(() => {
+    if (!lightbox) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightbox(null)
+    }
+    document.addEventListener("keydown", onKeyDown)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.removeEventListener("keydown", onKeyDown)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [lightbox])
 
   const albums = useMemo(() => {
     const set = new Set<string>()
@@ -81,6 +103,12 @@ export default function GaleriaPage() {
             </div>
           ))}
         </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
+          <Camera className="h-12 w-12 text-muted-foreground/50 mb-3" />
+          <p className="text-lg font-medium text-foreground">Error al cargar</p>
+          <p className="text-sm text-muted-foreground mt-1">{error}</p>
+        </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
           <Camera className="h-12 w-12 text-muted-foreground/50 mb-3" />
@@ -91,12 +119,19 @@ export default function GaleriaPage() {
         <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
           {filtered.map((item, i) => (
             <div key={item.id} className="mb-4 break-inside-avoid">
-              <div className={cn("group relative overflow-hidden rounded-xl cursor-pointer", heights[i % heights.length])}>
+              <div
+                className={cn("group relative overflow-hidden rounded-xl cursor-pointer", heights[i % heights.length])}
+                onClick={() => { if (item.imagen) setLightbox(item) }}
+              >
                 {item.imagen ? (
-                  <img
+                  <Image
                     src={item.imagen}
                     alt={item.titulo}
-                    className="absolute inset-0 h-full w-full object-cover"
+                    fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    loading={i === 0 ? "eager" : undefined}
+                    fetchPriority={i === 0 ? "high" : undefined}
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
@@ -113,6 +148,39 @@ export default function GaleriaPage() {
         </div>
       )}
       </div>
+
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setLightbox(null)}
+        >
+          <button
+            type="button"
+            aria-label="Cerrar"
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+            onClick={() => setLightbox(null)}
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <figure
+            className="flex max-w-full flex-col items-center gap-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={lightbox.imagen}
+              alt={lightbox.titulo}
+              className="max-h-[85dvh] max-w-full rounded-lg object-contain shadow-2xl"
+            />
+            <figcaption className="text-center text-white">
+              <p className="font-medium">{lightbox.titulo}</p>
+              {lightbox.descripcion && (
+                <p className="mt-0.5 text-sm text-white/70">{lightbox.descripcion}</p>
+              )}
+            </figcaption>
+          </figure>
+        </div>
+      )}
     </div>
   )
 }

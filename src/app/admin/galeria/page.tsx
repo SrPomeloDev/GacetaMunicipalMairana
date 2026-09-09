@@ -8,7 +8,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/admin/confirm-dialog"
 import { useToast } from "@/components/ui/toast"
 import { formatDate } from "@/lib/utils"
-import { createClient } from "@/lib/supabase/client"
 import { Plus, Trash2, FolderOpen, ImageOff } from "lucide-react"
 import type { Galeria } from "@/types"
 
@@ -17,17 +16,17 @@ export default function AdminGaleriaPage() {
   const [loading, setLoading] = useState(true)
   const [deleteTarget, setDeleteTarget] = useState<Galeria | null>(null)
   const { addToast } = useToast()
-  const supabase = createClient()
 
   const fetchImagenes = useCallback(async () => {
-    const { data, error } = await supabase.from("galeria").select("*").order("fecha", { ascending: false })
-    if (error) {
-      addToast(error.message, "error")
+    const res = await fetch("/api/admin/galeria")
+    if (!res.ok) {
+      const data = await res.json()
+      addToast(data.error || "Error al cargar imágenes", "error")
     } else {
-      setImagenes(data || [])
+      setImagenes(await res.json())
     }
     setLoading(false)
-  }, [supabase, addToast])
+  }, [addToast])
 
   useEffect(() => {
     const run = async () => {
@@ -38,14 +37,15 @@ export default function AdminGaleriaPage() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return
-    const { error } = await supabase.from("galeria").delete().eq("id", deleteTarget.id)
-    if (error) {
-      addToast(error.message, "error")
-    } else {
-      addToast("Imagen eliminada", "success")
-      setDeleteTarget(null)
-      fetchImagenes()
+    const res = await fetch(`/api/admin/galeria/${deleteTarget.id}`, { method: "DELETE" })
+    const data = await res.json()
+    if (!res.ok) {
+      addToast(data.error || "Error al eliminar", "error")
+      return
     }
+    addToast("Imagen eliminada", "success")
+    setDeleteTarget(null)
+    fetchImagenes()
   }
 
   return (
@@ -90,7 +90,7 @@ export default function AdminGaleriaPage() {
                   <h3 className="font-medium text-sm truncate hover:text-primary transition-colors">{img.titulo}</h3>
                 </Link>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary-foreground px-2 py-0.5 text-xs font-medium">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-2 py-0.5 text-xs font-medium">
                     <FolderOpen className="h-3 w-3" />
                     {img.album}
                   </span>

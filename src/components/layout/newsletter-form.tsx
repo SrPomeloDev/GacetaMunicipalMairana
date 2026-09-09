@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Mail, Loader2, CheckCircle2 } from "lucide-react"
+import { Loader2, CheckCircle2 } from "lucide-react"
+import { Mail } from "@/lib/icons"
 
 export default function NewsletterForm() {
   const [email, setEmail] = useState("")

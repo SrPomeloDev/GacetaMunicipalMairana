@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ChevronRight, Home } from "lucide-react"
+import { ChevronRight, Home } from "@/lib/icons"
 import { cn } from "@/lib/utils"
 
 export interface PageCrumb {

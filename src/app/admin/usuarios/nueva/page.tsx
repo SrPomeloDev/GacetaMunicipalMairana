@@ -47,8 +47,8 @@ export default function NuevoUsuarioPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.nombre.trim() || !form.email.trim() || form.password.length < 6) {
-      addToast("Completa nombre, email y una contraseña de al menos 6 caracteres", "error")
+    if (!form.nombre.trim() || !form.email.trim() || form.password.length < 8) {
+      addToast("Completa nombre, email y una contraseña de al menos 8 caracteres", "error")
       return
     }
     setSubmitting(true)
@@ -74,8 +74,9 @@ export default function NuevoUsuarioPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/admin/usuarios">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4" />
+            Volver
           </Button>
         </Link>
         <div>
@@ -103,7 +104,7 @@ export default function NuevoUsuarioPage() {
             </div>
             <div className="space-y-2">
               <Label>Contraseña</Label>
-              <Input type="password" value={form.password} onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))} placeholder="Mínimo 6 caracteres" required />
+              <Input type="password" value={form.password} onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))} placeholder="Mínimo 8 caracteres" required minLength={8} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -115,14 +116,14 @@ export default function NuevoUsuarioPage() {
                 <Select value={form.dependencia_id} onChange={(e) => setForm((prev) => ({ ...prev, dependencia_id: e.target.value }))} options={dependencias} placeholder="Sin dependencia" />
               </div>
             </div>
-            <div className="flex gap-4">
+            <div className="sticky bottom-0 -mx-6 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur">
+              <Link href="/admin/usuarios">
+                <Button type="button" variant="outline">Cancelar</Button>
+              </Link>
               <Button type="submit" loading={submitting}>
                 <Save className="mr-2 h-4 w-4" />
                 Crear Usuario
               </Button>
-              <Link href="/admin/usuarios">
-                <Button variant="outline" type="button">Cancelar</Button>
-              </Link>
             </div>
           </form>
         </CardContent>

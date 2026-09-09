@@ -56,7 +56,7 @@ export interface RolDef {
 export const ROLES: Record<string, RolDef> = {
   admin: {
     label: "Administrador",
-    color: "bg-primary/10 text-primary-foreground",
+    color: "bg-primary text-primary-foreground",
     descripcion: "Acceso total al sistema.",
     permisos: {
       normativa: TODAS,

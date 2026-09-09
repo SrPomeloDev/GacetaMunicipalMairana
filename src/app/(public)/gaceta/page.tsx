@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
+import Image from "next/image"
+import { cn, formatDate, getEstadoColor, getEstadoLabel } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { Select } from "@/components/ui/select"
 import { Pagination } from "@/components/ui/pagination"
@@ -19,11 +20,11 @@ import {
   Filter,
   FileText,
   ShieldCheck,
-  Award,
   ArrowRight,
   Landmark,
-  Sparkles,
-} from "lucide-react"
+  MessageCircle,
+  ScrollText,
+} from "@/lib/icons"
 
 const estadoOptions = [
   { value: "vigente", label: "Vigente" },
@@ -48,6 +49,7 @@ function GacetaContent() {
   const [fechaHasta, setFechaHasta] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [showFilters, setShowFilters] = useState(false)
+  const [vista, setVista] = useState<"cards" | "lista">("cards")
   const searchRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
 
@@ -72,6 +74,7 @@ function GacetaContent() {
       setError(normativaRes.error.message)
     } else {
       setNormativas(normativaRes.data || [])
+      setError(null)
     }
     if (!catRes.error) {
       setCategorias(catRes.data || [])
@@ -118,7 +121,7 @@ function GacetaContent() {
         if (!match) return false
       }
       if (categoria) {
-        const cat = catById[item.categoria_id]
+        const cat = catById[item.categoria_id ?? '']
         if (!cat || cat.slug !== categoria) return false
       }
       if (estado && item.estado !== estado) return false
@@ -136,10 +139,12 @@ function GacetaContent() {
     <div className="pb-20">
       {/* Hero */}
       <section className="relative overflow-hidden pt-12 pb-16 sm:pt-28 lg:pt-36">
-        <img
+        <Image
           src="/images/plaza.jpg"
           alt=""
           aria-hidden
+          fill
+          sizes="100vw"
           className="absolute inset-0 h-full w-full object-cover opacity-45"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/50 to-background" aria-hidden />
@@ -157,10 +162,7 @@ function GacetaContent() {
 
           <Reveal>
             <h1 className="font-serif text-4xl font-extrabold leading-none tracking-tight text-foreground sm:text-6xl">
-              Gaceta{" "}
-              <span className="bg-gradient-to-r from-primary via-amber-500 to-primary bg-clip-text text-transparent">
-                Municipal Oficial
-              </span>
+              Gaceta <span className="text-primary">Municipal Oficial</span>
             </h1>
           </Reveal>
 
@@ -224,8 +226,8 @@ function GacetaContent() {
               <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
                 <div className="space-y-2">
                   <div className="inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground shadow-sm shadow-primary/30">
-                    <Award className="h-3.5 w-3.5" />
-                    <span>Última Promulgación Destacada</span>
+                    <ScrollText className="h-3.5 w-3.5" />
+                    <span>Última publicación</span>
                   </div>
                   <h3 className="font-serif text-xl font-bold text-foreground">
                     {normativas[0].numero && `N° ${normativas[0].numero} — `}{normativas[0].titulo}
@@ -271,7 +273,7 @@ function GacetaContent() {
               <SlidersHorizontal className="h-3.5 w-3.5" />
               Filtros
               {activeFilters.length > 0 && (
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary-foreground text-[10px] font-bold text-primary">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary-foreground text-xs font-bold text-primary">
                   {activeFilters.length}
                 </span>
               )}
@@ -300,7 +302,7 @@ function GacetaContent() {
                   <input
                     type="date"
                     value={fechaDesde}
-                    onChange={(e) => setFechaDesde(e.target.value)}
+                    onChange={(e) => { setFechaDesde(e.target.value); setCurrentPage(1) }}
                     className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
                 </div>
@@ -309,7 +311,7 @@ function GacetaContent() {
                   <input
                     type="date"
                     value={fechaHasta}
-                    onChange={(e) => setFechaHasta(e.target.value)}
+                    onChange={(e) => { setFechaHasta(e.target.value); setCurrentPage(1) }}
                     className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
                 </div>
@@ -374,11 +376,75 @@ function GacetaContent() {
               </CardContent>
             </Card>
           ) : (
+            <>
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <p className="text-sm text-muted-foreground">
+                  {filteredResults.length} {filteredResults.length === 1 ? "norma encontrada" : "normas encontradas"}
+                </p>
+                <div className="inline-flex shrink-0 rounded-lg border border-border bg-card p-0.5" role="tablist" aria-label="Vista de resultados">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={vista === "cards"}
+                    onClick={() => setVista("cards")}
+                    className={cn(
+                      "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
+                      vista === "cards" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Tarjetas
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={vista === "lista"}
+                    onClick={() => setVista("lista")}
+                    className={cn(
+                      "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
+                      vista === "lista" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Sumario
+                  </button>
+                </div>
+              </div>
+              {vista === "lista" ? (
+                <div className="divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-card">
+                  {pageItems.map((item) => {
+                    const cat = catById[item.categoria_id ?? ""]
+                    return (
+                      <Link
+                        key={item.id}
+                        href={`/normativa/${item.slug}`}
+                        className="group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent/50 sm:gap-4 sm:px-5"
+                      >
+                        <span className="hidden w-24 shrink-0 font-mono text-xs font-bold text-primary sm:block">
+                          {item.numero || "s/n"}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-semibold text-card-foreground transition-colors group-hover:text-primary">
+                            {item.titulo}
+                          </span>
+                          <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
+                            <span className="font-mono font-bold text-primary sm:hidden">{item.numero || "s/n"}</span>
+                            <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold", getEstadoColor(item.estado))}>
+                              {getEstadoLabel(item.estado)}
+                            </span>
+                            {cat && <span className="truncate">{cat.nombre}</span>}
+                            <span>{formatDate(item.fecha_publicacion ?? new Date().toISOString(), "short")}</span>
+                          </span>
+                        </span>
+                        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
+                      </Link>
+                    )
+                  })}
+                </div>
+              ) : (
             <div className="grid gap-4 md:grid-cols-2">
-              {pageItems.map((item, i) => {
-                const cat = catById[item.categoria_id]
+              {pageItems.map((item) => {
+                const cat = catById[item.categoria_id ?? '']
                 return (
-                  <Reveal key={item.id} delay={(i % 2) * 90}>
+                  <Reveal key={item.id}>
                     <NormativaCard
                       normativa={{
                         numero: item.numero,
@@ -395,6 +461,8 @@ function GacetaContent() {
                 )
               })}
             </div>
+              )}
+            </>
           )}
         </div>
 
@@ -428,21 +496,21 @@ function GacetaContent() {
             <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground shadow-sm shadow-primary/30">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>Asistente Virtual</span>
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  <span>Consulta de normativa</span>
                 </div>
                 <h3 className="font-serif text-xl font-bold text-foreground">
                   ¿Dudas sobre una norma o trámite?
                 </h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  Consultá al asistente virtual de la Gaceta: leyes, decretos, ordenanzas, trámites y transparencia.
+                  Orientación sobre leyes, decretos, ordenanzas, trámites y transparencia municipal.
                 </p>
               </div>
               <div className="shrink-0">
                 <Link href="/asistente">
                   <Button className="gap-2 font-bold shadow-md shadow-primary/30">
-                    <Sparkles className="h-4 w-4" />
-                    Hablar con el Asistente
+                    <MessageCircle className="h-4 w-4" />
+                    Abrir consulta
                   </Button>
                 </Link>
               </div>

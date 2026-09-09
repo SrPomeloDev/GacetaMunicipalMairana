@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import PageHeader from "@/components/layout/page-header"
-import { Mail, Phone, Users, Landmark, Building2, ChevronRight } from "lucide-react"
+import { Mail, Phone, Users, Landmark, Building2, ChevronRight } from "@/lib/icons"
 import { createClient } from "@/lib/supabase/client"
 import type { Autoridad } from "@/types"
 
@@ -18,6 +19,7 @@ const TIPO_LABEL: Record<string, string> = {
 export default function AutoridadesPage() {
   const [autoridades, setAutoridades] = useState<Autoridad[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState("Todos")
   const supabase = createClient()
 
@@ -27,7 +29,12 @@ export default function AutoridadesPage() {
       .select("*")
       .eq("activo", true)
       .order("orden")
-    if (!error && data) setAutoridades(data)
+    if (error) {
+      setError(error.message)
+    } else {
+      setAutoridades(data || [])
+      setError(null)
+    }
     setLoading(false)
   }, [supabase])
 
@@ -64,17 +71,17 @@ export default function AutoridadesPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/concejo-municipal"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-primary/20 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground"
+            className="group inline-flex items-center gap-1.5 rounded-xl border border-primary/20 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground"
           >
-            <Landmark className="h-4 w-4 text-primary" />
+            <Landmark className="h-4 w-4 text-primary group-hover:text-primary-foreground transition-colors" />
             Concejo Municipal
             <ChevronRight className="h-3 w-3" />
           </Link>
           <Link
             href="/organo-ejecutivo"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-primary/20 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground"
+            className="group inline-flex items-center gap-1.5 rounded-xl border border-primary/20 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground"
           >
-            <Building2 className="h-4 w-4 text-primary" />
+            <Building2 className="h-4 w-4 text-primary group-hover:text-primary-foreground transition-colors" />
             Órgano Ejecutivo
             <ChevronRight className="h-3 w-3" />
           </Link>
@@ -113,6 +120,12 @@ export default function AutoridadesPage() {
             </Card>
           ))}
         </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
+          <Users className="h-12 w-12 text-muted-foreground/50 mb-3" />
+          <p className="text-lg font-medium text-foreground">Error al cargar</p>
+          <p className="text-sm text-muted-foreground mt-1">{error}</p>
+        </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
           <Users className="h-12 w-12 text-muted-foreground/50 mb-3" />
@@ -122,20 +135,24 @@ export default function AutoridadesPage() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((auth) => (
-            <Card key={auth.id} className="group transition-all hover:shadow-md">
+             <Card key={auth.id} className="group transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted">
               <CardContent className="p-6">
                 <div className="flex flex-col items-center text-center">
                   <div className="mb-4">
                     {auth.foto ? (
-                      <img
+                      <Image
                         src={auth.foto}
                         alt={auth.nombre_completo}
+                        width={80}
+                        height={80}
                         className="h-20 w-20 rounded-full object-cover shadow-md"
                       />
                     ) : auth.tipo_autoridad === "alcalde" ? (
-                      <img
+                      <Image
                         src="/images/AlcaldeMairana.png"
                         alt={auth.nombre_completo}
+                        width={80}
+                        height={80}
                         className="h-20 w-20 rounded-full object-cover shadow-md"
                       />
                     ) : (
@@ -145,9 +162,8 @@ export default function AutoridadesPage() {
                     )}
                   </div>
                   <h3 className="font-semibold text-card-foreground">{auth.nombre_completo}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{auth.cargo}</p>
-                  <Badge variant="outline" className="mt-2 text-xs">
-                    {TIPO_LABEL[auth.tipo_autoridad] || auth.tipo_autoridad}
+                  <Badge className="mt-2 text-center text-xs leading-snug">
+                    {auth.cargo}
                   </Badge>
                   <div className="mt-4 w-full space-y-2 border-t pt-4">
                     {auth.correo && (

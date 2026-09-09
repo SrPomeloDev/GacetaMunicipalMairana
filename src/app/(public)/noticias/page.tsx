@@ -2,12 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { Pagination } from "@/components/ui/pagination"
 import { Card, CardContent } from "@/components/ui/card"
 import PageHeader from "@/components/layout/page-header"
 import { Reveal } from "@/components/ui/reveal"
-import { Image as ImageIcon, Calendar, ArrowRight, Newspaper, Megaphone } from "lucide-react"
+import { ImageIcon, Calendar, ArrowRight, Newspaper, Megaphone } from "@/lib/icons"
 import { createClient } from "@/lib/supabase/client"
 import type { Noticia } from "@/types"
 
@@ -21,6 +22,7 @@ const PAGE_SIZE = 9
 export default function NoticiasPage() {
   const [noticias, setNoticias] = useState<Noticia[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [activeCategory, setActiveCategory] = useState("Todas")
   const [currentPage, setCurrentPage] = useState(1)
   const supabase = createClient()
@@ -32,7 +34,12 @@ export default function NoticiasPage() {
       .eq("publicada", true)
       .order("fecha_publicacion", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false })
-    if (!error && data) setNoticias(data)
+    if (error) {
+      setError(error.message)
+    } else {
+      setNoticias(data || [])
+      setError(null)
+    }
     setLoading(false)
   }, [supabase])
 
@@ -107,6 +114,12 @@ export default function NoticiasPage() {
             </Card>
           ))}
         </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
+          <Newspaper className="h-12 w-12 text-muted-foreground/50 mb-3" />
+          <p className="text-lg font-medium text-foreground">Error al cargar</p>
+          <p className="text-sm text-muted-foreground mt-1">{error}</p>
+        </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
           <Newspaper className="h-12 w-12 text-muted-foreground/50 mb-3" />
@@ -115,16 +128,20 @@ export default function NoticiasPage() {
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {pageItems.map((item, i) => (
-            <Reveal key={item.id} delay={(i % 3) * 90}>
-            <Link href={`/noticias/${item.slug}`}>
-              <Card className="group h-full overflow-hidden hover:shadow-md">
-                <div className="aspect-video bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden">
+          {pageItems.map((item, idx) => (
+            <Reveal key={item.id}>
+            <Link href={`/noticias/${item.slug}`} className="block h-full">
+              <Card className="group h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted">
+                <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden">
                   {item.imagen_principal ? (
-                    <img
+                    <Image
                       src={item.imagen_principal}
                       alt={item.titulo}
-                      className="h-full w-full object-cover"
+                      fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      loading={idx === 0 ? "eager" : undefined}
+                      fetchPriority={idx === 0 ? "high" : undefined}
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
                     <ImageIcon className="h-10 w-10 text-muted-foreground/50" />

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { tipoPermisos } from "@/lib/roles"
+import { usuarioEditarSchema } from "@/lib/validations/usuarios"
 
 export async function GET(
   _request: Request,
@@ -56,13 +57,20 @@ export async function PATCH(
   }
 
   const body = await request.json()
+  if (body.id !== undefined && body.id !== id) {
+    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
+  }
+  const parsed = usuarioEditarSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
+  }
   const admin = createAdminClient()
 
   const update: Record<string, unknown> = {}
-  if (body.nombre !== undefined) update.nombre = body.nombre
-  if (body.rol !== undefined) update.rol = body.rol
-  if (body.activo !== undefined) update.activo = body.activo
-  if (body.dependencia_id !== undefined) update.dependencia_id = body.dependencia_id
+  if (parsed.data.nombre !== undefined) update.nombre = parsed.data.nombre
+  if (parsed.data.rol !== undefined) update.rol = parsed.data.rol
+  if (parsed.data.activo !== undefined) update.activo = parsed.data.activo
+  if (parsed.data.dependencia_id !== undefined) update.dependencia_id = parsed.data.dependencia_id
 
   const { data: usuario, error } = await admin
     .from("usuarios")
@@ -73,14 +81,14 @@ export async function PATCH(
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  if (body.rol !== undefined || body.permisos !== undefined) {
+  if (parsed.data.rol !== undefined || parsed.data.permisos !== undefined) {
     const { data: { user: existing } } = await admin.auth.admin.getUserById(id)
     const currentMeta = (existing?.user_metadata as Record<string, unknown>) ?? {}
     const newMeta: Record<string, unknown> = { ...currentMeta }
 
-    if (body.rol !== undefined) newMeta.rol = body.rol
-    if (body.permisos !== undefined) {
-      const permisos = tipoPermisos(body.permisos)
+    if (parsed.data.rol !== undefined) newMeta.rol = parsed.data.rol
+    if (parsed.data.permisos !== undefined) {
+      const permisos = tipoPermisos(parsed.data.permisos)
       if (!permisos) {
         return NextResponse.json({ error: "Formato de permisos inválido" }, { status: 400 })
       }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { requireVerModulo, requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { slugify } from "@/lib/utils"
+import { categoriaUpdateSchema } from "@/lib/validations/categorias"
 
 export async function GET(
   _request: Request,
@@ -37,18 +38,22 @@ export async function PATCH(
   if (!permiso) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
 
   const body = await request.json()
+  const parsed = categoriaUpdateSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
+  }
   const admin = createAdminClient()
 
   const update: Record<string, unknown> = {}
-  if (body.nombre !== undefined) {
-    update.nombre = body.nombre
-    if (body.slug === undefined) update.slug = slugify(body.nombre)
+  if (parsed.data.nombre !== undefined) {
+    update.nombre = parsed.data.nombre
+    if (parsed.data.slug === undefined) update.slug = slugify(parsed.data.nombre)
   }
-  if (body.slug !== undefined) update.slug = body.slug
-  if (body.descripcion !== undefined) update.descripcion = body.descripcion || null
-  if (body.color !== undefined) update.color = body.color
-  if (body.icono !== undefined) update.icono = body.icono || null
-  if (body.orden !== undefined) update.orden = Number(body.orden ?? 0)
+  if (parsed.data.slug !== undefined) update.slug = parsed.data.slug
+  if (parsed.data.descripcion !== undefined) update.descripcion = parsed.data.descripcion ?? null
+  if (parsed.data.color !== undefined) update.color = parsed.data.color
+  if (parsed.data.icono !== undefined) update.icono = parsed.data.icono ?? null
+  if (parsed.data.orden !== undefined) update.orden = Number(parsed.data.orden ?? 0)
 
   const { data, error } = await admin
     .from("categorias_normativa")

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { checkRateLimit, getClientIp, rateLimitExceededResponse } from "@/lib/rate-limit"
 
 const respuestas: Record<string, { respuesta: string; referencias: { titulo: string; url: string }[] }> = {
   predeterminada: {
@@ -70,6 +71,9 @@ function detectarIntencion(pregunta: string): string {
 
 export async function POST(request: Request) {
   try {
+    const rl = checkRateLimit(`asistente:${getClientIp(request)}`, { limit: 20, windowMs: 60000 })
+    if (!rl.ok) return rateLimitExceededResponse(rl.retryAfter)
+
     const { pregunta } = await request.json()
 
     if (!pregunta || typeof pregunta !== "string") {

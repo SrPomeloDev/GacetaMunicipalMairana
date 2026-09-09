@@ -13,37 +13,52 @@ const BASE = get("NEXT_PUBLIC_SUPABASE_URL");
 const KEY = get("SUPABASE_SERVICE_ROLE_KEY");
 const headers = { apikey: KEY, Authorization: `Bearer ${KEY}` };
 
-const clean = async (table, pred) => {
-  const rows = await (await fetch(`${BASE}/rest/v1/${table}?select=id`, { headers })).json();
-  const targets = (rows || []).filter((r) => pred(r.id));
-  console.log(`clean ${table}: ${targets.length} filas a borrar de ${rows.length}`);
-  for (const t of targets) {
-    const res = await fetch(`${BASE}/rest/v1/${table}?id=eq.${t.id}`, {
-      method: "DELETE",
-      headers,
-    });
-    console.log(`  delete ${t.id} -> ${res.status}`);
-  }
-};
+// [tabla, columnas a seleccionar, predicado sobre la fila]
+const TARGETS = [
+  ["normativa", "id,titulo,numero", (r) => (r.titulo || "").includes("E2E") || (r.numero || "").startsWith("E2E")],
+  ["noticias", "id,titulo", (r) => (r.titulo || "").includes("E2E")],
+  ["autoridades", "id,nombre_completo", (r) => (r.nombre_completo || "").includes("E2E")],
+  ["tramites", "id,titulo", (r) => (r.titulo || "").includes("E2E")],
+  ["galeria", "id,titulo", (r) => (r.titulo || "").includes("E2E")],
+  ["transparencia", "id,titulo", (r) => (r.titulo || "").includes("E2E")],
+  ["contrataciones", "id,titulo", (r) => (r.titulo || "").includes("E2E")],
+  ["categorias_normativa", "id,nombre", (r) => (r.nombre || "").includes("E2E")],
+  ["dependencias", "id,nombre", (r) => (r.nombre || "").includes("E2E")],
+  // concejo: primero comisiones (FK a autoridades), luego sesiones
+  ["concejales_comisiones", "id,comision", (r) => (r.comision || "").includes("E2E")],
+  ["concejo_sesiones", "id,numero_sesion", (r) => (r.numero_sesion || "").includes("E2E")],
+  ["contacto_mensajes", "id,nombre,asunto,mensaje", (r) =>
+    (r.nombre || "").includes("E2E") || (r.asunto || "").includes("E2E") || (r.mensaje || "").includes("E2E")],
+  ["suscripciones", "id,email", (r) => (r.email || "").includes("e2e-")],
+];
 
 (async () => {
-  const norm = await (
-    await fetch(`${BASE}/rest/v1/normativa?select=id,titulo,numero&limit=100`, { headers })
-  ).json();
-  const nE2E = (norm || []).filter((n) => n.titulo.includes("E2E") || n.numero.startsWith("E2E"));
-  console.log("normativa E2E:", nE2E.map((n) => n.numero));
-  for (const n of nE2E) {
-    const res = await fetch(`${BASE}/rest/v1/normativa?id=eq.${n.id}`, { method: "DELETE", headers });
-    console.log(`  delete normativa ${n.id} -> ${res.status}`);
+  for (const [table, select, pred] of TARGETS) {
+    let rows = [];
+    try {
+      const res = await fetch(`${BASE}/rest/v1/${table}?select=${select}&limit=200`, { headers });
+      rows = (await res.json()) || [];
+      if (!Array.isArray(rows)) {
+        console.log(`clean ${table}: respuesta inesperada, se omite`);
+        continue;
+      }
+    } catch (e) {
+      console.log(`clean ${table}: error al listar (${e.message}), se omite`);
+      continue;
+    }
+    const targets = rows.filter(pred);
+    console.log(`clean ${table}: ${targets.length} filas E2E a borrar de ${rows.length}`);
+    for (const t of targets) {
+      try {
+        const res = await fetch(`${BASE}/rest/v1/${table}?id=eq.${t.id}`, {
+          method: "DELETE",
+          headers,
+        });
+        console.log(`  delete ${table} ${t.id} -> ${res.status}`);
+      } catch (e) {
+        console.log(`  delete ${table} ${t.id} -> ERROR ${e.message}`);
+      }
+    }
   }
-
-  const not = await (
-    await fetch(`${BASE}/rest/v1/noticias?select=id,titulo&limit=100`, { headers })
-  ).json();
-  const tE2E = (not || []).filter((n) => n.titulo.includes("E2E"));
-  console.log("noticias E2E:", tE2E.map((n) => n.titulo));
-  for (const n of tE2E) {
-    const res = await fetch(`${BASE}/rest/v1/noticias?id=eq.${n.id}`, { method: "DELETE", headers });
-    console.log(`  delete noticia ${n.id} -> ${res.status}`);
-  }
+  console.log("CLEANUP listo. Nota: los archivos subidos a storage (galería/documentos) no se borran aquí.");
 })();

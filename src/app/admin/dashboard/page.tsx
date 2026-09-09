@@ -1,14 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { cn, formatDate } from "@/lib/utils"
-import { FileText, Newspaper, Users, ArrowRight, PlusCircle, BarChart3, Eye, Image as ImageIcon, ScrollText, BadgeCheck, PieChart } from "lucide-react"
+import { FileText, Newspaper, Users, ArrowRight, PlusCircle, BarChart3, Eye, Image as ImageIcon, ScrollText, BadgeCheck, PieChart, Inbox, Gavel, UserX } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/components/ui/toast"
 import { createClient } from "@/lib/supabase/client"
+import { useCurrentUser, can, canView } from "@/hooks/use-current-user"
+import type { Modulo } from "@/lib/roles"
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell } from "recharts"
 
 interface Stats {
@@ -19,6 +21,30 @@ interface Stats {
   galeria: number
   tramites: number
   visitas: number
+}
+
+interface Pendientes {
+  mensajes: number
+  noticias: number
+  normativa: number
+  transparencia: number
+  contrataciones: number
+  usuarios: number
+}
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  if (Number.isNaN(diff) || diff < 0) return "hace un momento"
+  const min = Math.floor(diff / 60000)
+  if (min < 1) return "hace un momento"
+  if (min < 60) return `hace ${min} min`
+  const h = Math.floor(min / 60)
+  if (h < 24) return `hace ${h} h`
+  const d = Math.floor(h / 24)
+  if (d < 30) return `hace ${d} d`
+  const m = Math.floor(d / 30)
+  if (m < 12) return `hace ${m} me`
+  return `hace ${Math.floor(m / 12)} a`
 }
 
 const ESTADO_COLORS: Record<string, string> = {
@@ -38,49 +64,73 @@ const ESTADO_LABEL: Record<string, string> = {
 }
 
 const quickActions = [
-  { label: "Nueva Normativa", href: "/admin/normativa/nueva", icon: FileText, variant: "default" as const },
-  { label: "Nueva Noticia", href: "/admin/noticias/nueva", icon: Newspaper, variant: "outline" as const },
-  { label: "Nueva Autoridad", href: "/admin/autoridades/nueva", icon: Users, variant: "outline" as const },
+  { label: "Nueva Normativa", href: "/admin/normativa/nueva", icon: FileText, variant: "default" as const, modulo: "normativa" as Modulo },
+  { label: "Nueva Noticia", href: "/admin/noticias/nueva", icon: Newspaper, variant: "outline" as const, modulo: "noticias" as Modulo },
+  { label: "Nueva Autoridad", href: "/admin/autoridades/nueva", icon: Users, variant: "outline" as const, modulo: "autoridades" as Modulo },
+]
+
+const accesosRapidos = [
+  { label: "Galería", href: "/admin/galeria", modulo: "galeria" as Modulo },
+  { label: "Trámites", href: "/admin/tramites", modulo: "tramites" as Modulo },
+  { label: "Transparencia", href: "/admin/transparencia", modulo: "transparencia" as Modulo },
+  { label: "Usuarios", href: "/admin/usuarios", modulo: "usuarios" as Modulo },
+  { label: "Configuración", href: "/admin/configuracion", modulo: "configuracion" as Modulo },
 ]
 
 interface ActivityItem {
   action: string
   item: string
   time: string
+  iso: string
+  href: string
   type: string
 }
 
 export default function AdminDashboardPage() {
   const { addToast } = useToast()
   const supabase = createClient()
+  const { user } = useCurrentUser()
 
   const [stats, setStats] = useState<Stats | null>(null)
+  const [statsError, setStatsError] = useState(false)
+  const [pendientes, setPendientes] = useState<Pendientes | null>(null)
   const [activity, setActivity] = useState<ActivityItem[]>([])
   const [estadoData, setEstadoData] = useState<{ estado: string; cantidad: number }[]>([])
   const [currentDate] = useState(() => {
     return new Date().toLocaleDateString("es-BO", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
   })
 
-  useEffect(() => {
-    const load = async () => {
-      const [normativa, noticias, usuarios, autoridades, galeria, tramites, visitas] = await Promise.all([
-        supabase.from("normativa").select("id", { count: "exact", head: true }),
-        supabase.from("noticias").select("id", { count: "exact", head: true }),
-        supabase.from("usuarios").select("id", { count: "exact", head: true }),
-        supabase.from("autoridades").select("id", { count: "exact", head: true }),
-        supabase.from("galeria").select("id", { count: "exact", head: true }),
-        supabase.from("tramites").select("id", { count: "exact", head: true }),
-        supabase.from("normativa").select("visitas").limit(100),
-      ])
+  const fetchStats = useCallback(async () => {
+    const [normativa, noticias, usuarios, autoridades, galeria, tramites] = await Promise.all([
+      supabase.from("normativa").select("id", { count: "exact", head: true }),
+      supabase.from("noticias").select("id", { count: "exact", head: true }),
+      supabase.from("usuarios").select("id", { count: "exact", head: true }),
+      supabase.from("autoridades").select("id", { count: "exact", head: true }),
+      supabase.from("galeria").select("id", { count: "exact", head: true }),
+      supabase.from("tramites").select("id", { count: "exact", head: true }),
+    ])
 
-      const errores = [normativa, noticias, usuarios, autoridades, galeria, tramites].filter((r) => r.error)
-      if (errores.length > 0) {
-        addToast(errores[0].error?.message || "Error al cargar estadísticas", "error")
-        return
+    const errores = [normativa, noticias, usuarios, autoridades, galeria, tramites].filter((r) => r.error)
+    if (errores.length > 0) {
+      setStatsError(true)
+      addToast(errores[0].error?.message || "Error al cargar estadísticas", "error")
+    } else {
+      setStatsError(false)
+      const totalFilas = normativa.count ?? 0
+      let totalVisitas = 0
+      if (totalFilas > 0) {
+        const tamanoLote = 1000
+        const numLotes = Math.ceil(totalFilas / tamanoLote)
+        const lotes = await Promise.all(
+          Array.from({ length: numLotes }, (_, i) =>
+            supabase.from("normativa").select("visitas").range(i * tamanoLote, (i + 1) * tamanoLote - 1)
+          )
+        )
+        totalVisitas = lotes.reduce(
+          (acc, r) => acc + (r.data || []).reduce((a, n) => a + (n.visitas || 0), 0),
+          0
+        )
       }
-
-      const totalVisitas = (visitas.data || []).reduce((acc: number, n: { visitas: number }) => acc + (n.visitas || 0), 0)
-
       setStats({
         normativas: normativa.count || 0,
         noticias: noticias.count || 0,
@@ -90,39 +140,83 @@ export default function AdminDashboardPage() {
         tramites: tramites.count || 0,
         visitas: totalVisitas,
       })
+    }
 
-      const [ultimasNoticias, ultimasNormativas] = await Promise.all([
-        supabase.from("noticias").select("titulo,updated_at,created_at").order("created_at", { ascending: false }).limit(3),
-        supabase.from("normativa").select("titulo,updated_at,created_at").order("created_at", { ascending: false }).limit(3),
-      ])
+    const [mensajesPend, noticiasPend, normativaPend, transparenciaPend, contratacionesPend, usuariosPend] = await Promise.all([
+      supabase.from("contacto_mensajes").select("id", { count: "exact", head: true }).eq("leido", false),
+      supabase.from("noticias").select("id", { count: "exact", head: true }).eq("publicada", false),
+      supabase.from("normativa").select("id", { count: "exact", head: true }).eq("publicada", false),
+      supabase.from("transparencia").select("id", { count: "exact", head: true }).eq("publicada", false),
+      supabase.from("contrataciones").select("id", { count: "exact", head: true }).eq("estado", "publicada"),
+      supabase.from("usuarios").select("id", { count: "exact", head: true }).eq("activo", false),
+    ])
+    setPendientes({
+      mensajes: mensajesPend.error ? 0 : mensajesPend.count ?? 0,
+      noticias: noticiasPend.error ? 0 : noticiasPend.count ?? 0,
+      normativa: normativaPend.error ? 0 : normativaPend.count ?? 0,
+      transparencia: transparenciaPend.error ? 0 : transparenciaPend.count ?? 0,
+      contrataciones: contratacionesPend.error ? 0 : contratacionesPend.count ?? 0,
+      usuarios: usuariosPend.error ? 0 : usuariosPend.count ?? 0,
+    })
 
-      const items: ActivityItem[] = [
-        ...(ultimasNoticias.data || []).map((n) => ({
+    const [ultimasNoticias, ultimasNormativas, ultimosMensajes] = await Promise.all([
+      supabase.from("noticias").select("id,titulo,updated_at,created_at").order("created_at", { ascending: false }).limit(3),
+      supabase.from("normativa").select("id,titulo,updated_at,created_at").order("created_at", { ascending: false }).limit(3),
+      supabase.from("contacto_mensajes").select("id,nombre,asunto,mensaje,created_at").eq("leido", false).order("created_at", { ascending: false }).limit(3),
+    ])
+
+    const items: ActivityItem[] = [
+      ...(ultimasNoticias.data || []).map((n) => {
+        const iso = n.updated_at || n.created_at
+        return {
           action: "Noticia",
           item: n.titulo,
-          time: formatDate(n.updated_at || n.created_at, "full"),
+          time: timeAgo(iso),
+          iso,
+          href: `/admin/noticias/${n.id}`,
           type: "noticia",
-        })),
-        ...(ultimasNormativas.data || []).map((n) => ({
+        }
+      }),
+      ...(ultimasNormativas.data || []).map((n) => {
+        const iso = n.updated_at || n.created_at
+        return {
           action: "Normativa",
           item: n.titulo,
-          time: formatDate(n.updated_at || n.created_at, "full"),
+          time: timeAgo(iso),
+          iso,
+          href: `/admin/normativa/${n.id}`,
           type: "normativa",
-        })),
-      ]
-      setActivity(items.sort((a, b) => (a.time < b.time ? 1 : -1)).slice(0, 6))
+        }
+      }),
+      ...(ultimosMensajes.data || []).map((m) => {
+        const iso = m.created_at
+        return {
+          action: "Mensaje",
+          item: m.asunto || (m.mensaje || "").slice(0, 80),
+          time: timeAgo(iso),
+          iso,
+          href: "/admin/mensajes",
+          type: "mensaje",
+        }
+      }),
+    ]
+    setActivity(items.sort((a, b) => new Date(b.iso).getTime() - new Date(a.iso).getTime()).slice(0, 6))
 
-      const { data: estados } = await supabase.from("normativa").select("estado").limit(1000)
-      if (!estados) return
-      const counts = new Map<string, number>()
-      estados.forEach((e) => counts.set(e.estado, (counts.get(e.estado) || 0) + 1))
-      const sorted = Array.from(counts.entries())
-        .map(([estado, cantidad]) => ({ estado: ESTADO_LABEL[estado] || estado, cantidad }))
-        .sort((a, b) => b.cantidad - a.cantidad)
-      setEstadoData(sorted)
-    }
-    load()
+    const { data: estados } = await supabase.from("normativa").select("estado").limit(1000)
+    if (!estados) return
+    const counts = new Map<string, number>()
+    estados.forEach((e) => counts.set(e.estado, (counts.get(e.estado) || 0) + 1))
+    const sorted = Array.from(counts.entries())
+      .map(([estado, cantidad]) => ({ estado: ESTADO_LABEL[estado] || estado, cantidad }))
+      .sort((a, b) => b.cantidad - a.cantidad)
+    setEstadoData(sorted)
   }, [supabase, addToast])
+
+  useEffect(() => {
+    // fetchStats es async: los setState ocurren tras await, nunca sincrónicamente.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchStats()
+  }, [fetchStats])
 
   const kpiCards = stats
     ? [
@@ -133,12 +227,25 @@ export default function AdminDashboardPage() {
       ]
     : []
 
+  const pendientesItems = [
+    { key: "mensajes", label: "Mensajes sin leer", desc: "Revisar bandeja", value: pendientes?.mensajes ?? 0, href: "/admin/mensajes?no_leidos=true", icon: Inbox, bg: "bg-amber-500" },
+    { key: "noticias", label: "Noticias sin publicar", desc: "Borradores pendientes", value: pendientes?.noticias ?? 0, href: "/admin/noticias?publicada=false", icon: Newspaper, bg: "bg-blue-500" },
+    { key: "normativa", label: "Normativas sin publicar", desc: "Borradores pendientes", value: pendientes?.normativa ?? 0, href: "/admin/normativa?publicada=false", icon: FileText, bg: "bg-orange-600" },
+    { key: "transparencia", label: "Transparencia sin publicar", desc: "Documentos pendientes", value: pendientes?.transparencia ?? 0, href: "/admin/transparencia?publicada=false", icon: ScrollText, bg: "bg-purple-500" },
+    { key: "contrataciones", label: "Contrataciones activas", desc: "Convocatorias publicadas", value: pendientes?.contrataciones ?? 0, href: "/admin/contrataciones?estado=publicada", icon: Gavel, bg: "bg-cyan-600" },
+    { key: "usuarios", label: "Usuarios inactivos", desc: "Cuentas por revisar", value: pendientes?.usuarios ?? 0, href: "/admin/usuarios?activo=false", icon: UserX, bg: "bg-red-500" },
+  ]
+
+  const visibleQuickActions = quickActions.filter((a) => can(user, a.modulo, "crear"))
+  const visibleAccesos = accesosRapidos.filter((l) => canView(user, l.modulo))
+
   const typeColors: Record<string, string> = {
-    normativa: "bg-primary/10 text-primary border border-primary/20",
-    noticia: "bg-blue-100 text-blue-700 border border-blue-200",
-    autoridad: "bg-green-100 text-green-700 border border-green-200",
-    transparencia: "bg-purple-100 text-purple-700 border border-purple-200",
-    tramite: "bg-rose-100 text-rose-700 border border-rose-200",
+    normativa: "bg-primary text-primary-foreground border border-primary",
+    noticia: "bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-900",
+    mensaje: "bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-900",
+    autoridad: "bg-green-100 text-green-700 border border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-900",
+    transparencia: "bg-purple-100 text-purple-700 border border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-900",
+    tramite: "bg-rose-100 text-rose-700 border border-rose-200 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-900",
   }
 
   return (
@@ -167,12 +274,54 @@ export default function AdminDashboardPage() {
               </CardContent>
               <div className="flex items-end justify-between border-t border-border/50 bg-muted/30 px-5 py-3">
                 <span className="text-2xl font-extrabold tabular-nums tracking-tight text-foreground">{kpi.value}</span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Total registrado</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total registrado</span>
               </div>
             </Card>
           )
-        }) : (
+        }) : statsError ? (
+          <Card className="sm:col-span-2 lg:col-span-4">
+            <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
+              <p className="text-sm font-medium text-foreground">Error al cargar estadísticas</p>
+              <p className="text-sm text-muted-foreground">No se pudieron obtener los datos del panel. Intenta de nuevo.</p>
+              <Button variant="outline" onClick={() => fetchStats()}>Reintentar</Button>
+            </CardContent>
+          </Card>
+        ) : (
           Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-32 w-full" />)
+        )}
+      </div>
+
+      <div>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">Pendientes</h2>
+          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Requieren atención</span>
+        </div>
+        {pendientes ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {pendientesItems.map((p) => {
+              const Icon = p.icon
+              return (
+                <Link key={p.key} href={p.href} className="group">
+                  <Card className="transition-colors hover:border-primary/40">
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between">
+                        <div className={cn("flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-sm", p.bg)}>
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <span className="text-2xl font-extrabold tabular-nums tracking-tight text-foreground">{p.value}</span>
+                      </div>
+                      <p className="mt-3 font-medium text-foreground">{p.label}</p>
+                      <p className="text-sm text-muted-foreground">{p.desc} →</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-28 w-full" />)}
+          </div>
         )}
       </div>
 
@@ -278,7 +427,7 @@ export default function AdminDashboardPage() {
       </Card>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
+        <div className="min-w-0 space-y-6 lg:col-span-2">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -296,21 +445,21 @@ export default function AdminDashboardPage() {
               ) : (
                 <div className="space-y-1">
                   {activity.map((item, i) => (
-                    <div key={i} className="flex items-start gap-4 rounded-xl border border-transparent p-3 transition-colors hover:border-border/60 hover:bg-muted/40">
-                      <div className="mt-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20">
-                        <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    <Link key={`${item.href}-${item.iso}-${i}`} href={item.href} className="flex items-start gap-4 rounded-xl border border-transparent p-3 transition-colors hover:border-border/60 hover:bg-muted/40">
+                      <div className="mt-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary ring-1 ring-primary">
+                        <span className="h-1.5 w-1.5 rounded-full bg-white" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-foreground">{item.action}</p>
                         <p className="truncate text-sm text-muted-foreground">{item.item}</p>
                       </div>
                       <div className="flex shrink-0 flex-col items-end gap-1">
-                        <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium uppercase", typeColors[item.type])}>
+                        <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium uppercase", typeColors[item.type])}>
                           {item.type}
                         </span>
-                        <span className="text-xs text-muted-foreground">{item.time}</span>
+                        <span className="text-xs text-muted-foreground" title={formatDate(item.iso, "full")}>{item.time}</span>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}
@@ -318,7 +467,8 @@ export default function AdminDashboardPage() {
           </Card>
         </div>
 
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
+          {visibleQuickActions.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -327,7 +477,7 @@ export default function AdminDashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {quickActions.map((action) => {
+              {visibleQuickActions.map((action) => {
                 const Icon = action.icon
                 return (
                   <Link key={action.href} href={action.href}>
@@ -340,7 +490,9 @@ export default function AdminDashboardPage() {
               })}
             </CardContent>
           </Card>
+          )}
 
+          {visibleAccesos.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -349,13 +501,7 @@ export default function AdminDashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {[
-                { label: "Galería", href: "/admin/galeria" },
-                { label: "Trámites", href: "/admin/tramites" },
-                { label: "Transparencia", href: "/admin/transparencia" },
-                { label: "Usuarios", href: "/admin/usuarios" },
-                { label: "Configuración", href: "/admin/configuracion" },
-              ].map((link) => (
+              {visibleAccesos.map((link) => (
                 <Link key={link.href} href={link.href}>
                   <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
                     {link.label}
@@ -364,6 +510,7 @@ export default function AdminDashboardPage() {
               ))}
             </CardContent>
           </Card>
+          )}
         </div>
       </div>
     </div>

@@ -12,14 +12,12 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Select } from "@/components/ui/select"
 import { FileUpload } from "@/components/admin/file-upload"
 import { useToast } from "@/components/ui/toast"
-import { createClient } from "@/lib/supabase/client"
 import { slugify } from "@/lib/utils"
 import { ArrowLeft, Save } from "lucide-react"
 
 export default function NuevoTramitePage() {
   const router = useRouter()
   const { addToast } = useToast()
-  const supabase = createClient()
 
   const [dependencias, setDependencias] = useState<{ value: string; label: string }[]>([])
   const [form, setForm] = useState({
@@ -38,15 +36,16 @@ export default function NuevoTramitePage() {
 
   useEffect(() => {
     const loadDeps = async () => {
-      const { data, error } = await supabase.from("dependencias").select("id,nombre").order("orden")
-      if (error) {
-        addToast(error.message, "error")
+      const res = await fetch("/api/admin/dependencias")
+      const data = await res.json()
+      if (!res.ok) {
+        addToast(data.error || "Error al cargar dependencias", "error")
         return
       }
-      setDependencias((data || []).map((d) => ({ value: d.id, label: d.nombre })))
+      setDependencias((data || []).map((d: { id: string; nombre: string }) => ({ value: d.id, label: d.nombre })))
     }
     loadDeps()
-  }, [supabase, addToast])
+  }, [addToast])
 
   const handleChange = (field: string, value: string | boolean | null) => {
     setForm((prev) => {
@@ -66,19 +65,24 @@ export default function NuevoTramitePage() {
     }
     setSubmitting(true)
     try {
-      const { error } = await supabase.from("tramites").insert({
-        titulo: form.titulo,
-        slug: form.slug || slugify(form.titulo),
-        descripcion: form.descripcion || null,
-        requisitos: form.requisitos.split("\n").map((r) => r.trim()).filter(Boolean),
-        dependencia_id: form.dependencia_id || null,
-        tiempo_estimado: form.tiempo_estimado || null,
-        costo: form.costo || null,
-        formulario_pdf: form.formulario_pdf,
-        activo: form.activo,
+      const res = await fetch("/api/admin/tramites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo: form.titulo,
+          slug: form.slug || slugify(form.titulo),
+          descripcion: form.descripcion || null,
+          requisitos: form.requisitos.split("\n").map((r) => r.trim()).filter(Boolean),
+          dependencia_id: form.dependencia_id || null,
+          tiempo_estimado: form.tiempo_estimado || null,
+          costo: form.costo || null,
+          formulario_pdf: form.formulario_pdf,
+          activo: form.activo,
+        }),
       })
-      if (error) {
-        addToast(error.message.includes("duplicate") ? "Ya existe un trámite con ese título" : error.message, "error")
+      const data = await res.json()
+      if (!res.ok) {
+        addToast(data.error?.includes("duplicate") ? "Ya existe un trámite con ese título" : (data.error || "Error al guardar"), "error")
         return
       }
       addToast("Trámite creado", "success")
@@ -92,8 +96,9 @@ export default function NuevoTramitePage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/admin/tramites">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4" />
+            Volver
           </Button>
         </Link>
         <div>
@@ -164,14 +169,14 @@ export default function NuevoTramitePage() {
               <Label htmlFor="activo" className="cursor-pointer">Trámite activo</Label>
             </div>
 
-            <div className="flex gap-4">
+            <div className="sticky bottom-0 -mx-6 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur">
+              <Link href="/admin/tramites">
+                <Button type="button" variant="outline">Cancelar</Button>
+              </Link>
               <Button type="submit" loading={submitting}>
                 <Save className="mr-2 h-4 w-4" />
                 Guardar Trámite
               </Button>
-              <Link href="/admin/tramites">
-                <Button variant="outline" type="button">Cancelar</Button>
-              </Link>
             </div>
           </form>
         </CardContent>

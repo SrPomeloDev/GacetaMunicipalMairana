@@ -8,7 +8,9 @@ import { Skeleton } from "./skeleton"
 export interface Column<T = unknown> {
   key: string
   label: string
-  render?: (value: unknown, row: T) => React.ReactNode
+  // El valor llega indexado dinámicamente (row[key]); quien define la columna conoce su tipo real.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  render?: (value: any, row: T) => React.ReactNode
   sortable?: boolean
   className?: string
 }
@@ -63,8 +65,8 @@ export function DataTable<T>({
 
   return (
     <div ref={ref} className={cn("w-full overflow-auto rounded-xl border border-border/60 shadow-sm", className)}>
-      <table className="w-full caption-bottom text-sm">
-        <thead className="sticky top-0 z-10">
+      <table className="w-full min-w-[640px] caption-bottom text-sm">
+        <thead>
           <tr className="border-b bg-muted/70 backdrop-blur-sm">
             {columns.map((col) => (
               <th

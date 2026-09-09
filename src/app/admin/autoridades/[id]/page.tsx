@@ -12,6 +12,7 @@ import { FileUpload } from "@/components/admin/file-upload"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ArrowLeft } from "lucide-react"
+import { formatearNombre } from "@/lib/utils"
 import type { Autoridad } from "@/types"
 
 const TIPOS_OPTIONS = [
@@ -100,8 +101,8 @@ export default function AutoridadFormPage() {
     setSubmitting(true)
     try {
       const payload = {
-        nombre_completo: formData.nombre_completo,
-        cargo: formData.cargo,
+        nombre_completo: formatearNombre(formData.nombre_completo),
+        cargo: formatearNombre(formData.cargo),
         tipo_autoridad: formData.tipo_autoridad as Autoridad["tipo_autoridad"],
         foto: formData.foto,
         biografia: formData.biografia || null,

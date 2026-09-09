@@ -48,4 +48,13 @@ test.describe("Portal público", () => {
     await page.getByRole("link", { name: "Acceso Funcionarios" }).click();
     await expect(page).toHaveURL(/\/admin\/login/);
   });
+
+  test("autoridades: el alcalde sale destacado y los nombres normalizados", async ({ page }) => {
+    await page.goto("/autoridades");
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Autoridades Municipales" })
+    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Andres Fidel Rocha/i })).toBeVisible();
+    await expect(page.getByText("Alcalde Municipal", { exact: true }).first()).toBeVisible();
+  });
 });

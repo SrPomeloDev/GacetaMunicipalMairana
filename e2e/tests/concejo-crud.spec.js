@@ -36,7 +36,7 @@ test.describe("CRUD de concejo — sesiones y comisiones (admin)", () => {
 
     await page.goto("/admin/concejo/comisiones/nueva");
     await expect(page.getByRole("heading", { name: "Nueva Comisión" })).toBeVisible();
-    await page.locator('select[name="autoridad_id"]').selectOption({ label: CONCEJAL });
+    await page.locator('select[name="autoridad_id"]').selectOption({ label: `Concejal E2e ${TS}` });
     await page.fill('input[name="comision"]', COMISION);
     await page.locator('select[name="cargo_comision"]').selectOption("presidente");
     await page.getByRole("button", { name: "Crear Comisión" }).click();
@@ -44,7 +44,7 @@ test.describe("CRUD de concejo — sesiones y comisiones (admin)", () => {
 
     const row = page.locator("tbody tr", { hasText: COMISION });
     await expect(row).toHaveCount(1);
-    await expect(row).toContainText(CONCEJAL);
+    await expect(row).toContainText(`Concejal E2e ${TS}`);
   });
 
   test("editar sesión", async ({ page }) => {

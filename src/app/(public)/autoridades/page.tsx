@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { cn } from "@/lib/utils"
+import { formatearNombre } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import PageHeader from "@/components/layout/page-header"
@@ -11,16 +11,10 @@ import { Mail, Phone, Users, Landmark, Building2, ChevronRight } from "@/lib/ico
 import { createClient } from "@/lib/supabase/client"
 import type { Autoridad } from "@/types"
 
-const TIPO_LABEL: Record<string, string> = {
-  alcalde: "Alcalde", concejal: "Concejal", secretario: "Secretario",
-  director: "Director", jefe_unidad: "Jefe de Unidad", subalcalde: "Subalcalde",
-}
-
 export default function AutoridadesPage() {
   const [autoridades, setAutoridades] = useState<Autoridad[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeFilter, setActiveFilter] = useState("Todos")
   const supabase = createClient()
 
   const fetchAutoridades = useCallback(async () => {
@@ -45,15 +39,9 @@ export default function AutoridadesPage() {
     run()
   }, [fetchAutoridades])
 
-  const filterOptions = useMemo(() => {
-    const set = new Set<string>()
-    autoridades.forEach((a) => set.add(TIPO_LABEL[a.tipo_autoridad] || a.tipo_autoridad))
-    return ["Todos", ...Array.from(set)]
-  }, [autoridades])
-
-  const filtered = activeFilter === "Todos"
-    ? autoridades
-    : autoridades.filter(a => (TIPO_LABEL[a.tipo_autoridad] || a.tipo_autoridad) === activeFilter)
+  const alcalde = useMemo(() => autoridades.find((a) => a.tipo_autoridad === "alcalde"), [autoridades])
+  const mostrarHeroe = !!alcalde
+  const lista = alcalde ? autoridades.filter((a) => a.id !== alcalde.id) : autoridades
 
   return (
     <div className="pb-16">
@@ -88,24 +76,7 @@ export default function AutoridadesPage() {
         </div>
       </PageHeader>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex flex-wrap gap-2 pt-8">
-        {filterOptions.map((f) => (
-          <button
-            key={f}
-            onClick={() => setActiveFilter(f)}
-            className={cn(
-              "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-              activeFilter === f
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-            )}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
-
+      <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
       {loading ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -126,15 +97,66 @@ export default function AutoridadesPage() {
           <p className="text-lg font-medium text-foreground">Error al cargar</p>
           <p className="text-sm text-muted-foreground mt-1">{error}</p>
         </div>
-      ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
-          <Users className="h-12 w-12 text-muted-foreground/50 mb-3" />
-          <p className="text-lg font-medium text-foreground">No hay autoridades registradas</p>
-          <p className="text-sm text-muted-foreground mt-1">Las autoridades activas del panel de administración aparecerán aquí.</p>
-        </div>
       ) : (
+        <>
+          {mostrarHeroe && alcalde && (
+            <Card className="mb-10 overflow-hidden border-primary/20">
+              <div className="h-3 bg-gradient-to-r from-primary via-primary/80 to-primary/60" />
+              <CardContent className="p-8">
+                <div className="flex flex-col items-center text-center">
+                  <div className="mb-5">
+                    {alcalde.foto ? (
+                      <Image
+                        src={alcalde.foto}
+                        alt={alcalde.nombre_completo}
+                        width={128}
+                        height={128}
+                        className="h-32 w-32 rounded-full object-cover shadow-lg ring-4 ring-primary/20"
+                      />
+                    ) : (
+                      <Image
+                        src="/images/AlcaldeMairana.png"
+                        alt={alcalde.nombre_completo}
+                        width={128}
+                        height={128}
+                        className="h-32 w-32 rounded-full object-cover shadow-lg ring-4 ring-primary/20"
+                      />
+                    )}
+                  </div>
+                  <Badge className="mb-3 px-4 py-1 text-sm">Alcalde Municipal</Badge>
+                  <h2 className="font-serif text-3xl font-bold text-foreground">{formatearNombre(alcalde.nombre_completo)}</h2>
+                  <p className="mt-1 text-lg text-muted-foreground">{formatearNombre(alcalde.cargo)}</p>
+                  <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+                    {alcalde.correo && (
+                      <a href={`mailto:${alcalde.correo}`} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                        <Mail className="h-3.5 w-3.5" />
+                        {alcalde.correo}
+                      </a>
+                    )}
+                    {alcalde.telefono && (
+                      <a href={`tel:${alcalde.telefono}`} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                        <Phone className="h-3.5 w-3.5" />
+                        {alcalde.telefono}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          {lista.length === 0 ? (
+            mostrarHeroe ? (
+              <p className="text-center text-sm text-muted-foreground">El resto del equipo municipal se publicará próximamente.</p>
+            ) : (
+              <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
+                <Users className="h-12 w-12 text-muted-foreground/50 mb-3" />
+                <p className="text-lg font-medium text-foreground">No hay autoridades registradas</p>
+                <p className="text-sm text-muted-foreground mt-1">Las autoridades activas del panel de administración aparecerán aquí.</p>
+              </div>
+            )
+          ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((auth) => (
+          {lista.map((auth) => (
              <Card key={auth.id} className="group transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted">
               <CardContent className="p-6">
                 <div className="flex flex-col items-center text-center">
@@ -161,9 +183,9 @@ export default function AutoridadesPage() {
                       </div>
                     )}
                   </div>
-                  <h3 className="font-semibold text-card-foreground">{auth.nombre_completo}</h3>
+                  <h3 className="font-semibold text-card-foreground">{formatearNombre(auth.nombre_completo)}</h3>
                   <Badge className="mt-2 text-center text-xs leading-snug">
-                    {auth.cargo}
+                    {formatearNombre(auth.cargo)}
                   </Badge>
                   <div className="mt-4 w-full space-y-2 border-t pt-4">
                     {auth.correo && (
@@ -184,6 +206,8 @@ export default function AutoridadesPage() {
             </Card>
           ))}
         </div>
+          )}
+        </>
       )}
       </div>
     </div>

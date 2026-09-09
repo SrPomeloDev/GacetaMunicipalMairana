@@ -4,6 +4,8 @@ const { loginAs, confirmarEliminacion } = require("../helpers/actions");
 const TS = Date.now();
 const NOMBRE = `Autoridad E2E ${TS}`;
 const CARGO = `Cargo E2E ${TS}`;
+// el admin normaliza nombre/cargo a Título español al guardar (E2E → E2e)
+const CARGO_NORM = `Cargo E2e ${TS}`;
 
 test.describe("CRUD de autoridades (admin)", () => {
   test.describe.configure({ mode: "serial" });
@@ -23,7 +25,7 @@ test.describe("CRUD de autoridades (admin)", () => {
     await page.getByPlaceholder("Buscar autoridad...").fill(NOMBRE);
     const row = page.locator("tbody tr", { hasText: NOMBRE });
     await expect(row).toHaveCount(1);
-    await expect(row).toContainText(CARGO);
+    await expect(row).toContainText(CARGO_NORM);
     await expect(row.getByRole("button", { name: "Activo" })).toBeVisible();
   });
 

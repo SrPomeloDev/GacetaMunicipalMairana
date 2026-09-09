@@ -41,6 +41,23 @@ export function truncate(text: string, length: number): string {
   return text.length <= length ? text : text.substring(0, length).trimEnd() + '...'
 }
 
+const PARTICULAS_ES = new Set(['de', 'del', 'la', 'el', 'los', 'las', 'y', 'e', 'en', 'a', 'al', 'o', 'u'])
+
+export function formatearNombre(texto: string | null | undefined): string {
+  if (!texto) return ''
+  const palabras = texto.trim().split(/\s+/)
+  return palabras
+    .map((p, i) => {
+      if (i > 0 && PARTICULAS_ES.has(p.toLowerCase())) return p.toLowerCase()
+      return p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()
+    })
+    .join(' ')
+}
+
+export function esUrlFacebook(url: string): boolean {
+  return /^https?:\/\/(www\.|m\.)?(facebook\.com|fb\.watch)\/.+/i.test(url.trim())
+}
+
 export function absoluteUrl(path: string): string {
   return `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}${path}`
 }

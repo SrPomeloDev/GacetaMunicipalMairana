@@ -148,8 +148,15 @@ export default function NoticiasPage() {
                   )}
                 </div>
                 <CardContent className="p-5">
-                  <div className="mb-3 inline-block rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
-                    {CATEGORIA_LABEL[item.categoria] || item.categoria}
+                  <div className="mb-3 flex flex-wrap items-center gap-2">
+                    <span className="inline-block rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                      {CATEGORIA_LABEL[item.categoria] || item.categoria}
+                    </span>
+                    {item.facebook_url && (
+                      <span className="inline-block rounded-full bg-[#1877F2] px-3 py-1 text-xs font-medium text-white">
+                        Facebook
+                      </span>
+                    )}
                   </div>
                   <h3 className="mb-2 text-lg font-semibold leading-snug text-card-foreground group-hover:text-primary transition-colors line-clamp-2">
                     {item.titulo}

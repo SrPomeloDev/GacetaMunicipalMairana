@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import PageHeader from "@/components/layout/page-header"
 import { IconBox } from "@/components/ui/icon-box"
 import { createClient } from "@/lib/supabase/client"
+import { formatearNombre } from "@/lib/utils"
 import { Phone, Mail, Building2, Target, FileText, ChevronRight, Landmark } from "@/lib/icons"
 
 interface AutoridadEjecutiva {
@@ -113,8 +114,8 @@ export default function OrganoEjecutivoPage() {
                   </div>
                   <div className="flex-1">
                     <Badge className="mb-3 text-sm px-4 py-1">Alcalde Municipal</Badge>
-                    <h2 className="text-3xl font-bold text-foreground font-serif">{alcalde?.nombre_completo || "Alcalde Municipal"}</h2>
-                    <p className="mt-1 text-lg text-muted-foreground">{alcalde?.cargo || "Máxima autoridad ejecutiva"}</p>
+                    <h2 className="text-3xl font-bold text-foreground font-serif">{alcalde ? formatearNombre(alcalde.nombre_completo) : "Alcalde Municipal"}</h2>
+                    <p className="mt-1 text-lg text-muted-foreground">{alcalde?.cargo ? formatearNombre(alcalde.cargo) : "Máxima autoridad ejecutiva"}</p>
                     {alcalde?.biografia && <p className="mt-4 max-w-2xl text-muted-foreground leading-relaxed">{alcalde.biografia}</p>}
                     <div className="mt-6 flex flex-wrap gap-6">
                       {alcalde?.email && (
@@ -176,7 +177,7 @@ export default function OrganoEjecutivoPage() {
                   {directores.map((dir) => (
                      <Card key={dir.id} className="transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted">
                       <CardContent className="p-5">
-                        <h3 className="font-semibold text-card-foreground">{dir.nombre_completo}</h3>
+                        <h3 className="font-semibold text-card-foreground">{formatearNombre(dir.nombre_completo)}</h3>
                         <p className="text-sm text-muted-foreground">{dir.cargo}</p>
                         {dir.email && (
                           <a href={`mailto:${dir.email}`} className="mt-2 flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">

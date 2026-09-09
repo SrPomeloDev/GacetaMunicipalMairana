@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import PageHeader from "@/components/layout/page-header"
 import { IconBox } from "@/components/ui/icon-box"
 import { createClient } from "@/lib/supabase/client"
-import { formatDate } from "@/lib/utils"
+import { formatDate, formatearNombre } from "@/lib/utils"
 import { Phone, Mail, Calendar, FileText, Users, Scale, Shield, Landmark, Download } from "@/lib/icons"
 
 interface AutoridadConcejo {
@@ -98,7 +98,7 @@ export default function ConcejoPage() {
           </div>
           <div className="flex-1">
             <Badge className="mb-2">{persona.cargo.toLowerCase().includes("vice") ? "Vicepresidencia" : "Presidencia"}</Badge>
-            <h3 className="text-xl font-bold text-foreground">{persona.nombre_completo}</h3>
+            <h3 className="text-xl font-bold text-foreground">{formatearNombre(persona.nombre_completo)}</h3>
             <p className="text-muted-foreground">{persona.cargo}</p>
             <div className="mt-4 space-y-1.5">
               {persona.email && (
@@ -193,7 +193,7 @@ export default function ConcejoPage() {
                             <img src={concejal.foto} alt={concejal.nombre_completo} className="h-full w-full object-cover" />
                           ) : initials(concejal.nombre_completo)}
                         </div>
-                        <h3 className="font-semibold text-card-foreground">{concejal.nombre_completo}</h3>
+                          <h3 className="font-semibold text-card-foreground">{formatearNombre(concejal.nombre_completo)}</h3>
                         <p className="mt-1 text-sm text-muted-foreground">{concejal.cargo}</p>
                         {concejal.email && (
                           <div className="mt-3 space-y-1">
@@ -231,7 +231,7 @@ export default function ConcejoPage() {
                           <div className="flex-1">
                             <p className="font-medium text-card-foreground">{com.comision}</p>
                             <p className="text-sm text-muted-foreground">
-                              {com.autoridad?.nombre_completo ? `${com.cargo_comision || "Miembro"}: ${com.autoridad.nombre_completo}` : com.cargo_comision || "Miembro"}
+                              {com.autoridad?.nombre_completo ? `${com.cargo_comision || "Miembro"}: ${formatearNombre(com.autoridad.nombre_completo)}` : com.cargo_comision || "Miembro"}
                             </p>
                           </div>
                         </div>

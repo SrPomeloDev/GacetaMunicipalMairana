@@ -80,6 +80,35 @@ export default async function NoticiaDetailPage({ params }: { params: Promise<{ 
         )}
       </article>
 
+      {n.facebook_url && (
+        <div className="mt-8">
+          <div className="overflow-hidden rounded-2xl border border-border/60 bg-card p-4">
+            <iframe
+              src={`https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(n.facebook_url)}&show_text=true&width=500`}
+              width="500"
+              height="640"
+              style={{ border: "none", overflow: "hidden" }}
+              scrolling="no"
+              frameBorder="0"
+              allowFullScreen
+              loading="lazy"
+              title={`Publicación de Facebook: ${n.titulo}`}
+              className="mx-auto w-full max-w-[500px]"
+            />
+          </div>
+          <div className="mt-3 text-center">
+            <a
+              href={n.facebook_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              Ver original en Facebook
+            </a>
+          </div>
+        </div>
+      )}
+
       <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <Link
           href="/noticias"

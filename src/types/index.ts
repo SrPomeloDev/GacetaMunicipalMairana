@@ -75,6 +75,7 @@ export type Noticia = {
   resumen: string | null
   contenido: string | null
   imagen_principal: string | null
+  facebook_url: string | null
   categoria: 'institucional' | 'evento' | 'programa' | 'comunicado' | 'cultura'
   destacada: boolean
   publicada: boolean

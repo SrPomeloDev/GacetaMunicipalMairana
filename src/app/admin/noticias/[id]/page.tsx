@@ -13,7 +13,7 @@ import { RichTextEditor } from "@/components/admin/rich-text-editor"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/lib/supabase/client"
-import { slugify } from "@/lib/utils"
+import { slugify, esUrlFacebook } from "@/lib/utils"
 import { ArrowLeft } from "lucide-react"
 import type { Noticia } from "@/types"
 
@@ -42,6 +42,7 @@ export default function NoticiaFormPage() {
     publicada: false,
     fecha_publicacion: "",
     imagen_principal: null as string | null,
+    facebook_url: "",
   })
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(!isNew)
@@ -71,6 +72,7 @@ export default function NoticiaFormPage() {
         publicada: data.publicada,
         fecha_publicacion: data.fecha_publicacion ? data.fecha_publicacion.slice(0, 16) : "",
         imagen_principal: data.imagen_principal,
+        facebook_url: data.facebook_url || "",
       })
       setLoading(false)
     }
@@ -95,6 +97,10 @@ export default function NoticiaFormPage() {
       addToast("El título es obligatorio", "error")
       return
     }
+    if (formData.facebook_url.trim() && !esUrlFacebook(formData.facebook_url)) {
+      addToast("El enlace de Facebook no es válido (debe ser una URL de facebook.com)", "error")
+      return
+    }
     setSubmitting(true)
     try {
       const payload = {
@@ -107,6 +113,7 @@ export default function NoticiaFormPage() {
         publicada: formData.publicada,
         fecha_publicacion: formData.fecha_publicacion ? new Date(formData.fecha_publicacion).toISOString() : null,
         imagen_principal: formData.imagen_principal,
+        facebook_url: formData.facebook_url.trim() || null,
       }
       const { error } = isNew
         ? await supabase.from("noticias").insert(payload)
@@ -183,6 +190,28 @@ export default function NoticiaFormPage() {
                 onChange={(url) => setFormData((prev) => ({ ...prev, imagen_principal: url }))}
                 label="Imagen"
               />
+            </div>
+            <div className="space-y-2">
+              <Label>Enlace de Facebook (opcional)</Label>
+              <Input name="facebook_url" value={formData.facebook_url} onChange={handleChange} placeholder="https://www.facebook.com/.../posts/..." />
+              <p className="text-xs text-muted-foreground">Pegá el enlace de la publicación. Se mostrará incrustada en la web (el post debe ser público).</p>
+              {formData.facebook_url.trim() && esUrlFacebook(formData.facebook_url) && (
+                <div className="overflow-hidden rounded-xl border border-border/60 bg-muted/30 p-3">
+                  <p className="mb-2 text-xs font-medium text-muted-foreground">Vista previa</p>
+                  <iframe
+                    src={`https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(formData.facebook_url.trim())}&show_text=true&width=500`}
+                    width="500"
+                    height="440"
+                    style={{ border: "none", overflow: "hidden" }}
+                    scrolling="no"
+                    frameBorder="0"
+                    allowFullScreen
+                    loading="lazy"
+                    title="Vista previa de la publicación de Facebook"
+                    className="mx-auto w-full max-w-[500px] rounded-lg bg-background"
+                  />
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Resumen</Label>

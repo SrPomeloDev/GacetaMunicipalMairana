@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileUpload } from "@/components/admin/file-upload"
 import { useToast } from "@/components/ui/toast"
+import { hoyLocalISO } from "@/lib/utils"
 import { ArrowLeft, Save } from "lucide-react"
 
 export default function NuevaGaleriaPage() {
@@ -21,7 +22,7 @@ export default function NuevaGaleriaPage() {
     descripcion: "",
     album: "General",
     imagen: null as string | null,
-    fecha: new Date().toISOString().slice(0, 10),
+    fecha: hoyLocalISO(),
     orden: "0",
   })
   const [submitting, setSubmitting] = useState(false)
@@ -46,7 +47,7 @@ export default function NuevaGaleriaPage() {
           descripcion: form.descripcion || null,
           imagen: form.imagen,
           album: form.album || "General",
-          fecha: form.fecha || new Date().toISOString().slice(0, 10),
+          fecha: form.fecha || hoyLocalISO(),
           orden: form.orden ? Number(form.orden) : 0,
         }),
       })

@@ -35,7 +35,8 @@ export async function GET() {
   if (aniosRes.data) {
     for (const item of aniosRes.data) {
       if (item.fecha_publicacion) {
-        const anio = new Date(item.fecha_publicacion).getFullYear().toString()
+        const raw = String(item.fecha_publicacion)
+        const anio = /^\d{4}-\d{2}-\d{2}/.test(raw) ? raw.slice(0, 4) : new Date(raw).getFullYear().toString()
         anios[anio] = (anios[anio] || 0) + 1
       }
     }

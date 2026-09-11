@@ -13,7 +13,7 @@ import { RichTextEditor } from "@/components/admin/rich-text-editor"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/lib/supabase/client"
-import { slugify } from "@/lib/utils"
+import { slugify, hoyLocalISO } from "@/lib/utils"
 import { sanitizeHtml } from "@/lib/sanitize"
 import { ArrowLeft } from "lucide-react"
 import type { Normativa, ModificacionNormativa } from "@/types"
@@ -242,7 +242,7 @@ export default function NormativaFormPage() {
         tipo_modificacion: nuevaMod.tipo_modificacion as ModificacionNormativa["tipo_modificacion"],
         articulos_afectados: nuevaMod.articulos_afectados || null,
         descripcion: nuevaMod.descripcion || null,
-        fecha: nuevaMod.fecha || new Date().toISOString().slice(0, 10),
+        fecha: nuevaMod.fecha || hoyLocalISO(),
       })
       if (error) {
         addToast(error.message, "error")

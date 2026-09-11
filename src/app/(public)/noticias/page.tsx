@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
+import { cn, formatDate } from "@/lib/utils"
 import { Pagination } from "@/components/ui/pagination"
 import { Card, CardContent } from "@/components/ui/card"
 import PageHeader from "@/components/layout/page-header"
@@ -177,8 +177,8 @@ export default function NoticiasPage() {
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Calendar className="h-3 w-3" />
                       {item.fecha_publicacion
-                        ? new Date(item.fecha_publicacion).toLocaleDateString("es-BO", { day: "numeric", month: "long", year: "numeric" })
-                        : new Date(item.created_at).toLocaleDateString("es-BO", { day: "numeric", month: "long", year: "numeric" })}
+                        ? formatDate(item.fecha_publicacion)
+                        : formatDate(item.created_at)}
                     </span>
                     <span className="flex items-center gap-1 text-sm font-medium text-primary">
                       Leer más <ArrowRight className="h-3 w-3" />

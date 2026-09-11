@@ -21,6 +21,7 @@ import {
   Gavel,
 } from "@/lib/icons"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Reveal } from "@/components/ui/reveal"
 import { HeroParticles } from "@/components/hero-particles"
@@ -48,7 +49,7 @@ export default async function HomePage() {
   const newsList = ultimasNoticias.map(n => ({
     titulo: n.titulo,
     fecha: n.fecha_publicacion
-      ? new Date(n.fecha_publicacion).toLocaleDateString("es-BO", { day: "numeric", month: "long", year: "numeric" })
+      ? formatDate(n.fecha_publicacion)
       : "",
     resumen: n.resumen ?? "",
     categoria: n.categoria ?? "Institucional",

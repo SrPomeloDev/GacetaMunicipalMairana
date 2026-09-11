@@ -239,7 +239,7 @@ function GacetaContent() {
                   )}
                   <p className="text-xs text-muted-foreground">
                     {normativas[0].fecha_publicacion
-                      ? `Publicada el ${new Date(normativas[0].fecha_publicacion).toLocaleDateString("es-BO", { day: "numeric", month: "long", year: "numeric" })}`
+                      ? `Publicada el ${formatDate(normativas[0].fecha_publicacion)}`
                       : "Publicación reciente en la Gaceta Oficial"}
                   </p>
                 </div>

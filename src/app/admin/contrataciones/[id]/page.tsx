@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { FileUpload } from "@/components/admin/file-upload"
 import { Checkbox } from "@/components/ui/checkbox"
+import { hoyLocalISO } from "@/lib/utils"
 import { ArrowLeft } from "lucide-react"
 
 const TIPO_OPTIONS = [
@@ -43,7 +44,7 @@ export default function ContratacionFormPage() {
     objeto: "",
     monto: "",
     empresa_adjudicada: "",
-    fecha_publicacion: new Date().toISOString().slice(0, 10),
+    fecha_publicacion: hoyLocalISO(),
     fecha_presentacion: "",
     fecha_adjudicacion: "",
     archivo_pdf: "",
@@ -70,7 +71,7 @@ export default function ContratacionFormPage() {
         objeto: data.objeto || "",
         monto: data.monto !== null && data.monto !== undefined ? String(data.monto) : "",
         empresa_adjudicada: data.empresa_adjudicada || "",
-        fecha_publicacion: data.fecha_publicacion ? data.fecha_publicacion.slice(0, 10) : new Date().toISOString().slice(0, 10),
+        fecha_publicacion: data.fecha_publicacion ? data.fecha_publicacion.slice(0, 10) : hoyLocalISO(),
         fecha_presentacion: data.fecha_presentacion ? data.fecha_presentacion.slice(0, 10) : "",
         fecha_adjudicacion: data.fecha_adjudicacion ? data.fecha_adjudicacion.slice(0, 10) : "",
         archivo_pdf: data.archivo_pdf || "",

@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Select } from "@/components/ui/select"
 import { FileUpload } from "@/components/admin/file-upload"
 import { useToast } from "@/components/ui/toast"
+import { hoyLocalISO } from "@/lib/utils"
 import type { Transparencia } from "@/types"
 import { ArrowLeft, Save } from "lucide-react"
 
@@ -35,7 +36,7 @@ export default function NuevoDocumentoPage() {
     categoria: "presupuesto",
     descripcion: "",
     archivo_pdf: null as string | null,
-    fecha: new Date().toISOString().slice(0, 10),
+    fecha: hoyLocalISO(),
     publicada: true,
   })
   const [submitting, setSubmitting] = useState(false)
@@ -56,7 +57,7 @@ export default function NuevoDocumentoPage() {
           categoria: form.categoria as Transparencia["categoria"],
           descripcion: form.descripcion || null,
           archivo_pdf: form.archivo_pdf,
-          fecha: form.fecha || new Date().toISOString().slice(0, 10),
+          fecha: form.fecha || hoyLocalISO(),
           publicada: form.publicada,
         }),
       })

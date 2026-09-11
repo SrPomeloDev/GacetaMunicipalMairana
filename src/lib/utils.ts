@@ -5,8 +5,25 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function parseFechaLocal(date: string | Date): Date {
+  if (date instanceof Date) return date
+  const soloFecha = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date.trim())
+  if (soloFecha) {
+    return new Date(Number(soloFecha[1]), Number(soloFecha[2]) - 1, Number(soloFecha[3]))
+  }
+  return new Date(date)
+}
+
+export function hoyLocalISO(): string {
+  const ahora = new Date()
+  const y = ahora.getFullYear()
+  const m = String(ahora.getMonth() + 1).padStart(2, "0")
+  const d = String(ahora.getDate()).padStart(2, "0")
+  return `${y}-${m}-${d}`
+}
+
 export function formatDate(date: string | Date, style: 'short' | 'long' | 'full' = 'long'): string {
-  const d = new Date(date)
+  const d = parseFechaLocal(date)
   const options: Intl.DateTimeFormatOptions =
     style === 'short' ? { day: 'numeric', month: 'short', year: 'numeric' } :
     style === 'long' ? { day: 'numeric', month: 'long', year: 'numeric' } :

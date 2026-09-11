@@ -20,6 +20,10 @@ export const metadata: Metadata = {
     template: "%s | Gaceta Municipal - Mairana",
   },
   description: "Plataforma oficial de la Gaceta Municipal de Mairana, Santa Cruz - Capital Tabacalera de Bolivia",
+  icons: {
+    icon: "/images/escudo-mairana.jpg",
+    apple: "/images/escudo-mairana.jpg",
+  },
 };
 
 export default function RootLayout({

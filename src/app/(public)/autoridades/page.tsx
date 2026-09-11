@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import PageHeader from "@/components/layout/page-header"
 import { Mail, Phone, Users, Landmark, Building2, ChevronRight } from "@/lib/icons"
 import { createClient } from "@/lib/supabase/client"
+import { StorageImage } from "@/components/ui/storage-image"
 import type { Autoridad } from "@/types"
 
 export default function AutoridadesPage() {
@@ -106,7 +107,7 @@ export default function AutoridadesPage() {
                 <div className="flex flex-col items-center text-center">
                   <div className="mb-5">
                     {alcalde.foto ? (
-                      <Image
+                      <StorageImage
                         src={alcalde.foto}
                         alt={alcalde.nombre_completo}
                         width={128}
@@ -162,7 +163,7 @@ export default function AutoridadesPage() {
                 <div className="flex flex-col items-center text-center">
                   <div className="mb-4">
                     {auth.foto ? (
-                      <Image
+                      <StorageImage
                         src={auth.foto}
                         alt={auth.nombre_completo}
                         width={80}

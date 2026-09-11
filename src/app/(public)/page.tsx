@@ -26,6 +26,7 @@ import { Reveal } from "@/components/ui/reveal"
 import { HeroParticles } from "@/components/hero-particles"
 import { IconBox } from "@/components/ui/icon-box"
 import { NoticiaPlaceholder } from "@/components/noticias/noticia-placeholder"
+import { StorageImage } from "@/components/ui/storage-image"
 import { AnimatedCounter } from "@/components/ui/animated-counter"
 
 export const dynamic = "force-dynamic"
@@ -274,7 +275,7 @@ export default async function HomePage() {
                     <div>
                       <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary/15 via-amber-500/5 to-foreground/10">
                         {item.imagen ? (
-                          <Image
+                          <StorageImage
                             src={item.imagen}
                             alt={item.titulo}
                             fill

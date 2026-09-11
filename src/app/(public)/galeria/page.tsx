@@ -1,11 +1,11 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import Image from "next/image"
 import { cn } from "@/lib/utils"
 import PageHeader from "@/components/layout/page-header"
 import { ImageIcon, Camera, Images, X } from "@/lib/icons"
 import { createClient } from "@/lib/supabase/client"
+import { StorageImage } from "@/components/ui/storage-image"
 import type { Galeria } from "@/types"
 
 export default function GaleriaPage() {
@@ -124,7 +124,7 @@ export default function GaleriaPage() {
                 onClick={() => { if (item.imagen) setLightbox(item) }}
               >
                 {item.imagen ? (
-                  <Image
+                  <StorageImage
                     src={item.imagen}
                     alt={item.titulo}
                     fill

@@ -1,12 +1,12 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import PageHeader from "@/components/layout/page-header"
 import { IconBox } from "@/components/ui/icon-box"
+import { StorageImage } from "@/components/ui/storage-image"
 import { createClient } from "@/lib/supabase/client"
 import { formatDate, formatearNombre } from "@/lib/utils"
 import { Phone, Mail, Calendar, FileText, Users, Scale, Shield, Landmark, Download } from "@/lib/icons"
@@ -155,7 +155,7 @@ export default function ConcejoPage() {
             {(presidencia.length > 0 || concejales.length > 0) && (
               <div className="mb-10 overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-sm">
                 <div className="relative aspect-video w-full sm:aspect-[21/9]">
-                  <Image
+                  <StorageImage
                     src={FOTO_GRUPAL_URL}
                     alt="Concejo Municipal de Mairana"
                     fill

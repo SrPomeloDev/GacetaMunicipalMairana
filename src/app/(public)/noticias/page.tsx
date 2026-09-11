@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { Pagination } from "@/components/ui/pagination"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,6 +9,7 @@ import PageHeader from "@/components/layout/page-header"
 import { Reveal } from "@/components/ui/reveal"
 import { ImageIcon, Calendar, ArrowRight, Newspaper, Megaphone } from "@/lib/icons"
 import { createClient } from "@/lib/supabase/client"
+import { StorageImage } from "@/components/ui/storage-image"
 import type { Noticia } from "@/types"
 
 const CATEGORIA_LABEL: Record<string, string> = {
@@ -134,7 +134,7 @@ export default function NoticiasPage() {
               <Card className="group h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted">
                 <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden">
                   {item.imagen_principal ? (
-                    <Image
+                    <StorageImage
                       src={item.imagen_principal}
                       alt={item.titulo}
                       fill

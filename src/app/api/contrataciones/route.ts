@@ -23,6 +23,6 @@ export async function GET(request: Request) {
   if (tipo) query = query.eq("tipo", tipo as Contratacion["tipo"])
 
   const { data, error } = await query
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: "No se pudo cargar la información" }, { status: 500 })
   return NextResponse.json(data)
 }

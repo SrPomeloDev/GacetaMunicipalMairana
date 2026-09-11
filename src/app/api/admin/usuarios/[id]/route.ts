@@ -11,8 +11,8 @@ export async function GET(
   const { id } = await params
   const supabase = await createServerSupabaseClient()
 
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+  if (!authUser) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 
@@ -46,8 +46,8 @@ export async function PATCH(
   const { id } = await params
   const supabase = await createServerSupabaseClient()
 
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+  if (!authUser) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 
@@ -130,8 +130,8 @@ export async function DELETE(
   const { id } = await params
   const supabase = await createServerSupabaseClient()
 
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+  if (!authUser) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 
@@ -140,7 +140,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Solo un administrador puede eliminar usuarios" }, { status: 403 })
   }
 
-  if (session.user.id === id) {
+  if (authUser.id === id) {
     return NextResponse.json({ error: "No puedes eliminar tu propia cuenta" }, { status: 400 })
   }
 

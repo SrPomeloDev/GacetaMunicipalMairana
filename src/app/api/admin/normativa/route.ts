@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 import { normativaInsertSchema } from "@/lib/validations/normativa"
+import { sanitizeHtml } from "@/lib/sanitize"
 
 export async function POST(request: Request) {
   let permiso: PermisosUsuario | null
@@ -23,6 +24,9 @@ export async function POST(request: Request) {
     .from("normativa")
     .insert({
       ...parsed.data,
+      contenido_texto: parsed.data.contenido_texto
+        ? sanitizeHtml(parsed.data.contenido_texto)
+        : parsed.data.contenido_texto,
       created_by: permiso.id,
     } as never)
     .select()

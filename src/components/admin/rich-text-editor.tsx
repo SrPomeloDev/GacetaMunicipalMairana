@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
+import { isSafeUrl } from "@/lib/sanitize"
 
 interface RichTextEditorProps {
   value: string | null
@@ -69,6 +70,10 @@ export function RichTextEditor({ value, onChange, label }: RichTextEditorProps) 
     if (url === null) return
     if (url === "") {
       editor.chain().focus().extendMarkRange("link").unsetLink().run()
+      return
+    }
+    if (!isSafeUrl(url)) {
+      window.alert("URL no permitida por seguridad. Usa http(s)://, /ruta o #ancla.")
       return
     }
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run()

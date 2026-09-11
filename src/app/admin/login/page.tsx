@@ -38,7 +38,7 @@ function LoginContent() {
       router.push(destino)
       router.refresh()
     } else {
-      if (password.length < 6) { setError("Mínimo 6 caracteres"); setLoading(false); return }
+      if (password.length < 8) { setError("Mínimo 8 caracteres"); setLoading(false); return }
       const { error: err } = await supabase.auth.signUp({
         email, password,
         options: { data: { nombre } },
@@ -185,10 +185,10 @@ function LoginContent() {
                   type="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  className="pl-10"
-                  placeholder="••••••••"
+                   required
+                   minLength={8}
+                   className="pl-10"
+                   placeholder="••••••••"
                 />
               </div>
             </div>

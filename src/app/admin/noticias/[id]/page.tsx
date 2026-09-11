@@ -14,6 +14,7 @@ import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/lib/supabase/client"
 import { slugify, esUrlFacebook, esUrlFacebookCanonico } from "@/lib/utils"
+import { sanitizeHtml } from "@/lib/sanitize"
 import { ArrowLeft } from "lucide-react"
 import type { Noticia } from "@/types"
 
@@ -280,7 +281,7 @@ export default function NoticiaFormPage() {
               ) : formData.contenido ? (
                 <div
                   className="min-h-[220px] rounded-lg border border-input bg-background px-4 py-3 text-sm leading-relaxed [&_a]:text-primary [&_a]:underline [&_blockquote]:my-2 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-muted-foreground [&_h2]:mb-2 [&_h2]:mt-4 [&_h2]:text-xl [&_h2]:font-bold [&_h3]:mb-1 [&_h3]:mt-3 [&_h3]:text-lg [&_h3]:font-semibold [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:my-2 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-6"
-                  dangerouslySetInnerHTML={{ __html: formData.contenido }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(formData.contenido) }}
                 />
               ) : (
                 <p className="rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">

@@ -8,6 +8,6 @@ export async function GET() {
     .select("*")
     .order("fecha", { ascending: false })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: "No se pudo cargar la información" }, { status: 500 })
   return NextResponse.json(data)
 }

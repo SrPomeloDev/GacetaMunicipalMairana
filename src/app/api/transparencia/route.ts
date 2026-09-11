@@ -24,6 +24,6 @@ export async function GET(request: Request) {
 
   const { data, error } = await dbQuery
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: "No se pudo cargar la información" }, { status: 500 })
   return NextResponse.json(data)
 }

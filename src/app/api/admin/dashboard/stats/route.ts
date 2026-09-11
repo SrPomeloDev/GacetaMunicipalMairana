@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
+import { getPermisosUsuario } from "@/lib/permisos-server"
 
 export async function GET() {
   const supabase = await createServerSupabaseClient()
 
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
+  }
+
+  const permisos = await getPermisosUsuario(supabase)
+  if (!permisos) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 })
   }
 
   const [normativasRes, noticiasRes, usuariosRes, estadosRes, aniosRes] = await Promise.all([

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 import { noticiaInsertSchema } from "@/lib/validations/noticias"
+import { sanitizeHtml } from "@/lib/sanitize"
 
 export async function POST(request: Request) {
   let permiso: PermisosUsuario | null
@@ -23,6 +24,9 @@ export async function POST(request: Request) {
     .from("noticias")
     .insert({
       ...parsed.data,
+      contenido: parsed.data.contenido
+        ? sanitizeHtml(parsed.data.contenido)
+        : parsed.data.contenido,
       autor_id: permiso.id,
     } as never)
     .select()

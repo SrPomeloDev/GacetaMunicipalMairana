@@ -12,6 +12,7 @@ export async function GET(
     .from("noticias")
     .select("*")
     .eq("slug", slug)
+    .eq("publicada", true)
     .single()
 
   if (error) return NextResponse.json({ error: "Not found" }, { status: 404 })

@@ -19,7 +19,7 @@ export async function GET(
     if (error.code === "PGRST116") {
       return NextResponse.json({ error: "Trámite no encontrado" }, { status: 404 })
     }
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: "No se pudo cargar la información" }, { status: 500 })
   }
   return NextResponse.json(data)
 }

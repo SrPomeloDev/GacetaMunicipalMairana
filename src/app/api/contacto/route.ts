@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     leido: false,
   } as never)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: "No se pudo enviar el mensaje. Inténtalo de nuevo." }, { status: 500 })
   return NextResponse.json({ message: anonimo && categoria === "denuncia"
     ? "Denuncia recibida. Agradecemos tu confianza."
     : "Mensaje enviado correctamente" }, { status: 201 })

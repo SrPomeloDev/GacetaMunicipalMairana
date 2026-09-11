@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 import { noticiaUpdateSchema } from "@/lib/validations/noticias"
+import { sanitizeHtml } from "@/lib/sanitize"
 
 export async function PUT(
   request: Request,
@@ -26,7 +27,12 @@ export async function PUT(
 
   const { data, error } = await permiso.supabase
     .from("noticias")
-    .update(parsed.data as never)
+    .update({
+      ...parsed.data,
+      ...(parsed.data.contenido !== undefined && parsed.data.contenido !== null
+        ? { contenido: sanitizeHtml(parsed.data.contenido) }
+        : {}),
+    } as never)
     .eq("id", id)
     .select()
     .single()

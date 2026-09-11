@@ -6,8 +6,8 @@ import { usuarioCrearSchema } from "@/lib/validations/usuarios"
 export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient()
 
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+  if (!authUser) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 

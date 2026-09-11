@@ -11,13 +11,15 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null)
   const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : ""
 
-  if (!email || !EMAIL_RE.test(email)) {
+  if (!email || email.length > 160 || !EMAIL_RE.test(email)) {
     return NextResponse.json({ error: "Ingresa un correo electrónico válido" }, { status: 400 })
   }
 
-  const categorias = Array.isArray(body?.categorias)
-    ? body.categorias.filter((c: unknown) => typeof c === "string")
-    : []
+  const rawCategorias: unknown[] = Array.isArray(body?.categorias) ? body.categorias : []
+  const categorias = rawCategorias
+    .filter((c): c is string => typeof c === "string")
+    .map((c) => c.trim().slice(0, 40))
+    .filter((c) => c.length > 0)
 
   if (categorias.length > 10) {
     return NextResponse.json({ error: "Máximo 10 categorías permitidas" }, { status: 400 })
@@ -39,28 +41,24 @@ export async function POST(request: Request) {
     if (existing.activo) {
       return NextResponse.json({ message: "Este correo ya está suscrito a la Gaceta" }, { status: 200 })
     }
-    const { data, error } = await admin
+    const { error } = await admin
       .from("suscripciones")
       .update({ activo: true, categorias: categorias.length ? categorias : null } as never)
       .eq("id", existing.id)
-      .select()
-      .single()
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ message: "Suscripción reactivada", data }, { status: 200 })
+    if (error) return NextResponse.json({ error: "No se pudo procesar la suscripción" }, { status: 500 })
+    return NextResponse.json({ message: "Suscripción reactivada" }, { status: 200 })
   }
 
-  const { data, error } = await admin
+  const { error } = await admin
     .from("suscripciones")
     .insert({ email, categorias: categorias.length ? categorias : null } as never)
-    .select()
-    .single()
 
   if (error) {
     if (error.code === "23505") {
       return NextResponse.json({ message: "Este correo ya está suscrito a la Gaceta" }, { status: 200 })
     }
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: "No se pudo procesar la suscripción" }, { status: 500 })
   }
 
-  return NextResponse.json({ message: "¡Suscripción exitosa! Recibirás las novedades de la Gaceta Municipal.", data }, { status: 201 })
+  return NextResponse.json({ message: "¡Suscripción exitosa! Recibirás las novedades de la Gaceta Municipal." }, { status: 201 })
 }

@@ -7,6 +7,7 @@ import PageHeader from "@/components/layout/page-header"
 import { ShareButtons } from "@/components/share/share-buttons"
 import { Calendar, ArrowLeft, ImageIcon, Newspaper } from "@/lib/icons"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { sanitizeHtml } from "@/lib/sanitize"
 import type { Noticia } from "@/types"
 
 const CATEGORIA_LABEL: Record<string, string> = {
@@ -74,9 +75,10 @@ export default async function NoticiaDetailPage({ params }: { params: Promise<{ 
         )}
 
         {n.contenido && (
-          <div className="mt-8 space-y-4 text-foreground leading-relaxed whitespace-pre-wrap">
-            {n.contenido}
-          </div>
+          <div
+            className="mt-8 space-y-4 text-foreground leading-relaxed [&_a]:text-primary [&_a]:underline [&_blockquote]:my-2 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:mb-2 [&_h2]:mt-4 [&_h2]:text-xl [&_h2]:font-bold [&_h3]:mb-1 [&_h3]:mt-3 [&_h3]:text-lg [&_h3]:font-semibold [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:my-2 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-6"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(n.contenido) }}
+          />
         )}
       </article>
 

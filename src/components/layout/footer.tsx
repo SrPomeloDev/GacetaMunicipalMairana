@@ -59,7 +59,7 @@ export default function Footer() {
 
           <div>
             <h3 className="mb-5 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
-              <Scale className="h-3.5 w-3.5" /> Portal Institucional
+              <Scale className="h-3.5 w-3.5" /> Web Institucional
             </h3>
             <ul className="space-y-0.5 text-xs">
               {FOOTER_LINKS.map((link) => (
@@ -97,7 +97,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/transparencia" className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary underline-offset-4 hover:underline">
-                  Ver Portal de Transparencia <ExternalLink className="h-3 w-3" />
+                  Ver Web de Transparencia <ExternalLink className="h-3 w-3" />
                 </Link>
               </li>
             </ul>

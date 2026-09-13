@@ -234,10 +234,10 @@ export default function OrganoEjecutivoPage() {
                   <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center">
                     <FileText className="h-12 w-12 text-muted-foreground/50 mb-3" />
                     <p className="text-lg font-semibold text-foreground">Rendición de Cuentas</p>
-                    <p className="mt-1 text-sm text-muted-foreground">Los informes de rendición de cuentas están disponibles en el Portal de Transparencia</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Los informes de rendición de cuentas están disponibles en la Web de Transparencia</p>
                     <div className="mt-6 w-full max-w-sm">
                       <a href="/transparencia" className="flex items-center justify-between rounded-lg border bg-card p-3 hover:border-primary/40 hover:text-primary transition-colors">
-                        <span className="text-sm font-medium text-foreground">Ver Portal de Transparencia</span>
+                        <span className="text-sm font-medium text-foreground">Ver Web de Transparencia</span>
                         <ChevronRight className="h-4 w-4 text-primary" />
                       </a>
                     </div>

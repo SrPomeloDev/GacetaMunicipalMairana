@@ -474,3 +474,140 @@
     box-shadow: 0 10px 15px -3px oklch(0.65 0.18 45 / 0.15);
   }
 }
+
+/* Modo letra grande: tipografia mayor, botones amplios y mas contraste */
+.modo-senior {
+  font-size: 125%;
+  --muted-foreground: #32383e;
+}
+
+.dark.modo-senior {
+  --muted-foreground: #d8d2c9;
+}
+
+.modo-senior body {
+  line-height: 1.8;
+  letter-spacing: 0.01em;
+}
+
+.modo-senior p,
+.modo-senior li,
+.modo-senior label,
+.modo-senior summary {
+  line-height: 1.8;
+}
+
+.modo-senior main a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.modo-senior button,
+.modo-senior input,
+.modo-senior select,
+.modo-senior textarea {
+  font-size: 1rem;
+}
+
+.modo-senior header > div:nth-child(2) > div {
+  max-width: 100%;
+}
+
+.modo-senior header nav {
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.modo-senior header nav::-webkit-scrollbar {
+  display: none;
+}
+
+.modo-senior header a span.truncate {
+  display: none;
+}
+
+.modo-senior header a img {
+  height: 2.5rem;
+}
+
+@media (max-width: 1279px) {
+  .modo-senior header > div:nth-child(2) a[aria-label="Ayuda"] {
+    display: none;
+  }
+}
+
+.modo-senior main nav a {
+  min-height: 3rem;
+}
+
+.modo-senior main input:not([type="checkbox"]):not([type="radio"]),
+.modo-senior main select,
+.modo-senior main textarea {
+  min-height: 3rem;
+  font-size: 1.05rem;
+}
+
+.senior-accesos {
+  display: none;
+}
+
+.modo-senior .senior-accesos {
+  display: block;
+}
+
+.modo-senior main input[type="text"],
+.modo-senior main input[type="email"],
+.modo-senior main input[type="search"] {
+  font-size: 1.1rem;
+}
+
+.modo-senior main textarea {
+  min-height: 10rem;
+}
+
+.modo-senior button:focus-visible,
+.modo-senior a:focus-visible,
+.modo-senior input:focus-visible,
+.modo-senior select:focus-visible,
+.modo-senior textarea:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Senior: sin movimiento decorativo con desplazamiento, el resto sigue vivo */
+.modo-senior [class*="animate-[shimmer"]::after {
+  animation: none;
+}
+
+.modo-senior [class*="hover:-translate-y-1"]:hover {
+  translate: none;
+}
+
+.modo-senior .group:hover [class*="group-hover:translate-x-1"],
+.modo-senior .group:hover [class*="group-hover:scale-110"] {
+  translate: none;
+  scale: none;
+}
+
+.modo-senior [class*="hover:rotate-90"]:hover,
+.modo-senior [class*="hover:-rotate-90"]:hover {
+  rotate: none;
+}
+
+.modo-senior [class*="hover:after:translate-x-full"]::after {
+  display: none;
+}
+
+.voice-listening {
+  animation: voice-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes voice-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(230, 0, 22, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(230, 0, 22, 0);
+  }
+}

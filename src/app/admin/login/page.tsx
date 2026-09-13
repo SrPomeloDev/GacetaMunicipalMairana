@@ -74,7 +74,7 @@ function LoginContent() {
             </div>
 
             <p className="text-2xl font-bold leading-snug">
-              Portal oficial de transparencia y normativa municipal.
+              Web oficial de transparencia y normativa municipal.
             </p>
             <p className="mt-3 text-sm leading-relaxed text-white/85">
               Acceso restringido al personal autorizado del Gobierno Autónomo Municipal de Mairana.

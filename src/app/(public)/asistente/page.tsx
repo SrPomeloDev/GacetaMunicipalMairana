@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import PageHeader from "@/components/layout/page-header"
 import { IconBox } from "@/components/ui/icon-box"
 import { Send, Bot, User, MessageCircle, Search, ExternalLink } from "@/lib/icons"
+import { VoiceButton } from "@/components/ui/voice-button"
 
 interface Message {
   role: "user" | "bot"
@@ -32,6 +33,7 @@ export default function AsistentePage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [input, setInput] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const [vozError, setVozError] = useState<string | null>(null)
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -192,13 +194,25 @@ export default function AsistentePage() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={isTyping}
-                className="flex h-11 w-full rounded-xl border border-input bg-background pl-10 pr-4 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50"
+                aria-label="Escribí tu consulta sobre normativa"
+                className="flex h-11 w-full rounded-xl border border-input bg-background pl-10 pr-11 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50"
+              />
+              <VoiceButton
+                onDictado={(texto) => { setInput((prev) => (prev ? `${prev} ${texto}` : texto)); setVozError(null) }}
+                onError={setVozError}
+                disabled={isTyping}
+                className="absolute right-2 top-1/2 h-8 w-8 -translate-y-1/2 rounded-lg"
               />
             </div>
-            <Button size="icon" className="h-11 w-11 shrink-0 rounded-xl" onClick={() => handleSend()} disabled={!input.trim() || isTyping}>
+            <Button size="icon" className="h-11 w-11 shrink-0 rounded-xl" onClick={() => handleSend()} disabled={!input.trim() || isTyping} aria-label="Enviar consulta">
               <Send className="h-5 w-5" />
             </Button>
           </div>
+          {vozError && (
+            <p role="alert" className="text-xs leading-relaxed text-destructive">
+              {vozError}
+            </p>
+          )}
         </div>
       </Card>
       </div>

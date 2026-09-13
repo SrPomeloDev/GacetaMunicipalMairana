@@ -6,8 +6,9 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { IconBox } from "@/components/ui/icon-box"
 import { useCurrentUser, rolLabel } from "@/hooks/use-current-user"
 import { useTheme } from "@/components/theme-provider"
+import { useAccessibility } from "@/components/accesibilidad/accessibility-provider"
 import { cn } from "@/lib/utils"
-import { Bell, ChevronRight, ExternalLink, Menu, Sun, Moon } from "@/lib/icons"
+import { Bell, ChevronRight, ExternalLink, Menu, Sun, Moon, TextAa } from "@/lib/icons"
 
 const breadcrumbLabels: Record<string, string> = {
   dashboard: "Panel de Control",
@@ -43,6 +44,7 @@ export default function AdminHeader({ onMenuToggle }: { onMenuToggle?: () => voi
   const segments = pathname.split("/").filter(Boolean)
   const { user } = useCurrentUser()
   const { theme, toggleTheme } = useTheme()
+  const { senior, toggleSenior } = useAccessibility()
 
   return (
     <header className="glass-bar sticky top-0 z-20 flex h-16 items-center gap-4 px-4 sm:px-6">
@@ -86,6 +88,20 @@ export default function AdminHeader({ onMenuToggle }: { onMenuToggle?: () => voi
           className="text-muted-foreground hover:text-primary [&_svg]:transition-transform [&_svg]:duration-500 hover:[&_svg]:rotate-90"
         >
           {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSenior}
+          aria-label={senior ? "Restablecer tamaño de letra" : "Aumentar tamaño de letra"}
+          aria-pressed={senior}
+          title={senior ? "Restablecer tamaño de letra" : "Aumentar tamaño de letra"}
+          className={cn(
+            "text-muted-foreground hover:text-primary",
+            senior && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+          )}
+        >
+          <TextAa className="h-5 w-5" />
         </Button>
         <Link
           href="/"

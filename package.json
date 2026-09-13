@@ -6,7 +6,8 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "subir-leyes": "node scripts/subir-leyes.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

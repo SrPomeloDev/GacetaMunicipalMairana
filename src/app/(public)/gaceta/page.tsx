@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Select } from "@/components/ui/select"
 import { Pagination } from "@/components/ui/pagination"
 import { Button } from "@/components/ui/button"
+import { VoiceButton } from "@/components/ui/voice-button"
 import { Card, CardContent } from "@/components/ui/card"
 import { NormativaCard } from "@/components/normativa/normativa-card"
 import { Reveal } from "@/components/ui/reveal"
@@ -184,7 +185,12 @@ function GacetaContent() {
                   value={search}
                   onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }}
                   placeholder="Buscar por Ley, Decreto, Ordenanza, palabra clave..."
-                  className="w-full rounded-2xl border border-white/50 bg-white/80 py-4 pl-12 pr-4 text-sm text-foreground shadow-lg shadow-primary/5 backdrop-blur-xl placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:border-white/10 dark:bg-white/10"
+                  aria-label="Buscar en la Gaceta por ley, decreto, ordenanza o palabra clave"
+                  className="w-full rounded-2xl border border-white/50 bg-white/80 py-4 pl-12 pr-14 text-sm text-foreground shadow-lg shadow-primary/5 backdrop-blur-xl placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:border-white/10 dark:bg-white/10"
+                />
+                <VoiceButton
+                  onDictado={(texto) => { setSearch((prev) => (prev ? `${prev} ${texto}` : texto)); setCurrentPage(1) }}
+                  className="absolute right-2 top-1/2 h-10 w-10 -translate-y-1/2 rounded-xl"
                 />
               </div>
 
@@ -483,7 +489,7 @@ function GacetaContent() {
           <Link href="/">
             <Button variant="outline" className="gap-2 border-primary/30 text-xs font-semibold hover:bg-primary/10">
               <ArrowRight className="h-3.5 w-3.5 rotate-180" />
-              Volver al Portal Municipal
+              Volver a la Web Municipal
             </Button>
           </Link>
         </div>

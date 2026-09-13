@@ -27,6 +27,7 @@ import { Reveal } from "@/components/ui/reveal"
 import { HeroParticles } from "@/components/hero-particles"
 import { IconBox } from "@/components/ui/icon-box"
 import { NoticiaPlaceholder } from "@/components/noticias/noticia-placeholder"
+import { SeniorAccesos } from "@/components/accesibilidad/senior-accesos"
 import { StorageImage } from "@/components/ui/storage-image"
 import { AnimatedCounter } from "@/components/ui/animated-counter"
 
@@ -95,7 +96,7 @@ export default async function HomePage() {
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid items-center gap-12 lg:grid-cols-2">
-            <div className="space-y-7">
+            <div className="space-y-7 lg:col-span-2 lg:mx-auto lg:max-w-3xl lg:text-center">
               <Reveal>
                 <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-primary/25 bg-card/90 px-4 py-2 text-xs font-semibold text-primary shadow-xs backdrop-blur-md">
                   <Image src="/images/mairana-bandera.svg" alt="Bandera de Mairana" width={24} height={16} unoptimized className="h-4 w-6 rounded-[3px] object-cover" />
@@ -108,15 +109,15 @@ export default async function HomePage() {
 
               <Reveal>
                 <h1 className="font-serif text-4xl font-extrabold leading-none tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                  Portal <span className="text-primary">Municipal</span>
+                  Web <span className="text-primary">Municipal</span>
                   <br />
                   de Mairana
                 </h1>
               </Reveal>
 
               <Reveal>
-                <p className="max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-                  Bienvenido al portal oficial del{" "}
+                <p className="mx-auto max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg lg:max-w-2xl">
+                  Bienvenido a la web oficial del{" "}
                   <strong className="text-foreground">G.A.M. Mairana</strong>, tu acceso
                   centralizado a servicios municipales, información institucional y
                   participación ciudadana.
@@ -124,11 +125,11 @@ export default async function HomePage() {
               </Reveal>
 
               <Reveal>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3 lg:justify-center">
                   <Link href="/gaceta">
                     <Button size="lg" className="gap-2 font-bold shadow-sm shadow-primary/25">
                       <ScrollText className="h-4 w-4" />
-                      Consultar Gaceta Oficial
+                      GACETA MUNICIPAL
                     </Button>
                   </Link>
                   <Link href="/tramites">
@@ -141,56 +142,14 @@ export default async function HomePage() {
               </Reveal>
             </div>
 
-            <Reveal className="h-full">
-              <div className="relative flex flex-col items-center rounded-3xl border border-border/80 bg-card/95 p-8 text-center shadow-card backdrop-blur-sm">
-                <div className="mb-6 flex items-end justify-center gap-3 sm:gap-4">
-                  <Image
-                    src="/images/mairana-bandera.svg"
-                    alt="Bandera de Mairana"
-                    width={93}
-                    height={64}
-                    unoptimized
-                    className="h-10 w-auto rounded-md object-cover shadow-md sm:h-16"
-                  />
-                  <Image
-                    src="/images/mairana-gam-banner.png"
-                    alt="Gobierno Autónomo Municipal de Mairana"
-                    width={1000}
-                    height={295}
-                    className="h-14 w-auto rounded-2xl object-contain p-1.5 drop-shadow-sm transition-colors duration-200 sm:h-20 lg:h-24 dark:bg-white/95"
-                  />
-                </div>
-                <h3 className="font-serif text-xl font-bold text-foreground">Alcaldía Municipal de Mairana</h3>
-                <p className="mt-2 max-w-sm text-xs text-muted-foreground">
-                  Comprometidos con el desarrollo sostenible, la transparencia y el bienestar de los 12,735 mairaneños.
-                </p>
-                <div className="mt-5 flex w-full items-center gap-3 rounded-2xl border border-border/80 bg-muted/40 p-3 pr-5">
-                  <Image
-                    src="/images/AlcaldeMairana.png"
-                    alt="Andres Fidel Rocha Rosales"
-                    width={56}
-                    height={56}
-                    className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-primary/30"
-                  />
-                  <div className="text-left">
-                    <p className="font-serif text-sm font-bold text-foreground">Andres Fidel Rocha Rosales</p>
-                    <p className="text-[11px] text-muted-foreground">Alcalde Municipal — Gestión 2026</p>
-                    <p className="mt-1 text-[11px] font-semibold text-primary">Capital Tabacalera de Bolivia</p>
-                  </div>
-                </div>
-                <div className="mt-4 flex flex-wrap justify-center gap-2 text-[11px]">
-                  <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 font-medium text-foreground shadow-2xs">
-                    <Phone className="h-3 w-3 text-primary" /> {MAIRANA.telefono}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 font-medium text-foreground shadow-2xs">
-                    <Mail className="h-3 w-3 text-primary" /> {MAIRANA.email}
-                  </span>
-                </div>
-              </div>
-            </Reveal>
+            <div className="lg:hidden">
+              <TarjetaInstitucional />
+            </div>
           </div>
         </div>
       </section>
+
+      <SeniorAccesos />
 
       {/* SERVICIOS MUNICIPALES */}
       <section className="border-y border-border/40 bg-muted/30 py-16">
@@ -350,6 +309,12 @@ export default async function HomePage() {
             ))}
           </div>
 
+          <div className="mt-10 hidden justify-center lg:flex">
+            <div className="w-full max-w-3xl">
+              <TarjetaInstitucional />
+            </div>
+          </div>
+
           <Reveal>
             <div className="mt-10 text-center">
               <Link href="/autoridades">
@@ -364,5 +329,57 @@ export default async function HomePage() {
         </div>
       </section>
     </>
+  )
+}
+
+function TarjetaInstitucional() {
+  return (
+    <Reveal className="h-full">
+      <div className="relative flex flex-col items-center rounded-3xl border border-border/80 bg-card/95 p-8 text-center shadow-card backdrop-blur-sm">
+        <div className="mb-6 flex items-end justify-center gap-3 sm:gap-4">
+          <Image
+            src="/images/mairana-bandera.svg"
+            alt="Bandera de Mairana"
+            width={93}
+            height={64}
+            unoptimized
+            className="h-10 w-auto rounded-md object-cover shadow-md sm:h-16"
+          />
+          <Image
+            src="/images/mairana-gam-banner.png"
+            alt="Gobierno Autónomo Municipal de Mairana"
+            width={1000}
+            height={295}
+            className="h-14 w-auto rounded-2xl object-contain p-1.5 drop-shadow-sm transition-colors duration-200 sm:h-20 lg:h-24 dark:bg-white/95"
+          />
+        </div>
+        <h3 className="font-serif text-xl font-bold text-foreground">Alcaldía Municipal de Mairana</h3>
+        <p className="mt-2 max-w-sm text-xs text-muted-foreground">
+          Comprometidos con el desarrollo sostenible, la transparencia y el bienestar de los 12,735 mairaneños.
+        </p>
+        <div className="mt-5 flex w-full items-center justify-center gap-3 rounded-2xl border border-border/80 bg-muted/40 p-3 pr-5">
+          <Image
+            src="/images/AlcaldeMairana.png"
+            alt="Andres Fidel Rocha Rosales"
+            width={56}
+            height={56}
+            className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-primary/30"
+          />
+          <div className="text-center">
+            <p className="font-serif text-sm font-bold text-foreground">Andres Fidel Rocha Rosales</p>
+            <p className="text-[11px] text-muted-foreground">Alcalde Municipal — Gestión 2026</p>
+            <p className="mt-1 text-[11px] font-semibold text-primary">Capital Tabacalera de Bolivia</p>
+          </div>
+        </div>
+        <div className="mt-4 flex flex-wrap justify-center gap-2 text-[11px]">
+          <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 font-medium text-foreground shadow-2xs">
+            <Phone className="h-3 w-3 text-primary" /> {MAIRANA.telefono}
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 font-medium text-foreground shadow-2xs">
+            <Mail className="h-3 w-3 text-primary" /> {MAIRANA.email}
+          </span>
+        </div>
+      </div>
+    </Reveal>
   )
 }

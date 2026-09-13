@@ -8,7 +8,7 @@ import {
 import { UserCog } from "lucide-react"
 
 const GUIA = [
-  { href: "/", titulo: "Inicio", desc: "Portada del portal: accesos directos a la Gaceta, trámites y novedades.", Icon: Home },
+  { href: "/", titulo: "Inicio", desc: "Portada de la web: accesos directos a la Gaceta, trámites y novedades.", Icon: Home },
   { href: "/gaceta", titulo: "Gaceta Oficial", desc: "Leyes, ordenanzas, decretos y resoluciones. Buscá por número, título o estado.", Icon: ScrollText },
   { href: "/noticias", titulo: "Noticias", desc: "Novedades del municipio, incluyendo publicaciones de Facebook.", Icon: Newspaper },
   { href: "/autoridades", titulo: "Autoridades", desc: "Quiénes gobiernan: alcalde destacado y demás autoridades.", Icon: Users },
@@ -23,6 +23,14 @@ const GUIA = [
 ]
 
 const FAQS = [
+  {
+    q: "¿Cómo agrando la letra de la web?",
+    a: "Tocá el botón de la letra grande (A) en la barra superior (junto al cambio de tema). Agranda toda la letra de la web, los botones y da más espacio. Queda guardado en tu celular o computadora.",
+  },
+  {
+    q: "¿Cómo busco hablando en vez de escribir?",
+    a: "Tocá el micrófono que aparece dentro del buscador o del asistente virtual y hablá. El navegador te pedirá permiso para usar el micrófono la primera vez. Funciona mejor en Chrome o Edge.",
+  },
   {
     q: "¿Cómo busco una ley u ordenanza?",
     a: "Entrá a la Gaceta Oficial y usá el buscador por número o título. Podés filtrar por categoría (ley, ordenanza, decreto…) y por estado (vigente, derogada…).",
@@ -46,7 +54,7 @@ export default function AyudaPage() {
     <div className="pb-16">
       <PageHeader
         title="Ayuda y Acerca de"
-        description="Guía rápida del Portal y la Gaceta Municipal de Mairana: qué hay en cada sección y cómo usarla."
+        description="Guía rápida de la Web y la Gaceta Municipal de Mairana: qué hay en cada sección y cómo usarla."
         crumbs={[{ label: "Ayuda" }]}
         icon={<Headset className="hidden h-8 w-8 text-primary sm:block" />}
       />

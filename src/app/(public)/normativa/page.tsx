@@ -169,6 +169,7 @@ function NormativaContent() {
               placeholder="Buscar por título, número o contenido..."
               value={search}
               onChange={setSearch}
+              voice
             />
           </div>
           <Button

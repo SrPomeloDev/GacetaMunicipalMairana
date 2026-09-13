@@ -6,15 +6,17 @@ import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { NAV_LINKS, isGacetaPath, MAIRANA } from "@/lib/constants"
-import { Menu, X, ShieldCheck, Phone, Clock, Lock, Sun, Moon, ScrollText, MessageCircle, Headset } from "@/lib/icons"
+import { Menu, X, ShieldCheck, Phone, Clock, Lock, Sun, Moon, ScrollText, MessageCircle, Headset, TextAa } from "@/lib/icons"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "@/components/theme-provider"
+import { useAccessibility } from "@/components/accesibilidad/accessibility-provider"
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const { toggleTheme } = useTheme()
+  const { senior, toggleSenior } = useAccessibility()
   const isGaceta = isGacetaPath(pathname)
 
   useEffect(() => {
@@ -97,7 +99,7 @@ export default function Header() {
               <span className="truncate text-[11px] font-medium text-muted-foreground">
                 {isGaceta
                   ? "Publicación oficial • G.A.M. Mairana"
-                  : "Portal del G.A.M. Mairana"}
+                  : "Web del G.A.M. Mairana"}
               </span>
             </div>
           </Link>
@@ -141,6 +143,21 @@ export default function Header() {
               <Moon className="h-5 w-5 transition-transform duration-500 hover:-rotate-90 dark:hidden" />
             </Button>
 
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSenior}
+              aria-label={senior ? "Restablecer tamaño de letra" : "Aumentar tamaño de letra"}
+              aria-pressed={senior}
+              title={senior ? "Restablecer tamaño de letra" : "Aumentar tamaño de letra"}
+              className={cn(
+                "text-muted-foreground hover:text-primary",
+                senior && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+              )}
+            >
+              <TextAa className="h-5 w-5" />
+            </Button>
+
             <Link
               href="/ayuda"
               aria-label="Ayuda"
@@ -177,6 +194,23 @@ export default function Header() {
               <Lock className="h-3 w-3" />
               Acceso Admin
             </Link>
+          </div>
+          <div className="p-4 pb-0">
+            <button
+              type="button"
+              onClick={toggleSenior}
+              aria-pressed={senior}
+              aria-label={senior ? "Restablecer tamaño de letra" : "Aumentar tamaño de letra"}
+              className={cn(
+                "inline-flex w-full items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold",
+                senior
+                  ? "border-primary/40 bg-primary text-primary-foreground"
+                  : "border-primary/30 bg-primary/10 text-foreground"
+              )}
+            >
+              <TextAa className="h-6 w-6" />
+              <span className="sr-only">{senior ? "Restablecer tamaño de letra" : "Aumentar tamaño de letra"}</span>
+            </button>
           </div>
           <nav className="grid grid-cols-2 gap-1.5 p-4">
             {NAV_LINKS.map((link) => {

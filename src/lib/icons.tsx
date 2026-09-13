@@ -61,6 +61,9 @@ import {
   X as PhX,
   FileText as PhFileText,
   Image as PhImage,
+  Microphone as PhMicrophone,
+  MicrophoneSlash as PhMicrophoneSlash,
+  TextAa as PhTextAa,
 } from "@phosphor-icons/react"
 
 type IconComponent = ComponentType<PhosphorIconProps>
@@ -131,3 +134,6 @@ export const Shield = duo(PhShield, "Shield")
 export const Users = duo(PhUsers, "Users")
 export const X = duo(PhX, "X")
 export const FileText = duo(PhFileText, "FileText")
+export const Microphone = duo(PhMicrophone, "Microphone")
+export const MicrophoneSlash = duo(PhMicrophoneSlash, "MicrophoneSlash")
+export const TextAa = duo(PhTextAa, "TextAa")

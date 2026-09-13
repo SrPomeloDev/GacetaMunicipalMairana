@@ -54,3 +54,8 @@ next-env.d.ts
 # logs locales
 .tmp-dev.log
 e2e-build.log
+e2e-probe.log
+/e2e/e2e-final.log
+/e2e/e2e-final.err
+/e2e/e2e-verify.log
+*.log

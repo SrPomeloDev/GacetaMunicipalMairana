@@ -9,7 +9,7 @@ test.describe("Móvil", () => {
   test("home muestra menú hamburguesa y navega a la Gaceta Oficial", async ({ page }) => {
     await page.goto("/");
     await expect(
-      page.getByRole("heading", { level: 1, name: "Portal Municipal de Mairana" })
+      page.getByRole("heading", { level: 1, name: "Web Municipal de Mairana" })
     ).toBeVisible();
     await page.getByRole("button", { name: "Abrir menú" }).click();
     const drawer = page.locator("#menu-movil");

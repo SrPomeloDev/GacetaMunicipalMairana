@@ -63,7 +63,7 @@ const TONE_STYLE: Record<DotTone, { bg: string; glow: string }> = {
 
 export function HeroParticles() {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div aria-hidden className="hero-particles pointer-events-none absolute inset-0 overflow-hidden">
       {DOTS.map((dot, i) => {
         const tone = TONE_STYLE[dot.tone ?? "bright"]
         return (

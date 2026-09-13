@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 
 const PUBLIC_ROUTES = [
-  { path: "/", heading: "Portal Municipal de Mairana" },
+  { path: "/", heading: "Web Municipal de Mairana" },
   { path: "/gaceta", heading: "Gaceta Municipal Oficial" },
   { path: "/noticias", heading: "Noticias del Municipio" },
   { path: "/autoridades", heading: "Autoridades Municipales" },
@@ -27,7 +27,7 @@ test.describe("Portal público", () => {
 
   test("home: el CTA del hero lleva a la Gaceta Oficial", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("link", { name: "Consultar Gaceta Oficial" }).click();
+    await page.getByRole("link", { name: "GACETA MUNICIPAL" }).click();
     await expect(page).toHaveURL(/\/gaceta/);
     await expect(
       page.getByRole("heading", { level: 1, name: "Gaceta Municipal Oficial" })

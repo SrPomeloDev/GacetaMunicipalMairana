@@ -23,6 +23,7 @@ const DEFAULT_CONFIG = {
   instagram: "",
   color_primario: "#EA580C",
   logo_url: null as string | null,
+  fondo_url: null as string | null,
   alcalde_foto: null as string | null,
   alcalde_nombre: "Andres Fidel Rocha Rosales",
   alcalde_cargo: "Alcalde Municipal — Gestión 2026",
@@ -59,6 +60,7 @@ export default function AdminConfiguracionPage() {
           instagram: data.instagram || "",
           color_primario: data.color_primario || "#EA580C",
           logo_url: data.logo_url,
+          fondo_url: data.fondo_url,
           alcalde_foto: data.alcalde_foto,
           alcalde_nombre: data.alcalde_nombre || "",
           alcalde_cargo: data.alcalde_cargo || "",
@@ -251,6 +253,18 @@ export default function AdminConfiguracionPage() {
               onChange={(url) => setForm((prev) => ({ ...prev, logo_url: url }))}
               label="Logo"
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cfg-fondo">Imagen de Fondo del Portal</Label>
+            <FileUpload
+              id="cfg-fondo"
+              bucket="noticias-imagenes"
+              accept="image/*"
+              value={form.fondo_url}
+              onChange={(url) => setForm((prev) => ({ ...prev, fondo_url: url }))}
+              label="Fondo del Portal"
+            />
+            <p className="text-xs text-muted-foreground">Se usará como fondo en el home y la portada de la Gaceta. Dimensión recomendada 1920x1080.</p>
           </div>
         </CardContent>
       </Card>

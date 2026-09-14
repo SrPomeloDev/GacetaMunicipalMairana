@@ -219,6 +219,7 @@ export type Configuracion = {
   alcalde_cargo: string | null
   descripcion_municipio: string | null
   horario: string | null
+  fondo_url: string | null
   updated_at: string
 }
 

@@ -124,7 +124,7 @@ export default async function HomePage() {
       {/* HERO */}
       <section className="relative overflow-hidden pt-14 pb-20 sm:pt-28 lg:pt-20 lg:pb-24">
         <Image
-          src="/images/plaza.jpg"
+          src={config?.fondo_url || "/images/plaza.jpg"}
           alt=""
           aria-hidden
           fill

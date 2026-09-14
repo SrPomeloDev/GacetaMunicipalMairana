@@ -6,6 +6,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { cn, formatDate, getEstadoColor, getEstadoLabel } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
+import { usePortalConfig } from "@/components/layout/portal-config"
 import { Select } from "@/components/ui/select"
 import { Pagination } from "@/components/ui/pagination"
 import { Button } from "@/components/ui/button"
@@ -53,6 +54,7 @@ function GacetaContent() {
   const [vista, setVista] = useState<"cards" | "lista">("cards")
   const searchRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
+  const { fondo_url } = usePortalConfig()
 
   const categoriaOptions = categorias.map((c) => ({ value: c.slug, label: c.nombre }))
 
@@ -141,7 +143,7 @@ function GacetaContent() {
       {/* Hero */}
       <section className="relative overflow-hidden pt-12 pb-16 sm:pt-28 lg:pt-36">
         <Image
-          src="/images/plaza.jpg"
+          src={fondo_url || "/images/plaza.jpg"}
           alt=""
           aria-hidden
           fill

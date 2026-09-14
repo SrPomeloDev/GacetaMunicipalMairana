@@ -45,6 +45,7 @@ export async function PUT(request: Request) {
   if (body.alcalde_cargo !== undefined) upsert.alcalde_cargo = body.alcalde_cargo || null
   if (body.descripcion_municipio !== undefined) upsert.descripcion_municipio = body.descripcion_municipio || null
   if (body.horario !== undefined) upsert.horario = body.horario || null
+  if (body.fondo_url !== undefined) upsert.fondo_url = body.fondo_url || null
 
   const { data, error } = await admin
     .from("configuracion")

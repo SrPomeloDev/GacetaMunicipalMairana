@@ -23,7 +23,7 @@ export const MAIRANA = {
   clima: '19°C',
   gentilicio: 'Mairaneño/a',
   alcalde: 'Andres Fidel Rocha Rosales',
-  capital: 'Capital Tabacalera de Bolivia',
+  capital: 'Corazón de los Valles',
   distancia: '137 km de Santa Cruz de la Sierra',
   direccion: 'Plaza Principal 24 de Septiembre Nº 28',
   telefono: '948-2041',

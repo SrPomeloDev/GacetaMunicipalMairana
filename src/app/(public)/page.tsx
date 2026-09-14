@@ -44,8 +44,51 @@ async function getUltimasNoticias() {
   return data ?? []
 }
 
+async function getConfiguracion() {
+  const supabase = createAdminClient()
+  const { data } = await supabase.from("configuracion").select("*").eq("id", 1).maybeSingle()
+  return data
+}
+
+async function getAlcalde() {
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from("autoridades")
+    .select("nombre_completo, cargo, foto")
+    .eq("tipo_autoridad", "alcalde")
+    .eq("activo", true)
+    .order("orden", { ascending: true })
+    .limit(1)
+    .maybeSingle()
+  return data
+}
+
+type TarjetaData = {
+  alcaldeNombre: string
+  alcaldeCargo: string
+  descripcion: string
+  lema: string
+  telefono: string
+  email: string
+  alcaldeFoto: string
+}
+
 export default async function HomePage() {
-  const ultimasNoticias = await getUltimasNoticias()
+  const [ultimasNoticias, config, alcalde] = await Promise.all([
+    getUltimasNoticias(),
+    getConfiguracion(),
+    getAlcalde(),
+  ])
+
+  const tarjetaData: TarjetaData = {
+    alcaldeNombre: config?.alcalde_nombre || alcalde?.nombre_completo || MAIRANA.alcalde,
+    alcaldeCargo: config?.alcalde_cargo || "Alcalde Municipal — Gestión 2026",
+    descripcion: config?.descripcion_municipio || "Comprometidos con el desarrollo sostenible, la transparencia y el bienestar de los 12,735 mairaneños.",
+    lema: config?.lema || MAIRANA.capital,
+    telefono: config?.telefono || MAIRANA.telefono,
+    email: config?.email || MAIRANA.email,
+    alcaldeFoto: config?.alcalde_foto || alcalde?.foto || "/images/AlcaldeMairana.png",
+  }
 
   const newsList = ultimasNoticias.map(n => ({
     titulo: n.titulo,
@@ -143,7 +186,7 @@ export default async function HomePage() {
             </div>
 
             <div className="lg:hidden">
-              <TarjetaInstitucional />
+              <TarjetaInstitucional data={tarjetaData} />
             </div>
           </div>
         </div>
@@ -311,7 +354,7 @@ export default async function HomePage() {
 
           <div className="mt-10 hidden justify-center lg:flex">
             <div className="w-full max-w-3xl">
-              <TarjetaInstitucional />
+              <TarjetaInstitucional data={tarjetaData} />
             </div>
           </div>
 
@@ -332,7 +375,7 @@ export default async function HomePage() {
   )
 }
 
-function TarjetaInstitucional() {
+function TarjetaInstitucional({ data }: { data: TarjetaData }) {
   return (
     <Reveal className="h-full">
       <div className="relative flex flex-col items-center rounded-3xl border border-border/80 bg-card/95 p-8 text-center shadow-card backdrop-blur-sm">
@@ -355,28 +398,28 @@ function TarjetaInstitucional() {
         </div>
         <h3 className="font-serif text-xl font-bold text-foreground">Alcaldía Municipal de Mairana</h3>
         <p className="mt-2 max-w-sm text-xs text-muted-foreground">
-          Comprometidos con el desarrollo sostenible, la transparencia y el bienestar de los 12,735 mairaneños.
+          {data.descripcion}
         </p>
         <div className="mt-5 flex w-full items-center justify-center gap-3 rounded-2xl border border-border/80 bg-muted/40 p-3 pr-5">
-          <Image
-            src="/images/AlcaldeMairana.png"
-            alt="Andres Fidel Rocha Rosales"
+          <StorageImage
+            src={data.alcaldeFoto}
+            alt={data.alcaldeNombre}
             width={56}
             height={56}
             className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-primary/30"
           />
           <div className="text-center">
-            <p className="font-serif text-sm font-bold text-foreground">Andres Fidel Rocha Rosales</p>
-            <p className="text-[11px] text-muted-foreground">Alcalde Municipal — Gestión 2026</p>
-            <p className="mt-1 text-[11px] font-semibold text-primary">Capital Tabacalera de Bolivia</p>
+            <p className="font-serif text-sm font-bold text-foreground">{data.alcaldeNombre}</p>
+            <p className="text-[11px] text-muted-foreground">{data.alcaldeCargo}</p>
+            <p className="mt-1 text-[11px] font-semibold text-primary">{data.lema}</p>
           </div>
         </div>
         <div className="mt-4 flex flex-wrap justify-center gap-2 text-[11px]">
           <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 font-medium text-foreground shadow-2xs">
-            <Phone className="h-3 w-3 text-primary" /> {MAIRANA.telefono}
+            <Phone className="h-3 w-3 text-primary" /> {data.telefono}
           </span>
           <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 font-medium text-foreground shadow-2xs">
-            <Mail className="h-3 w-3 text-primary" /> {MAIRANA.email}
+            <Mail className="h-3 w-3 text-primary" /> {data.email}
           </span>
         </div>
       </div>

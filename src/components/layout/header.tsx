@@ -8,16 +8,23 @@ import { cn } from "@/lib/utils"
 import { NAV_LINKS, isGacetaPath, MAIRANA } from "@/lib/constants"
 import { Menu, X, ShieldCheck, Phone, Clock, Lock, Sun, Moon, ScrollText, MessageCircle, Headset, TextAa } from "@/lib/icons"
 import { Button } from "@/components/ui/button"
+import { StorageImage } from "@/components/ui/storage-image"
 import { useTheme } from "@/components/theme-provider"
 import { useAccessibility } from "@/components/accesibilidad/accessibility-provider"
+import type { Configuracion } from "@/types"
 
-export default function Header() {
+type HeaderConfig = Pick<Configuracion, "telefono" | "horario" | "logo_url"> | null
+
+export default function Header({ config }: { config?: HeaderConfig }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const { toggleTheme } = useTheme()
   const { senior, toggleSenior } = useAccessibility()
   const isGaceta = isGacetaPath(pathname)
+
+  const telefono = config?.telefono || MAIRANA.telefono
+  const horario = config?.horario || "Lun a Vie 08:00 - 16:00"
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -63,13 +70,13 @@ export default function Header() {
             </span>
             <span className="hidden text-muted-foreground/40 md:inline-flex items-center gap-1.5">
               <Clock className="h-3 w-3" />
-              Atención: Lunes a Viernes 08:00 - 16:00
+              Atención: {horario}
             </span>
           </div>
           <div className="flex items-center gap-4">
             <span className="hidden lg:inline-flex items-center gap-1.5">
               <Phone className="h-3 w-3 text-primary" />
-              Telf: {MAIRANA.telefono}
+              Telf: {telefono}
             </span>
             <Link
               href="/admin/login"
@@ -85,13 +92,23 @@ export default function Header() {
       <div className="border-b border-border/60 bg-background/90 backdrop-blur-md xl:border-b-0 xl:bg-transparent xl:backdrop-blur-none">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 xl:mt-3 xl:h-14 xl:w-fit xl:max-w-none xl:gap-7 xl:rounded-full xl:border xl:border-border/60 xl:bg-background/80 xl:px-5 xl:shadow-lg xl:backdrop-blur-md">
           <Link href="/" className="group flex min-w-0 items-center gap-3">
-            <Image
-              src="/images/mairana-corazon-valles.png"
-              alt="Mairana, Corazón de los Valles"
-              width={1405}
-              height={1037}
-              className="h-12 w-auto shrink-0 object-contain sm:h-14"
-            />
+            {config?.logo_url ? (
+              <StorageImage
+                src={config.logo_url}
+                alt="Logo del Municipio"
+                width={56}
+                height={56}
+                className="h-12 w-auto max-w-[140px] shrink-0 object-contain sm:h-14"
+              />
+            ) : (
+              <Image
+                src="/images/mairana-corazon-valles.png"
+                alt="Mairana, Corazón de los Valles"
+                width={1405}
+                height={1037}
+                className="h-12 w-auto shrink-0 object-contain sm:h-14"
+              />
+            )}
             <div className="flex min-w-0 flex-col leading-tight">
               <span className="truncate font-serif text-base font-extrabold tracking-tight text-foreground transition-colors group-hover:text-primary">
                 Gaceta Municipal

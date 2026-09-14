@@ -214,6 +214,11 @@ export type Configuracion = {
   instagram: string | null
   color_primario: string
   logo_url: string | null
+  alcalde_foto: string | null
+  alcalde_nombre: string | null
+  alcalde_cargo: string | null
+  descripcion_municipio: string | null
+  horario: string | null
   updated_at: string
 }
 

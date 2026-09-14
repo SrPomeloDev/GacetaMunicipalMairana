@@ -4,15 +4,16 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileUpload } from "@/components/admin/file-upload"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Save, Building2, Share2, Palette } from "lucide-react"
+import { Save, Building2, Share2, Palette, User } from "lucide-react"
 
 const DEFAULT_CONFIG = {
   municipio: "Gobierno Autónomo Municipal de Mairana",
-  lema: "Capital Tabacalera de Bolivia",
+  lema: "Corazón de los Valles",
   direccion: "",
   telefono: "",
   email: "",
@@ -22,6 +23,11 @@ const DEFAULT_CONFIG = {
   instagram: "",
   color_primario: "#EA580C",
   logo_url: null as string | null,
+  alcalde_foto: null as string | null,
+  alcalde_nombre: "Andres Fidel Rocha Rosales",
+  alcalde_cargo: "Alcalde Municipal — Gestión 2026",
+  descripcion_municipio: "Comprometidos con el desarrollo sostenible, la transparencia y el bienestar de los 12,735 mairaneños.",
+  horario: "Lun a Vie 08:00 - 16:00",
 }
 
 export default function AdminConfiguracionPage() {
@@ -53,6 +59,11 @@ export default function AdminConfiguracionPage() {
           instagram: data.instagram || "",
           color_primario: data.color_primario || "#EA580C",
           logo_url: data.logo_url,
+          alcalde_foto: data.alcalde_foto,
+          alcalde_nombre: data.alcalde_nombre || "",
+          alcalde_cargo: data.alcalde_cargo || "",
+          descripcion_municipio: data.descripcion_municipio || "",
+          horario: data.horario || "",
         })
       }
       setLoading(false)
@@ -131,8 +142,48 @@ export default function AdminConfiguracionPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="cfg-email">Email</Label>
-              <Input id="cfg-email" type="email" value={form.email} onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))} placeholder="info@mairana.gob.bo" />
+              <Input id="cfg-email" value={form.email} onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))} placeholder="info@mairana.gob.bo" />
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cfg-horario">Horario de Atención</Label>
+            <Input id="cfg-horario" value={form.horario} onChange={(e) => setForm((prev) => ({ ...prev, horario: e.target.value }))} placeholder="Lun a Vie 08:00 - 16:00" />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5 text-primary" />
+            Alcaldía
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="cfg-alcalde-nombre">Nombre del Alcalde</Label>
+              <Input id="cfg-alcalde-nombre" value={form.alcalde_nombre} onChange={(e) => setForm((prev) => ({ ...prev, alcalde_nombre: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cfg-alcalde-cargo">Cargo / Gestion</Label>
+              <Input id="cfg-alcalde-cargo" value={form.alcalde_cargo} onChange={(e) => setForm((prev) => ({ ...prev, alcalde_cargo: e.target.value }))} placeholder="Alcalde Municipal — Gestión 2026" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cfg-descripcion">Descripción del Municipio</Label>
+            <Textarea id="cfg-descripcion" rows={3} value={form.descripcion_municipio} onChange={(e) => setForm((prev) => ({ ...prev, descripcion_municipio: e.target.value }))} placeholder="Comprometidos con el desarrollo sostenible..." />
+          </div>
+          <div className="space-y-2">
+            <Label>Foto del Alcalde</Label>
+            <FileUpload
+              id="cfg-alcalde-foto"
+              bucket="noticias-imagenes"
+              accept="image/*"
+              value={form.alcalde_foto}
+              onChange={(url) => setForm((prev) => ({ ...prev, alcalde_foto: url }))}
+              label="Foto del Alcalde"
+            />
           </div>
         </CardContent>
       </Card>

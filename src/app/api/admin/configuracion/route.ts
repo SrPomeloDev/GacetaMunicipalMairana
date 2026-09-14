@@ -40,6 +40,11 @@ export async function PUT(request: Request) {
   if (body.instagram !== undefined) upsert.instagram = body.instagram || null
   if (body.color_primario !== undefined) upsert.color_primario = body.color_primario
   if (body.logo_url !== undefined) upsert.logo_url = body.logo_url || null
+  if (body.alcalde_foto !== undefined) upsert.alcalde_foto = body.alcalde_foto || null
+  if (body.alcalde_nombre !== undefined) upsert.alcalde_nombre = body.alcalde_nombre || null
+  if (body.alcalde_cargo !== undefined) upsert.alcalde_cargo = body.alcalde_cargo || null
+  if (body.descripcion_municipio !== undefined) upsert.descripcion_municipio = body.descripcion_municipio || null
+  if (body.horario !== undefined) upsert.horario = body.horario || null
 
   const { data, error } = await admin
     .from("configuracion")

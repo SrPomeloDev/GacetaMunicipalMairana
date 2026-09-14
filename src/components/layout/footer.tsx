@@ -1,8 +1,10 @@
 import Link from "next/link"
 import Image from "next/image"
 import { MAIRANA, NAV_LINKS, SITE_NAME, DEV_CREDIT } from "@/lib/constants"
+import { Facebook, Instagram, Youtube, Twitter } from "lucide-react"
 import { MapPin, Phone, Mail, Clock, ShieldCheck, Scale, FileCheck2, ExternalLink, Landmark, Building2, Code2 } from "@/lib/icons"
 import NewsletterForm from "./newsletter-form"
+import type { Configuracion } from "@/types"
 
 const FOOTER_LINKS = [
   { href: "/gaceta", label: "Gaceta Oficial" },
@@ -10,8 +12,15 @@ const FOOTER_LINKS = [
   ...NAV_LINKS,
 ]
 
-export default function Footer() {
+export default async function Footer({ config }: { config: Pick<Configuracion, "direccion" | "telefono" | "email" | "horario" | "lema" | "municipio" | "facebook" | "twitter" | "youtube" | "instagram"> | null }) {
   const currentYear = new Date().getFullYear()
+
+  const direccion = config?.direccion || MAIRANA.direccion
+  const telefono = config?.telefono || MAIRANA.telefono
+  const email = config?.email || MAIRANA.email
+  const horario = config?.horario || "Lun a Vie 08:00 - 16:00"
+  const lema = config?.lema || MAIRANA.capital
+  const municipio = config?.municipio || "Gobierno Autónomo Municipal de Mairana"
 
   return (
     <footer className="relative overflow-hidden border-t border-border bg-card text-muted-foreground">
@@ -43,14 +52,14 @@ export default function Footer() {
               />
             </div>
             <p className="text-xs leading-relaxed">
-              Órgano de publicación oficial de Leyes Municipales, Ordenanzas, Decretos y Resoluciones del Gobierno Autónomo Municipal de Mairana, garantizando el acceso público y la transparencia según Ley N° 482 y Ley N° 341.
+              Órgano de publicación oficial de Leyes Municipales, Ordenanzas, Decretos y Resoluciones del {municipio}, garantizando el acceso público y la transparencia según Ley N° 482 y Ley N° 341.
             </p>
             <div className="flex items-center gap-3 pt-1">
-              <a href={`mailto:${MAIRANA.email}`} className="inline-flex items-center gap-1.5 rounded-lg border border-primary bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:opacity-90">
+              <a href={`mailto:${email}`} className="inline-flex items-center gap-1.5 rounded-lg border border-primary bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:opacity-90">
                 <Mail className="h-3.5 w-3.5" />
                 Escríbenos
               </a>
-              <a href={`tel:${MAIRANA.telefono}`} className="inline-flex items-center gap-1.5 rounded-lg border border-primary bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:opacity-90">
+              <a href={`tel:${telefono}`} className="inline-flex items-center gap-1.5 rounded-lg border border-primary bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:opacity-90">
                 <Phone className="h-3.5 w-3.5" />
                 Llámanos
               </a>
@@ -121,21 +130,45 @@ export default function Footer() {
             <ul className="space-y-3 text-xs">
               <li className="flex items-start gap-2.5">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <span>{MAIRANA.direccion}, {MAIRANA.nombre} - Santa Cruz</span>
+                <span>{direccion}, {MAIRANA.nombre} - Santa Cruz</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="h-4 w-4 shrink-0 text-primary" />
-                <span>Central Telefónica: {MAIRANA.telefono}</span>
+                <span>Central Telefónica: {telefono}</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="h-4 w-4 shrink-0 text-primary" />
-                <span>{MAIRANA.email}</span>
+                <span>{email}</span>
               </li>
               <li className="flex items-center gap-2.5 border-t border-primary/15 pt-3">
                 <Clock className="h-4 w-4 shrink-0 text-primary" />
-                <span>Atención: Lun a Vie 08:00 - 16:00</span>
+                <span>Atención: {horario}</span>
               </li>
             </ul>
+            {(config?.facebook || config?.instagram || config?.youtube || config?.twitter) && (
+              <div className="mt-4 flex items-center gap-2">
+                {config?.facebook && (
+                  <a href={config.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary">
+                    <Facebook className="h-4 w-4" />
+                  </a>
+                )}
+                {config?.instagram && (
+                  <a href={config.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary">
+                    <Instagram className="h-4 w-4" />
+                  </a>
+                )}
+                {config?.youtube && (
+                  <a href={config.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary">
+                    <Youtube className="h-4 w-4" />
+                  </a>
+                )}
+                {config?.twitter && (
+                  <a href={config.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter / X" className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary">
+                    <Twitter className="h-4 w-4" />
+                  </a>
+                )}
+              </div>
+            )}
           </div>
 
         </div>
@@ -146,7 +179,7 @@ export default function Footer() {
           <p className="text-center sm:text-left">
             &copy; {currentYear} {SITE_NAME}. Todos los derechos reservados.
             <span className="ml-1 block font-medium text-foreground sm:inline">
-              &ldquo;Capital Tabacalera de Bolivia&rdquo;
+              &ldquo;{lema}&rdquo;
             </span>
             <span className="mx-1 opacity-50">•</span>
             <Link href="/ayuda" className="underline-offset-4 hover:text-primary hover:underline">

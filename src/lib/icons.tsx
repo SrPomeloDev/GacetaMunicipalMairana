@@ -30,7 +30,6 @@ import {
   ArrowSquareOut,
   Code,
   Newspaper as PhNewspaper,
-  Megaphone as PhMegaphone,
   Camera as PhCamera,
   Images as PhImages,
   FolderOpen as PhFolderOpen,
@@ -62,8 +61,14 @@ import {
   FileText as PhFileText,
   Image as PhImage,
   Microphone as PhMicrophone,
-  MicrophoneSlash as PhMicrophoneSlash,
   TextAa as PhTextAa,
+  FacebookLogo as PhFacebookLogo,
+  InstagramLogo as PhInstagramLogo,
+  YoutubeLogo as PhYoutubeLogo,
+  WhatsappLogo as PhWhatsappLogo,
+  XLogo as PhXLogo,
+  UserGear as PhUserGear,
+  CircleNotch as PhCircleNotch,
 } from "@phosphor-icons/react"
 
 type IconComponent = ComponentType<PhosphorIconProps>
@@ -103,7 +108,6 @@ export const FileCheck2 = duo(SealCheck, "FileCheck2")
 export const ExternalLink = duo(ArrowSquareOut, "ExternalLink")
 export const Code2 = duo(Code, "Code2")
 export const Newspaper = duo(PhNewspaper, "Newspaper")
-export const Megaphone = duo(PhMegaphone, "Megaphone")
 export const Camera = duo(PhCamera, "Camera")
 export const Images = duo(PhImages, "Images")
 export const FolderOpen = duo(PhFolderOpen, "FolderOpen")
@@ -135,5 +139,11 @@ export const Users = duo(PhUsers, "Users")
 export const X = duo(PhX, "X")
 export const FileText = duo(PhFileText, "FileText")
 export const Microphone = duo(PhMicrophone, "Microphone")
-export const MicrophoneSlash = duo(PhMicrophoneSlash, "MicrophoneSlash")
 export const TextAa = duo(PhTextAa, "TextAa")
+export const Facebook = duo(PhFacebookLogo, "Facebook")
+export const Instagram = duo(PhInstagramLogo, "Instagram")
+export const Youtube = duo(PhYoutubeLogo, "Youtube")
+export const WhatsApp = duo(PhWhatsappLogo, "WhatsApp")
+export const Twitter = duo(PhXLogo, "Twitter")
+export const UserGear = duo(PhUserGear, "UserGear")
+export const CircleNotch = duo(PhCircleNotch, "CircleNotch")

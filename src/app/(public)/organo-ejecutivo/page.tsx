@@ -8,7 +8,7 @@ import PageHeader from "@/components/layout/page-header"
 import { IconBox } from "@/components/ui/icon-box"
 import { createClient } from "@/lib/supabase/client"
 import { formatearNombre } from "@/lib/utils"
-import { Phone, Mail, Building2, Target, FileText, ChevronRight, Landmark } from "@/lib/icons"
+import { Phone, Mail, Building2, Target, FileText, ChevronRight } from "@/lib/icons"
 
 interface AutoridadEjecutiva {
   id: string
@@ -71,7 +71,7 @@ export default function OrganoEjecutivoPage() {
         title="Órgano Ejecutivo"
         description="Gobierno Autónomo Municipal de Mairana - Gestión 2026. Conocé al Alcalde, las Secretarías y la planificación institucional."
         crumbs={[{ label: "Autoridades", href: "/autoridades" }, { label: "Órgano Ejecutivo" }]}
-        icon={<Landmark className="h-8 w-8 text-primary sm:h-9 sm:w-9" />}
+        icon={<Building2 className="h-8 w-8 text-primary sm:h-9 sm:w-9" />}
       >
         <Badge className="px-3 py-1 text-xs">Ejecutivo</Badge>
       </PageHeader>
@@ -85,7 +85,7 @@ export default function OrganoEjecutivoPage() {
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center">
-            <Landmark className="h-12 w-12 text-muted-foreground/50 mb-3" />
+            <Building2 className="h-12 w-12 text-muted-foreground/50 mb-3" />
             <p className="text-lg font-medium text-foreground">Error al cargar</p>
             <p className="mt-1 text-sm text-muted-foreground">{error}</p>
           </div>

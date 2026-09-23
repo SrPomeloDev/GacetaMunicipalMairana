@@ -34,7 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [router, supabase, isLoginPage])
 
   if (isLoginPage) {
-    return <>{children}</>
+    return <ToastProvider>{children}</ToastProvider>
   }
 
   if (authenticated === null) {

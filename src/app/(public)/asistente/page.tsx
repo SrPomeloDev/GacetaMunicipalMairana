@@ -124,7 +124,7 @@ export default function AsistentePage() {
               )}
               <div
                 className={cn(
-                  "max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed",
+                  "max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-line",
                   msg.role === "bot"
                     ? "border-l-4 border-primary bg-muted/50 text-foreground rounded-tl-sm"
                     : "border-r-4 border-primary-foreground/40 bg-primary text-primary-foreground rounded-tr-sm"

@@ -7,7 +7,7 @@ import { Pagination } from "@/components/ui/pagination"
 import { Card, CardContent } from "@/components/ui/card"
 import PageHeader from "@/components/layout/page-header"
 import { Reveal } from "@/components/ui/reveal"
-import { ImageIcon, Calendar, ArrowRight, Newspaper, Megaphone } from "@/lib/icons"
+import { ImageIcon, Calendar, ArrowRight, Newspaper } from "@/lib/icons"
 import { createClient } from "@/lib/supabase/client"
 import { StorageImage } from "@/components/ui/storage-image"
 import type { Noticia } from "@/types"
@@ -72,7 +72,7 @@ export default function NoticiasPage() {
         title="Noticias del Municipio"
         description="Mantenete informado sobre las últimas novedades, eventos y comunicados oficiales del Gobierno Autónomo Municipal de Mairana."
         crumbs={[{ label: "Noticias" }]}
-        icon={<Megaphone className="hidden h-8 w-8 text-primary sm:block" />}
+        icon={<Newspaper className="hidden h-8 w-8 text-primary sm:block" />}
       >
         <div className="flex items-center gap-2 rounded-xl border border-primary/15 bg-card/80 px-4 py-2 backdrop-blur">
           <Newspaper className="h-4 w-4 text-primary" />
@@ -87,6 +87,7 @@ export default function NoticiasPage() {
           <button
             key={cat}
             onClick={() => { setActiveCategory(cat); setCurrentPage(1) }}
+            aria-pressed={activeCategory === cat}
             className={cn(
               "rounded-full px-4 py-2 text-sm font-medium transition-colors",
               activeCategory === cat

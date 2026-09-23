@@ -12,29 +12,9 @@ import { createClient } from "@/lib/supabase/client"
 import { useCurrentUser, rolLabel } from "@/hooks/use-current-user"
 import { canView } from "@/hooks/use-current-user"
 import {
-  PanelLeftClose, PanelLeft, LogOut, X,
-  LayoutDashboard, FileText, Newspaper, Users, Shield,
-  ClipboardList, Image as ImageIcon, UserCog, Settings, Code2,
-  Building2, Tags, Landmark, Gavel, Mail, Inbox, ExternalLink
+  PanelLeftClose, PanelLeft, LogOut, X, Code2, ExternalLink
 } from "lucide-react"
-
-const iconMap: Record<string, React.ReactNode> = {
-  LayoutDashboard: <LayoutDashboard className="h-5 w-5" />,
-  FileText: <FileText className="h-5 w-5" />,
-  Newspaper: <Newspaper className="h-5 w-5" />,
-  Users: <Users className="h-5 w-5" />,
-  Shield: <Shield className="h-5 w-5" />,
-  ClipboardList: <ClipboardList className="h-5 w-5" />,
-  Image: <ImageIcon className="h-5 w-5" />,
-  UserCog: <UserCog className="h-5 w-5" />,
-  Settings: <Settings className="h-5 w-5" />,
-  Building2: <Building2 className="h-5 w-5" />,
-  Tags: <Tags className="h-5 w-5" />,
-  Landmark: <Landmark className="h-5 w-5" />,
-  Gavel: <Gavel className="h-5 w-5" />,
-  Mail: <Mail className="h-5 w-5" />,
-  Inbox: <Inbox className="h-5 w-5" />,
-}
+import { AdminNavIcon } from "@/components/admin/admin-nav-icon"
 
 const SIDEBAR_KEY = "gaceta-sidebar-collapsed"
 const SIDEBAR_EVENT = "gaceta:sidebar-collapsed"
@@ -182,7 +162,7 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
                 <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary-foreground/70" aria-hidden />
               )}
               <span className={cn("shrink-0 transition-all", !isActive && "text-muted-foreground group-hover:text-primary")}>
-                {iconMap[item.icon]}
+                <AdminNavIcon name={item.icon} />
               </span>
               {!collapsed && <span className="truncate whitespace-nowrap animate-in fade-in duration-300">{item.label}</span>}
               {!collapsed && item.href === "/admin/mensajes" && unreadCount > 0 && (

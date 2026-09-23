@@ -3,9 +3,8 @@ import PageHeader from "@/components/layout/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   Home, ScrollText, Newspaper, Users, ShieldCheck, ClipboardList,
-  Images, Gavel, Landmark, Building2, Mail, Bot, Headset, ArrowRight,
+  Images, Gavel, Landmark, Building2, Mail, Bot, Headset, ArrowRight, UserGear,
 } from "@/lib/icons"
-import { UserCog } from "lucide-react"
 
 const GUIA = [
   { href: "/", titulo: "Inicio", desc: "Portada de la web: accesos directos a la Gaceta, trámites y novedades.", Icon: Home },
@@ -84,7 +83,7 @@ export default function AyudaPage() {
         <Card className="mt-8 border-primary/20">
           <CardContent className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <UserCog className="h-5 w-5" />
+              <UserGear className="h-5 w-5" />
             </span>
             <div className="min-w-0 flex-1">
               <p className="font-semibold text-card-foreground">¿Sos funcionario?</p>

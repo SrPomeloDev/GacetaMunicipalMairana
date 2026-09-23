@@ -21,7 +21,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="space-y-1">
         {label && (
-          <label className="text-sm font-medium text-foreground">{label}</label>
+          <label htmlFor={props.id} className="text-sm font-medium text-foreground">{label}</label>
         )}
         <div className="relative">
           <select

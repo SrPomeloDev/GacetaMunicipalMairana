@@ -25,9 +25,14 @@ const estadoOptions = [
 
 const PAGE_SIZE = 10
 
+type NormativaListItem = Pick<
+  Normativa,
+  "id" | "numero" | "titulo" | "slug" | "estado" | "categoria_id" | "resumen" | "fecha_publicacion" | "archivo_pdf"
+>
+
 function NormativaContent() {
   const searchParams = useSearchParams()
-  const [normativas, setNormativas] = useState<Normativa[]>([])
+  const [normativas, setNormativas] = useState<NormativaListItem[]>([])
   const [categorias, setCategorias] = useState<CategoriaNormativa[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -53,7 +58,7 @@ function NormativaContent() {
     const [normativaRes, catRes] = await Promise.all([
       supabase
         .from("normativa")
-        .select("*")
+        .select("id, numero, titulo, slug, estado, categoria_id, resumen, fecha_publicacion, archivo_pdf")
         .eq("publicada", true)
         .order("fecha_publicacion", { ascending: false, nullsFirst: false }),
       supabase.from("categorias_normativa").select("*").order("orden"),

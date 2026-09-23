@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState, Suspense } from "react"
+import { useCallback, useEffect, useMemo, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -130,9 +130,10 @@ function ContratacionesContent() {
     )},
   ]
 
-  const filtered = estadoFilter === "todas"
+  const filtered = useMemo(() => estadoFilter === "todas"
     ? contrataciones
     : contrataciones.filter((c) => c.estado === estadoFilter)
+  , [contrataciones, estadoFilter])
 
   return (
     <div className="space-y-6">
@@ -167,7 +168,7 @@ function ContratacionesContent() {
           <Link href="/admin/contrataciones/nueva" className="mt-4"><Button><Plus className="h-4 w-4" />Nueva Contratación</Button></Link>
         </div>
       ) : (
-        <DataTable columns={columns} data={filtered} />
+        <DataTable columns={columns} data={filtered} pageSize={10} />
       )}
 
       <ConfirmDialog

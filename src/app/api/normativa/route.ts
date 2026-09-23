@@ -6,25 +6,43 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const supabase = await createServerSupabaseClient()
 
-  const categoria = searchParams.get("categoria")
+  const categoriaParam = searchParams.get("categoria")
   const estado = searchParams.get("estado")
   const query = searchParams.get("q")
+  const fechaDesde = searchParams.get("desde")
+  const fechaHasta = searchParams.get("hasta")
   const rawPage = parseInt(searchParams.get("page") || "1")
   const rawLimit = parseInt(searchParams.get("limit") || "20")
   const page = Number.isFinite(rawPage) && rawPage >= 1 ? Math.floor(rawPage) : 1
   const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(Math.floor(rawLimit), 1), 50) : 20
   const offset = (page - 1) * limit
 
+  let categoriaId: string | null = null
+  if (categoriaParam) {
+    const { data: catData } = await supabase
+      .from("categorias_normativa")
+      .select("id")
+      .eq("slug", categoriaParam)
+      .maybeSingle()
+    if (catData) {
+      categoriaId = catData.id
+    } else {
+      return NextResponse.json({ data: [], count: 0, page, limit })
+    }
+  }
+
   const buildBaseQuery = () => {
     let dbQuery = supabase
       .from("normativa")
-      .select("*, categoria:categorias_normativa(*), dependencia:dependencias(*)", { count: "exact" })
+      .select("id, numero, slug, titulo, resumen, categoria_id, dependencia_id, estado, fecha_aprobacion, fecha_publicacion, fecha_vigencia, numero_paginas, archivo_pdf, firma_digital, codigo_qr, visitas, publicada, categoria:categorias_normativa(*), dependencia:dependencias(*)", { count: "exact" })
       .eq("publicada", true)
-      .order("fecha_publicacion", { ascending: false })
+      .order("fecha_publicacion", { ascending: false, nullsFirst: false })
       .range(offset, offset + limit - 1)
 
-    if (categoria) dbQuery = dbQuery.eq("categoria_id", categoria)
+    if (categoriaId) dbQuery = dbQuery.eq("categoria_id", categoriaId)
     if (estado) dbQuery = dbQuery.eq("estado", estado as Normativa["estado"])
+    if (fechaDesde) dbQuery = dbQuery.gte("fecha_publicacion", fechaDesde)
+    if (fechaHasta) dbQuery = dbQuery.lte("fecha_publicacion", fechaHasta)
     return dbQuery
   }
 

@@ -30,6 +30,22 @@ export const MAIRANA = {
   email: 'info@mairana.gob.bo',
 }
 
+export function digitos(numero: string | null | undefined): string {
+  return (numero || "").replace(/\D/g, "")
+}
+
+export function telHref(numero: string | null | undefined): string | null {
+  const d = digitos(numero)
+  if (!d) return null
+  return d.startsWith("591") ? `tel:+${d}` : `tel:+591${d}`
+}
+
+export function whatsappUrl(numero: string | null | undefined): string | null {
+  const d = digitos(numero)
+  if (d.length < 8) return null
+  return d.startsWith("591") ? `https://wa.me/${d}` : `https://wa.me/591${d}`
+}
+
 export const NAV_LINKS = [
   { href: '/', label: 'Inicio' },
   { href: '/noticias', label: 'Noticias' },

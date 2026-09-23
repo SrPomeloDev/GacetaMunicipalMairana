@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
 import { DataTable } from "@/components/ui/data-table"
@@ -92,10 +92,11 @@ export default function SuscripcionesPage() {
     URL.revokeObjectURL(url)
   }
 
-  const filtered = suscripciones.filter((s) => {
+  const filtered = useMemo(() => {
     const q = search.toLowerCase()
-    return !q || s.email.toLowerCase().includes(q)
-  })
+    if (!q) return suscripciones
+    return suscripciones.filter((s) => s.email.toLowerCase().includes(q))
+  }, [suscripciones, search])
 
   const activas = suscripciones.filter((s) => s.activo).length
 
@@ -182,7 +183,7 @@ export default function SuscripcionesPage() {
           <p className="mt-1 text-sm text-muted-foreground">Las personas que se suscriban desde la página pública aparecerán aquí.</p>
         </div>
       ) : (
-        <DataTable columns={columns} data={filtered} />
+        <DataTable columns={columns} data={filtered} pageSize={10} />
       )}
 
       <ConfirmDialog

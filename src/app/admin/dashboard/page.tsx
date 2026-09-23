@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { cn, formatDate } from "@/lib/utils"
-import { FileText, Newspaper, Users, ArrowRight, PlusCircle, BarChart3, Eye, Image as ImageIcon, ScrollText, BadgeCheck, PieChart, Inbox, Gavel, UserX } from "lucide-react"
+import { FileText, Newspaper, Users, ArrowRight, PlusCircle, BarChart3, Eye, Image as ImageIcon, Shield, PieChart, Inbox, Gavel, UserX, ClipboardList } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -231,7 +231,7 @@ export default function AdminDashboardPage() {
     { key: "mensajes", label: "Mensajes sin leer", desc: "Revisar bandeja", value: pendientes?.mensajes ?? 0, href: "/admin/mensajes?no_leidos=true", icon: Inbox, bg: "bg-amber-500" },
     { key: "noticias", label: "Noticias sin publicar", desc: "Borradores pendientes", value: pendientes?.noticias ?? 0, href: "/admin/noticias?publicada=false", icon: Newspaper, bg: "bg-blue-500" },
     { key: "normativa", label: "Normativas sin publicar", desc: "Borradores pendientes", value: pendientes?.normativa ?? 0, href: "/admin/normativa?publicada=false", icon: FileText, bg: "bg-orange-600" },
-    { key: "transparencia", label: "Transparencia sin publicar", desc: "Documentos pendientes", value: pendientes?.transparencia ?? 0, href: "/admin/transparencia?publicada=false", icon: ScrollText, bg: "bg-purple-500" },
+    { key: "transparencia", label: "Transparencia sin publicar", desc: "Documentos pendientes", value: pendientes?.transparencia ?? 0, href: "/admin/transparencia?publicada=false", icon: Shield, bg: "bg-purple-500" },
     { key: "contrataciones", label: "Contrataciones activas", desc: "Convocatorias publicadas", value: pendientes?.contrataciones ?? 0, href: "/admin/contrataciones?estado=publicada", icon: Gavel, bg: "bg-cyan-600" },
     { key: "usuarios", label: "Usuarios inactivos", desc: "Cuentas por revisar", value: pendientes?.usuarios ?? 0, href: "/admin/usuarios?activo=false", icon: UserX, bg: "bg-red-500" },
   ]
@@ -345,7 +345,7 @@ export default function AdminDashboardPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-500 text-white">
-                  <ScrollText className="h-6 w-6" />
+                  <ClipboardList className="h-6 w-6" />
                 </div>
                 <span className="text-2xl font-bold">{stats?.tramites ?? "-"}</span>
               </div>
@@ -359,7 +359,7 @@ export default function AdminDashboardPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-white">
-                  <BadgeCheck className="h-6 w-6" />
+                  <Users className="h-6 w-6" />
                 </div>
                 <span className="text-2xl font-bold">{stats?.autoridades ?? "-"}</span>
               </div>

@@ -208,6 +208,7 @@ export type Configuracion = {
   direccion: string | null
   telefono: string | null
   email: string | null
+  whatsapp: string | null
   facebook: string | null
   twitter: string | null
   youtube: string | null

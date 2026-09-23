@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -7,8 +8,9 @@ import { IconBox } from "@/components/ui/icon-box"
 import { useCurrentUser, rolLabel } from "@/hooks/use-current-user"
 import { useTheme } from "@/components/theme-provider"
 import { useAccessibility } from "@/components/accesibilidad/accessibility-provider"
+import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
-import { Bell, ChevronRight, ExternalLink, Menu, Sun, Moon, TextAa } from "@/lib/icons"
+import { Bell, ChevronRight, ExternalLink, Menu, Sun, Moon, CaseSensitive } from "lucide-react"
 
 const breadcrumbLabels: Record<string, string> = {
   dashboard: "Panel de Control",
@@ -45,6 +47,22 @@ export default function AdminHeader({ onMenuToggle }: { onMenuToggle?: () => voi
   const { user } = useCurrentUser()
   const { theme, toggleTheme } = useTheme()
   const { senior, toggleSenior } = useAccessibility()
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const { count, error } = await createClient()
+          .from("contacto_mensajes")
+          .select("id", { count: "exact", head: true })
+          .eq("leido", false)
+        if (!error && typeof count === "number") setUnreadCount(count)
+      } catch {
+        setUnreadCount(0)
+      }
+    }
+    fetchUnread()
+  }, [])
 
   return (
     <header className="glass-bar sticky top-0 z-20 flex h-16 items-center gap-4 px-4 sm:px-6">
@@ -101,7 +119,7 @@ export default function AdminHeader({ onMenuToggle }: { onMenuToggle?: () => voi
             senior && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
           )}
         >
-          <TextAa className="h-5 w-5" />
+          <CaseSensitive className="h-5 w-5" />
         </Button>
         <Link
           href="/"
@@ -112,10 +130,18 @@ export default function AdminHeader({ onMenuToggle }: { onMenuToggle?: () => voi
         >
           <ExternalLink className="h-5 w-5" />
         </Link>
-        <Button variant="ghost" size="icon" className="relative text-muted-foreground" aria-label="Notificaciones">
+        <Link
+          href="/admin/mensajes"
+          aria-label={unreadCount > 0 ? `Mensajes de contacto (${unreadCount} sin leer)` : "Mensajes de contacto"}
+          className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "relative text-muted-foreground")}
+        >
           <Bell className="h-5 w-5" />
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary ring-2 ring-background" />
-        </Button>
+          {unreadCount > 0 && (
+            <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground ring-2 ring-background">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+        </Link>
         <Link href="/admin/perfil" className="group flex items-center gap-2 border-l pl-3">
           {user?.avatar_url ? (
             // eslint-disable-next-line @next/next/no-img-element

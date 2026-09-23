@@ -10,7 +10,7 @@ export async function GET(
 
   const { data, error } = await supabase
     .from("normativa")
-    .select("*, categoria:categorias_normativa(*), dependencia:dependencias(*), modificaciones:modificaciones_normativa(*)")
+    .select("id, numero, slug, titulo, resumen, categoria_id, dependencia_id, estado, fecha_aprobacion, fecha_publicacion, fecha_vigencia, numero_paginas, archivo_pdf, firma_digital, codigo_qr, visitas, publicada, categoria:categorias_normativa(*), dependencia:dependencias(*), modificaciones:modificaciones_normativa(*)")
     .eq("slug", slug)
     .eq("publicada", true)
     .single()

@@ -1,8 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
-import { MAIRANA, NAV_LINKS, SITE_NAME, DEV_CREDIT } from "@/lib/constants"
-import { Facebook, Instagram, Youtube, Twitter } from "lucide-react"
-import { MapPin, Phone, Mail, Clock, ShieldCheck, Scale, FileCheck2, ExternalLink, Landmark, Building2, Code2 } from "@/lib/icons"
+import { MAIRANA, NAV_LINKS, SITE_NAME, DEV_CREDIT, telHref, whatsappUrl } from "@/lib/constants"
+import { MapPin, Phone, Mail, Clock, ShieldCheck, Scale, FileCheck2, ExternalLink, Landmark, Building2, Code2, WhatsApp, Facebook, Instagram, Youtube, Twitter } from "@/lib/icons"
 import NewsletterForm from "./newsletter-form"
 import type { Configuracion } from "@/types"
 
@@ -12,7 +11,7 @@ const FOOTER_LINKS = [
   ...NAV_LINKS,
 ]
 
-export default async function Footer({ config }: { config: Pick<Configuracion, "direccion" | "telefono" | "email" | "horario" | "lema" | "municipio" | "facebook" | "twitter" | "youtube" | "instagram"> | null }) {
+export default async function Footer({ config }: { config: Pick<Configuracion, "direccion" | "telefono" | "whatsapp" | "email" | "horario" | "lema" | "municipio" | "facebook" | "twitter" | "youtube" | "instagram"> | null }) {
   const currentYear = new Date().getFullYear()
 
   const direccion = config?.direccion || MAIRANA.direccion
@@ -21,6 +20,8 @@ export default async function Footer({ config }: { config: Pick<Configuracion, "
   const horario = config?.horario || "Lun a Vie 08:00 - 16:00"
   const lema = config?.lema || MAIRANA.capital
   const municipio = config?.municipio || "Gobierno Autónomo Municipal de Mairana"
+  const telLink = telHref(config?.telefono) || `tel:${telefono}`
+  const waLink = whatsappUrl(config?.whatsapp)
 
   return (
     <footer className="relative overflow-hidden border-t border-border bg-card text-muted-foreground">
@@ -59,7 +60,7 @@ export default async function Footer({ config }: { config: Pick<Configuracion, "
                 <Mail className="h-3.5 w-3.5" />
                 Escríbenos
               </a>
-              <a href={`tel:${telefono}`} className="inline-flex items-center gap-1.5 rounded-lg border border-primary bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:opacity-90">
+              <a href={telLink} className="inline-flex items-center gap-1.5 rounded-lg border border-primary bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:opacity-90">
                 <Phone className="h-3.5 w-3.5" />
                 Llámanos
               </a>
@@ -134,7 +135,7 @@ export default async function Footer({ config }: { config: Pick<Configuracion, "
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="h-4 w-4 shrink-0 text-primary" />
-                <span>Central Telefónica: {telefono}</span>
+                <a href={telLink} className="transition-colors hover:text-primary hover:underline">Central Telefónica: {telefono}</a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="h-4 w-4 shrink-0 text-primary" />
@@ -145,7 +146,7 @@ export default async function Footer({ config }: { config: Pick<Configuracion, "
                 <span>Atención: {horario}</span>
               </li>
             </ul>
-            {(config?.facebook || config?.instagram || config?.youtube || config?.twitter) && (
+            {(config?.facebook || config?.instagram || config?.youtube || config?.twitter || waLink) && (
               <div className="mt-4 flex items-center gap-2">
                 {config?.facebook && (
                   <a href={config.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary">
@@ -165,6 +166,11 @@ export default async function Footer({ config }: { config: Pick<Configuracion, "
                 {config?.twitter && (
                   <a href={config.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter / X" className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary">
                     <Twitter className="h-4 w-4" />
+                  </a>
+                )}
+                {waLink && (
+                  <a href={waLink} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" title="WhatsApp" className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:border-[#25D366] hover:bg-primary/10 hover:text-[#25D366]">
+                    <WhatsApp className="h-4 w-4" />
                   </a>
                 )}
               </div>

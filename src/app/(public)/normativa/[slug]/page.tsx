@@ -18,7 +18,7 @@ async function getNormativa(slug: string) {
   const supabase = createAdminClient()
   const { data: normativa, error } = await supabase
     .from("normativa")
-    .select("*")
+    .select("id, numero, slug, titulo, resumen, categoria_id, dependencia_id, estado, fecha_aprobacion, fecha_publicacion, fecha_vigencia, numero_paginas, archivo_pdf, codigo_qr, visitas, publicada")
     .eq("slug", slug)
     .eq("publicada", true)
     .single()

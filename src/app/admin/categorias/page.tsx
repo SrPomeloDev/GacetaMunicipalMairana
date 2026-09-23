@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
@@ -50,10 +50,11 @@ export default function CategoriasListPage() {
     fetchCategorias()
   }
 
-  const filtered = categorias.filter((c) => {
+  const filtered = useMemo(() => {
     const q = search.toLowerCase()
-    return !q || c.nombre.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q)
-  })
+    if (!q) return categorias
+    return categorias.filter((c) => c.nombre.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q))
+  }, [categorias, search])
 
   const columns: Column<CategoriaNormativa>[] = [
     { key: "orden", label: "Orden", render: (val) => <span className="text-muted-foreground text-xs">#{val as string}</span> },
@@ -94,7 +95,7 @@ export default function CategoriasListPage() {
           {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}
         </div>
       ) : (
-        <DataTable columns={columns} data={filtered} />
+        <DataTable columns={columns} data={filtered} pageSize={10} />
       )}
       <ConfirmDialog
         open={!!deleteTarget}

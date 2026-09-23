@@ -1,22 +1,23 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { NAV_LINKS, isGacetaPath, MAIRANA } from "@/lib/constants"
-import { Menu, X, ShieldCheck, Phone, Clock, Lock, Sun, Moon, ScrollText, MessageCircle, Headset, TextAa } from "@/lib/icons"
+import { NAV_LINKS, isGacetaPath, MAIRANA, telHref, whatsappUrl } from "@/lib/constants"
+import { Menu, X, ShieldCheck, Phone, Clock, Lock, Sun, Moon, ScrollText, MessageCircle, Headset, TextAa, WhatsApp } from "@/lib/icons"
 import { Button } from "@/components/ui/button"
 import { StorageImage } from "@/components/ui/storage-image"
 import { useTheme } from "@/components/theme-provider"
 import { useAccessibility } from "@/components/accesibilidad/accessibility-provider"
 import type { Configuracion } from "@/types"
 
-type HeaderConfig = Pick<Configuracion, "telefono" | "horario" | "logo_url"> | null
+type HeaderConfig = Pick<Configuracion, "telefono" | "whatsapp" | "horario" | "logo_url"> | null
 
 export default function Header({ config }: { config?: HeaderConfig }) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
   const router = useRouter()
   const { toggleTheme } = useTheme()
@@ -25,6 +26,8 @@ export default function Header({ config }: { config?: HeaderConfig }) {
 
   const telefono = config?.telefono || MAIRANA.telefono
   const horario = config?.horario || "Lun a Vie 08:00 - 16:00"
+  const telLink = telHref(config?.telefono)
+  const waLink = whatsappUrl(config?.whatsapp)
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -43,11 +46,38 @@ export default function Header({ config }: { config?: HeaderConfig }) {
 
   useEffect(() => {
     if (!mobileOpen) return
+    const previousActive = document.activeElement as HTMLElement | null
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMobileOpen(false)
+      if (e.key === "Escape") {
+        setMobileOpen(false)
+        return
+      }
+      if (e.key !== "Tab") return
+      const panel = mobileMenuRef.current
+      if (!panel) return
+      const focusables = Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      )
+      if (focusables.length === 0) return
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      if (e.shiftKey) {
+        if (document.activeElement === first || !panel.contains(document.activeElement)) {
+          e.preventDefault()
+          last.focus()
+        }
+      } else if (document.activeElement === last || !panel.contains(document.activeElement)) {
+        e.preventDefault()
+        first.focus()
+      }
     }
-    window.addEventListener("keydown", handler)
-    return () => window.removeEventListener("keydown", handler)
+    document.addEventListener("keydown", handler)
+    return () => {
+      document.removeEventListener("keydown", handler)
+      previousActive?.focus?.()
+    }
   }, [mobileOpen])
 
   useEffect(() => {
@@ -76,8 +106,26 @@ export default function Header({ config }: { config?: HeaderConfig }) {
           <div className="flex items-center gap-4">
             <span className="hidden lg:inline-flex items-center gap-1.5">
               <Phone className="h-3 w-3 text-primary" />
-              Telf: {telefono}
+              {telLink ? (
+                <a href={telLink} className="transition-colors hover:text-primary hover:underline">
+                  Telf: {telefono}
+                </a>
+              ) : (
+                <span>Telf: {telefono}</span>
+              )}
             </span>
+            {waLink && (
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-full p-1 text-current transition-all hover:text-[#25D366]"
+                aria-label="Escribinos por WhatsApp"
+                title="Escribinos por WhatsApp"
+              >
+                <WhatsApp className="h-3.5 w-3.5" />
+              </a>
+            )}
             <Link
               href="/admin/login"
               className="inline-flex items-center gap-1.5 rounded-full border border-primary bg-primary px-2.5 py-1 text-[11px] font-semibold text-primary-foreground transition-all hover:opacity-90"
@@ -200,7 +248,7 @@ export default function Header({ config }: { config?: HeaderConfig }) {
       </div>
 
       {mobileOpen && (
-        <div id="menu-movil" className="liquid-glass xl:hidden max-h-[calc(100dvh-5rem)] overflow-y-auto shadow-xl">
+        <div id="menu-movil" ref={mobileMenuRef} tabIndex={-1} className="liquid-glass xl:hidden max-h-[calc(100dvh-5rem)] overflow-y-auto shadow-xl outline-none">
           <div className="flex items-center justify-between border-b border-border/50 bg-muted/40 px-4 py-2.5 text-xs">
             <span className="font-medium text-muted-foreground">Gobierno Autónomo Municipal de Mairana</span>
             <Link
@@ -269,6 +317,19 @@ export default function Header({ config }: { config?: HeaderConfig }) {
             >
               ¿Necesitás ayuda?
             </Link>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-2 border-t border-border/50 px-4 py-3">
+            {telLink && (
+              <a href={telLink} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:text-primary">
+                <Phone className="h-3.5 w-3.5" />
+                {telefono}
+              </a>
+            )}
+            {waLink && (
+              <a href={waLink} target="_blank" rel="noopener noreferrer" aria-label="Escribinos por WhatsApp" title="Escribinos por WhatsApp" className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary/30 bg-background text-foreground transition-colors hover:border-[#25D366] hover:text-[#25D366]">
+                <WhatsApp className="h-4 w-4" />
+              </a>
+            )}
           </div>
         </div>
       )}

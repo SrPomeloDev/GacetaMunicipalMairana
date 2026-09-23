@@ -108,7 +108,7 @@ export default function ComisionesPage() {
           <Link href="/admin/concejo/comisiones/nueva" className="mt-4"><Button><Plus className="h-4 w-4" />Nueva Comisión</Button></Link>
         </div>
       ) : (
-        <DataTable columns={columns} data={comisiones} />
+        <DataTable columns={columns} data={comisiones} pageSize={10} />
       )}
 
       <ConfirmDialog

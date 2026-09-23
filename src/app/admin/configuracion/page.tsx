@@ -16,6 +16,7 @@ const DEFAULT_CONFIG = {
   lema: "Corazón de los Valles",
   direccion: "",
   telefono: "",
+  whatsapp: "",
   email: "",
   facebook: "",
   twitter: "",
@@ -53,6 +54,7 @@ export default function AdminConfiguracionPage() {
           lema: data.lema || "",
           direccion: data.direccion || "",
           telefono: data.telefono || "",
+          whatsapp: data.whatsapp || "",
           email: data.email || "",
           facebook: data.facebook || "",
           twitter: data.twitter || "",
@@ -214,6 +216,11 @@ export default function AdminConfiguracionPage() {
             <div className="space-y-2">
               <Label htmlFor="cfg-instagram">Instagram</Label>
               <Input id="cfg-instagram" value={form.instagram} onChange={(e) => setForm((prev) => ({ ...prev, instagram: e.target.value }))} placeholder="https://instagram.com/..." />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cfg-whatsapp">WhatsApp (celular con código de país)</Label>
+              <Input id="cfg-whatsapp" value={form.whatsapp} onChange={(e) => setForm((prev) => ({ ...prev, whatsapp: e.target.value }))} placeholder="591 7XXXXXXXX" />
+              <p className="text-xs text-muted-foreground">Se muestra como icono de enlace en el header, footer y la página de Contacto.</p>
             </div>
           </div>
         </CardContent>

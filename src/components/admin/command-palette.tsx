@@ -6,46 +6,13 @@ import { cn } from "@/lib/utils"
 import { ADMIN_NAV } from "@/lib/constants"
 import { can, canView, useCurrentUser } from "@/hooks/use-current-user"
 import type { Modulo } from "@/lib/roles"
+import { AdminNavIcon } from "@/components/admin/admin-nav-icon"
 import {
-  Building2,
   CircleUserRound,
-  ClipboardList,
-  Command,
-  FileText,
-  Gavel,
-  Globe,
-  Image as ImageIcon,
-  Inbox,
-  Landmark,
-  LayoutDashboard,
-  Mail,
-  Newspaper,
+  ExternalLink,
   Plus,
   Search,
-  Settings,
-  Shield,
-  Tags,
-  UserCog,
-  Users,
 } from "lucide-react"
-
-const iconos: Record<string, React.ReactNode> = {
-  LayoutDashboard: <LayoutDashboard className="h-4 w-4" />,
-  FileText: <FileText className="h-4 w-4" />,
-  Newspaper: <Newspaper className="h-4 w-4" />,
-  Users: <Users className="h-4 w-4" />,
-  Building2: <Building2 className="h-4 w-4" />,
-  Tags: <Tags className="h-4 w-4" />,
-  Landmark: <Landmark className="h-4 w-4" />,
-  Shield: <Shield className="h-4 w-4" />,
-  ClipboardList: <ClipboardList className="h-4 w-4" />,
-  Image: <ImageIcon className="h-4 w-4" />,
-  Gavel: <Gavel className="h-4 w-4" />,
-  Mail: <Mail className="h-4 w-4" />,
-  Inbox: <Inbox className="h-4 w-4" />,
-  UserCog: <UserCog className="h-4 w-4" />,
-  Settings: <Settings className="h-4 w-4" />,
-}
 
 const modulosConNueva: ReadonlySet<Modulo> = new Set([
   "normativa",
@@ -97,7 +64,7 @@ export default function CommandPalette() {
         titulo: `Ir a ${item.label}`,
         pista: item.href,
         href: item.href,
-        icono: iconos[item.icon] ?? <Command className="h-4 w-4" />,
+        icono: <AdminNavIcon name={item.icon} className="h-4 w-4" />,
         seccion: "Navegación",
       })
     }
@@ -119,7 +86,7 @@ export default function CommandPalette() {
       titulo: "Ver sitio público",
       pista: "/",
       href: "/",
-      icono: <Globe className="h-4 w-4" />,
+      icono: <ExternalLink className="h-4 w-4" />,
       seccion: "General",
     })
     lista.push({

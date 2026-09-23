@@ -110,7 +110,7 @@ export default function ConcejoPage() {
           <Link href="/admin/concejo/sesiones/nueva" className="mt-4"><Button><Plus className="h-4 w-4" />Nueva Sesión</Button></Link>
         </div>
       ) : (
-        <DataTable columns={columns} data={sesiones} />
+        <DataTable columns={columns} data={sesiones} pageSize={10} />
       )}
 
       <ConfirmDialog

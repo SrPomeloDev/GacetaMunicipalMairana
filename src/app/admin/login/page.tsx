@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Mail, Lock, User, LogIn, Loader2, ShieldCheck, ArrowLeft, Landmark, MapPin } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { useToast } from "@/components/ui/toast"
 
 const REGISTRO_HABILITADO = false
 
@@ -20,6 +21,7 @@ function LoginContent() {
   const [nombre, setNombre] = useState("")
   const router = useRouter()
   const supabase = createClient()
+  const { addToast } = useToast()
   const searchParams = useSearchParams()
   const redirectError = searchParams.get("error")
 
@@ -46,7 +48,7 @@ function LoginContent() {
       if (err) { setError(err.message); setLoading(false); return }
       setMode("login")
       setError(null)
-      alert("Registrado. Ahora iniciá sesión.")
+      addToast("Registrado. Ahora iniciá sesión.", "success")
       setLoading(false)
     }
   }

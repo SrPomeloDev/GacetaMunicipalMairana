@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react"
+import { useCallback, useEffect, useRef, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -38,18 +38,32 @@ const estadoOptions = [
 
 const PAGE_SIZE = 12
 
+type NormativaConCategoria = Normativa & { categoria?: CategoriaNormativa | null }
+type NormativaResponse = {
+  data: NormativaConCategoria[] | null
+  count: number | null
+  page: number
+  limit: number
+  error?: string
+}
+
 function GacetaContent() {
   const searchParams = useSearchParams()
-  const [normativas, setNormativas] = useState<Normativa[]>([])
+  const [normativas, setNormativas] = useState<NormativaConCategoria[]>([])
   const [categorias, setCategorias] = useState<CategoriaNormativa[]>([])
+  const [latest, setLatest] = useState<NormativaConCategoria | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState(searchParams.get("q") ?? "")
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get("q") ?? "")
   const [categoria, setCategoria] = useState(searchParams.get("categoria") ?? "")
   const [estado, setEstado] = useState(searchParams.get("estado") ?? "")
-  const [fechaDesde, setFechaDesde] = useState("")
-  const [fechaHasta, setFechaHasta] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
+  const [fechaDesde, setFechaDesde] = useState(searchParams.get("desde") ?? "")
+  const [fechaHasta, setFechaHasta] = useState(searchParams.get("hasta") ?? "")
+  const [currentPage, setCurrentPage] = useState(
+    Math.max(1, parseInt(searchParams.get("page") || "1", 10) || 1)
+  )
+  const [totalCount, setTotalCount] = useState(0)
   const [showFilters, setShowFilters] = useState(false)
   const [vista, setVista] = useState<"cards" | "lista">("cards")
   const searchRef = useRef<HTMLInputElement>(null)
@@ -64,37 +78,75 @@ function GacetaContent() {
     }
   }, [searchParams])
 
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearch(search)
+      setCurrentPage(1)
+    }, 300)
+    return () => clearTimeout(timeout)
+  }, [search])
+
+  const buildQuery = useCallback(
+    (page: number) => {
+      const params = new URLSearchParams()
+      if (debouncedSearch) params.set("q", debouncedSearch)
+      if (categoria) params.set("categoria", categoria)
+      if (estado) params.set("estado", estado)
+      if (fechaDesde) params.set("desde", fechaDesde)
+      if (fechaHasta) params.set("hasta", fechaHasta)
+      params.set("page", String(page))
+      params.set("limit", String(PAGE_SIZE))
+      return params.toString()
+    },
+    [debouncedSearch, categoria, estado, fechaDesde, fechaHasta]
+  )
+
   const fetchData = useCallback(async () => {
-    const [normativaRes, catRes] = await Promise.all([
-      supabase
-        .from("normativa")
-        .select("*")
-        .eq("publicada", true)
-        .order("fecha_publicacion", { ascending: false, nullsFirst: false }),
+    setLoading(true)
+    const [listRes, latestRes, catRes] = await Promise.all([
+      fetch(`/api/normativa?${buildQuery(currentPage)}`),
+      fetch(`/api/normativa?limit=1`),
       supabase.from("categorias_normativa").select("*").order("orden"),
     ])
-    if (normativaRes.error) {
-      setError(normativaRes.error.message)
-    } else {
-      setNormativas(normativaRes.data || [])
-      setError(null)
+
+    const list = (await listRes.json()) as NormativaResponse
+    if (!listRes.ok || list.error) {
+      setError("No se pudieron cargar las normativas. Intentá de nuevo en unos instantes.")
+      setLoading(false)
+      return
     }
+    const latestJson = (await latestRes.json()) as NormativaResponse
+    setNormativas(list.data ?? [])
+    setTotalCount(list.count ?? 0)
+    setLatest((latestJson.data && latestJson.data[0]) ?? null)
     if (!catRes.error) {
       setCategorias(catRes.data || [])
     }
+    setError(null)
     setLoading(false)
-  }, [supabase])
+  }, [buildQuery, currentPage, supabase])
 
   useEffect(() => {
-    const run = async () => { await fetchData() }
+    const run = async () => {
+      await fetchData()
+    }
     run()
   }, [fetchData])
 
-  const catById = useMemo(() => {
-    const map: Record<string, CategoriaNormativa> = {}
-    categorias.forEach((c) => { map[c.id] = c })
-    return map
-  }, [categorias])
+  useEffect(() => {
+    const url = new URL(window.location.href)
+    const setParam = (key: string, value: string) => {
+      if (value) url.searchParams.set(key, value)
+      else url.searchParams.delete(key)
+    }
+    setParam("q", debouncedSearch)
+    setParam("categoria", categoria)
+    setParam("estado", estado)
+    setParam("desde", fechaDesde)
+    setParam("hasta", fechaHasta)
+    setParam("page", currentPage > 1 ? String(currentPage) : "")
+    window.history.replaceState(null, "", `${url.pathname}${url.search}`)
+  }, [debouncedSearch, categoria, estado, fechaDesde, fechaHasta, currentPage])
 
   const activeFilters: { label: string; key: string }[] = []
   if (categoria) activeFilters.push({ label: categoriaOptions.find(o => o.value === categoria)?.label || categoria, key: "categoria" })
@@ -104,39 +156,17 @@ function GacetaContent() {
   }
 
   const removeFilter = (key: string) => {
-    if (key === "categoria") setCategoria("")
-    if (key === "estado") setEstado("")
-    if (key === "fecha") { setFechaDesde(""); setFechaHasta("") }
+    if (key === "categoria") { setCategoria(""); setCurrentPage(1) }
+    if (key === "estado") { setEstado(""); setCurrentPage(1) }
+    if (key === "fecha") { setFechaDesde(""); setFechaHasta(""); setCurrentPage(1) }
   }
 
   const clearAll = () => {
-    setCategoria(""); setEstado(""); setFechaDesde(""); setFechaHasta(""); setSearch("")
+    setCategoria(""); setEstado(""); setFechaDesde(""); setFechaHasta(""); setSearch(""); setCurrentPage(1)
   }
 
-  const filteredResults = useMemo(() => {
-    return normativas.filter((item) => {
-      if (search) {
-        const q = search.toLowerCase()
-        const match =
-          item.titulo.toLowerCase().includes(q) ||
-          item.numero.toLowerCase().includes(q) ||
-          (item.resumen?.toLowerCase().includes(q) ?? false)
-        if (!match) return false
-      }
-      if (categoria) {
-        const cat = catById[item.categoria_id ?? '']
-        if (!cat || cat.slug !== categoria) return false
-      }
-      if (estado && item.estado !== estado) return false
-      if (fechaDesde && item.fecha_publicacion && item.fecha_publicacion < fechaDesde) return false
-      if (fechaHasta && item.fecha_publicacion && item.fecha_publicacion > fechaHasta) return false
-      return true
-    })
-  }, [normativas, search, categoria, estado, fechaDesde, fechaHasta, catById])
-
-  const totalPages = Math.max(1, Math.ceil(filteredResults.length / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
   const page = Math.min(currentPage, totalPages)
-  const pageItems = filteredResults.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <div className="pb-20">
@@ -185,13 +215,13 @@ function GacetaContent() {
                   ref={searchRef}
                   type="text"
                   value={search}
-                  onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }}
+                  onChange={(e) => setSearch(e.target.value)}
                   placeholder="Buscar por Ley, Decreto, Ordenanza, palabra clave..."
                   aria-label="Buscar en la Gaceta por ley, decreto, ordenanza o palabra clave"
                   className="w-full rounded-2xl border border-white/50 bg-white/80 py-4 pl-12 pr-14 text-sm text-foreground shadow-lg shadow-primary/5 backdrop-blur-xl placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:border-white/10 dark:bg-white/10"
                 />
                 <VoiceButton
-                  onDictado={(texto) => { setSearch((prev) => (prev ? `${prev} ${texto}` : texto)); setCurrentPage(1) }}
+                  onDictado={(texto) => setSearch((prev) => (prev ? `${prev} ${texto}` : texto))}
                   className="absolute right-2 top-1/2 h-10 w-10 -translate-y-1/2 rounded-xl"
                 />
               </div>
@@ -202,6 +232,7 @@ function GacetaContent() {
                   <button
                     key={cat.slug}
                     onClick={() => { setCategoria(cat.slug); setCurrentPage(1) }}
+                    aria-pressed={categoria === cat.slug}
                     className={cn(
                       "rounded-full border px-3 py-1.5 shadow-sm backdrop-blur-md transition-colors",
                       categoria === cat.slug
@@ -227,7 +258,7 @@ function GacetaContent() {
       </section>
 
       {/* Última promulgación destacada */}
-      {!loading && normativas.length > 0 && (
+      {!loading && latest && (
         <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
           <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 via-amber-500/5 to-transparent p-6 sm:p-8">
             <Reveal>
@@ -238,20 +269,20 @@ function GacetaContent() {
                     <span>Última publicación</span>
                   </div>
                   <h3 className="font-serif text-xl font-bold text-foreground">
-                    {normativas[0].numero && `N° ${normativas[0].numero} — `}{normativas[0].titulo}
+                    {latest.numero && `N° ${latest.numero} — `}{latest.titulo}
                   </h3>
-                  {normativas[0].resumen && (
+                  {latest.resumen && (
                     <p className="text-sm leading-relaxed text-muted-foreground line-clamp-2">
-                      {normativas[0].resumen}
+                      {latest.resumen}
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    {normativas[0].fecha_publicacion
-                      ? `Publicada el ${formatDate(normativas[0].fecha_publicacion)}`
+                    {latest.fecha_publicacion
+                      ? `Publicada el ${formatDate(latest.fecha_publicacion)}`
                       : "Publicación reciente en la Gaceta Oficial"}
                   </p>
                 </div>
-                <Link href={`/normativa/${normativas[0].slug}`} className="shrink-0">
+                <Link href={`/normativa/${latest.slug}`} className="shrink-0">
                   <Button className="gap-2 font-bold shadow-md shadow-primary/30">
                     <FileText className="h-4 w-4" />
                     Ver Normativa
@@ -342,7 +373,11 @@ function GacetaContent() {
                 className="inline-flex items-center gap-1 rounded-full border bg-primary px-3 py-1 text-xs font-medium text-primary-foreground"
               >
                 {f.label}
-                <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => removeFilter(f.key)} />
+                <X
+                  className="h-3 w-3 cursor-pointer hover:text-destructive"
+                  aria-label={`Quitar filtro ${f.label}`}
+                  onClick={() => removeFilter(f.key)}
+                />
               </span>
             ))}
             <button onClick={clearAll} className="text-xs text-muted-foreground underline hover:text-foreground">
@@ -365,12 +400,12 @@ function GacetaContent() {
                 <FileText className="h-12 w-12 text-muted-foreground/40" />
                 <p className="mt-4 text-lg font-medium text-foreground">Error al cargar</p>
                 <p className="mt-1 text-sm text-muted-foreground">{error}</p>
-                <Button variant="outline" className="mt-4" onClick={() => { setLoading(true); fetchData() }}>
+                <Button variant="outline" className="mt-4" onClick={() => { fetchData() }}>
                   Reintentar
                 </Button>
               </CardContent>
             </Card>
-          ) : filteredResults.length === 0 ? (
+          ) : normativas.length === 0 ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12 text-center">
                 <FileText className="h-12 w-12 text-muted-foreground/40" />
@@ -387,7 +422,7 @@ function GacetaContent() {
             <>
               <div className="mb-4 flex items-center justify-between gap-3">
                 <p className="text-sm text-muted-foreground">
-                  {filteredResults.length} {filteredResults.length === 1 ? "norma encontrada" : "normas encontradas"}
+                  {totalCount} {totalCount === 1 ? "norma encontrada" : "normas encontradas"}
                 </p>
                 <div className="inline-flex shrink-0 rounded-lg border border-border bg-card p-0.5" role="tablist" aria-label="Vista de resultados">
                   <button
@@ -418,8 +453,8 @@ function GacetaContent() {
               </div>
               {vista === "lista" ? (
                 <div className="divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-card">
-                  {pageItems.map((item) => {
-                    const cat = catById[item.categoria_id ?? ""]
+                  {normativas.map((item) => {
+                    const cat = item.categoria
                     return (
                       <Link
                         key={item.id}
@@ -449,8 +484,8 @@ function GacetaContent() {
                 </div>
               ) : (
             <div className="grid gap-4 md:grid-cols-2">
-              {pageItems.map((item) => {
-                const cat = catById[item.categoria_id ?? '']
+              {normativas.map((item) => {
+                const cat = item.categoria
                 return (
                   <Reveal key={item.id}>
                     <NormativaCard
@@ -474,10 +509,10 @@ function GacetaContent() {
           )}
         </div>
 
-        {!loading && !error && filteredResults.length > 0 && (
+        {!loading && !error && totalCount > 0 && (
           <div className="mt-8 text-center">
             <p className="mb-6 text-sm text-muted-foreground">
-              Mostrando {pageItems.length} de {filteredResults.length} resultados
+              Mostrando {normativas.length} de {totalCount} resultados
             </p>
             <Pagination
               currentPage={page}

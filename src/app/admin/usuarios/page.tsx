@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState, Suspense } from "react"
+import { useCallback, useEffect, useMemo, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -64,11 +64,11 @@ function AdminUsuariosContent() {
     fetchUsuarios()
   }
 
-  const filtered = usuarios.filter((u) =>
+  const filtered = useMemo(() => usuarios.filter((u) =>
     (activoFilter === "todos" || (activoFilter === "inactivo" ? !u.activo : u.activo)) &&
     (u.nombre.toLowerCase().includes(search.toLowerCase()) ||
     (u.email || "").toLowerCase().includes(search.toLowerCase()))
-  )
+  ), [usuarios, activoFilter, search])
 
   const columns: Column<Usuario>[] = [
     { key: "nombre", label: "Usuario", render: (val, row) => (
@@ -155,7 +155,7 @@ function AdminUsuariosContent() {
           </div>
         </CardHeader>
         <CardContent>
-          <DataTable columns={columns} data={filtered} loading={loading} emptyMessage="No se encontraron usuarios" />
+          <DataTable columns={columns} data={filtered} loading={loading} emptyMessage="No se encontraron usuarios" pageSize={10} />
         </CardContent>
       </Card>
 

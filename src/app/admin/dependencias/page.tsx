@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
@@ -61,10 +61,11 @@ export default function DependenciasListPage() {
     fetchDependencias()
   }
 
-  const filtered = dependencias.filter((d) => {
+  const filtered = useMemo(() => {
     const q = search.toLowerCase()
-    return !q || d.nombre.toLowerCase().includes(q) || d.slug.toLowerCase().includes(q)
-  })
+    if (!q) return dependencias
+    return dependencias.filter((d) => d.nombre.toLowerCase().includes(q) || d.slug.toLowerCase().includes(q))
+  }, [dependencias, search])
 
   const columns: Column<Dependencia>[] = [
     { key: "orden", label: "Orden", render: (val) => <span className="text-muted-foreground text-xs">#{val as string}</span> },
@@ -102,7 +103,7 @@ export default function DependenciasListPage() {
           {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}
         </div>
       ) : (
-        <DataTable columns={columns} data={filtered} />
+        <DataTable columns={columns} data={filtered} pageSize={10} />
       )}
       <ConfirmDialog
         open={!!deleteTarget}

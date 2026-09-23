@@ -19,7 +19,7 @@ export default async function PublicLayout({ children }: { children: React.React
   const supabase = createAdminClient()
   const { data: config } = await supabase
     .from("configuracion")
-    .select("municipio, lema, direccion, telefono, email, horario, logo_url, facebook, twitter, youtube, instagram, fondo_url")
+    .select("municipio, lema, direccion, telefono, whatsapp, email, horario, logo_url, facebook, twitter, youtube, instagram, fondo_url")
     .eq("id", 1)
     .maybeSingle()
 

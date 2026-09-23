@@ -33,6 +33,7 @@ export async function PUT(request: Request) {
   if (body.lema !== undefined) upsert.lema = body.lema || null
   if (body.direccion !== undefined) upsert.direccion = body.direccion || null
   if (body.telefono !== undefined) upsert.telefono = body.telefono || null
+  if (body.whatsapp !== undefined) upsert.whatsapp = body.whatsapp || null
   if (body.email !== undefined) upsert.email = body.email || null
   if (body.facebook !== undefined) upsert.facebook = body.facebook || null
   if (body.twitter !== undefined) upsert.twitter = body.twitter || null

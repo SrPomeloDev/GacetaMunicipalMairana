@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -83,7 +83,7 @@ export default function AdminTramitesPage() {
     }
   }
 
-  const filtered = tramites.filter((t) => t.titulo.toLowerCase().includes(search.toLowerCase()))
+  const filtered = useMemo(() => tramites.filter((t) => t.titulo.toLowerCase().includes(search.toLowerCase())), [tramites, search])
 
   const columns: Column<Tramite>[] = [
     { key: "titulo", label: "Título", render: (val) => (
@@ -152,7 +152,7 @@ export default function AdminTramitesPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <DataTable columns={columns} data={filtered} loading={loading} emptyMessage="No se encontraron trámites" />
+          <DataTable columns={columns} data={filtered} loading={loading} emptyMessage="No se encontraron trámites" pageSize={10} />
         </CardContent>
       </Card>
 

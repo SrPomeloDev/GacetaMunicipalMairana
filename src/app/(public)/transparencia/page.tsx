@@ -127,6 +127,7 @@ function TransparenciaContent() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
+              aria-pressed={activeCategory === cat}
               className={cn(
                 "rounded-full px-4 py-2 text-sm font-medium transition-colors",
                 activeCategory === cat

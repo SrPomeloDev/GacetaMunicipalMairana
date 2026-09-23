@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
@@ -86,10 +86,11 @@ export default function AutoridadesListPage() {
     }
   }
 
-  const filtered = autoridades.filter((a) => {
+  const filtered = useMemo(() => {
     const q = search.toLowerCase()
-    return !q || a.nombre_completo.toLowerCase().includes(q) || a.cargo.toLowerCase().includes(q)
-  })
+    if (!q) return autoridades
+    return autoridades.filter((a) => a.nombre_completo.toLowerCase().includes(q) || a.cargo.toLowerCase().includes(q))
+  }, [autoridades, search])
 
   const columns: Column<Autoridad>[] = [
     { key: "foto", label: "Foto", render: (val) => val ? (
@@ -145,7 +146,7 @@ export default function AutoridadesListPage() {
           {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}
         </div>
       ) : (
-        <DataTable columns={columns} data={filtered} />
+        <DataTable columns={columns} data={filtered} pageSize={10} />
       )}
       <ConfirmDialog
         open={!!deleteTarget}

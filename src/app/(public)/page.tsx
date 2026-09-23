@@ -31,7 +31,7 @@ import { SeniorAccesos } from "@/components/accesibilidad/senior-accesos"
 import { StorageImage } from "@/components/ui/storage-image"
 import { AnimatedCounter } from "@/components/ui/animated-counter"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 
 async function getUltimasNoticias() {
   const supabase = createAdminClient()

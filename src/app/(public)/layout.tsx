@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
 }
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const supabase = createAdminClient()

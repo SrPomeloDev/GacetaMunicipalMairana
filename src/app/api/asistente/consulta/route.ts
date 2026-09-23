@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
 import { checkRateLimit, getClientIp, rateLimitExceededResponse } from "@/lib/rate-limit"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
@@ -122,6 +123,23 @@ function escapeIlike(texto: string): string {
   return texto.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_").replace(/[,()]/g, " ")
 }
 
+function buscarPosicion(norm: string, termino: string): number {
+  let from = 0
+  let first = -1
+  while (true) {
+    const pos = norm.indexOf(termino, from)
+    if (pos === -1) return first
+    if (first === -1) first = pos
+    const lineStart = norm.lastIndexOf("\n", pos) + 1
+    let lineEnd = norm.indexOf("\n", pos)
+    if (lineEnd === -1) lineEnd = norm.length
+    const line = norm.slice(lineStart, lineEnd)
+    const esIndice = /\.{3,}/.test(line) || /^\s*\d{1,3}\s*$/.test(line)
+    if (!esIndice) return pos
+    from = pos + termino.length
+  }
+}
+
 function extraerFragmento(texto: string, terminos: string[], fraseCompleta: string): string | null {
   if (!texto || terminos.length === 0) return null
   const norm = normalizar(texto)
@@ -131,7 +149,7 @@ function extraerFragmento(texto: string, terminos: string[], fraseCompleta: stri
   )
   let idx = -1
   for (const t of candidatos) {
-    const pos = norm.indexOf(t)
+    const pos = buscarPosicion(norm, normalizar(t))
     if (pos !== -1) {
       idx = pos
       break
@@ -141,6 +159,14 @@ function extraerFragmento(texto: string, terminos: string[], fraseCompleta: stri
   const start = Math.max(0, idx - 120)
   const end = Math.min(texto.length, idx + 240)
   let frag = texto.slice(start, end).replace(/\s+/g, " ").trim()
+  if (start > 0) {
+    const sp = frag.indexOf(" ")
+    if (sp !== -1 && sp < 60) frag = frag.slice(sp + 1)
+  }
+  if (end < texto.length) {
+    const sp = frag.lastIndexOf(" ")
+    if (sp !== -1 && frag.length - sp < 60) frag = frag.slice(0, sp)
+  }
   if (start > 0) frag = `…${frag}`
   if (end < texto.length) frag = `${frag}…`
   return frag
@@ -150,6 +176,16 @@ function listarResultados(hits: Array<{ numero: string; titulo: string; estado: 
   return hits
     .map((h) => `• ${h.numero} — ${h.titulo} (${h.estado})`)
     .join("\n")
+}
+
+async function rpcConReintento(
+  supabase: SupabaseClient,
+  args: { p_query: string; p_categoria_id?: string; p_estado?: NormativaEstado; p_limit: number }
+) {
+  const primero = await supabase.rpc("buscar_normativa", args)
+  if (!primero.error) return primero
+  await new Promise((r) => setTimeout(r, 350))
+  return supabase.rpc("buscar_normativa", args)
 }
 
 export async function POST(request: Request) {
@@ -205,7 +241,7 @@ export async function POST(request: Request) {
     let total = 0
 
     if (queryTexto || estado || categoriaId) {
-      const { data, error } = await supabase.rpc("buscar_normativa", {
+      const { data, error } = await rpcConReintento(supabase, {
         p_query: queryTexto,
         p_categoria_id: categoriaId,
         p_estado: estado ?? undefined,

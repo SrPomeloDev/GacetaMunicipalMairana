@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "Contacto",
 }
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 
 const MAIRANA_LAT = -18.119
 const MAIRANA_LON = -63.956

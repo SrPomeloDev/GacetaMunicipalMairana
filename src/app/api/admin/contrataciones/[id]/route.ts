@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { requireVerModulo, requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { borrarArchivoStorage } from "@/lib/storage-cleanup"
 import { contratacionUpdateSchema } from "@/lib/validations/contrataciones"
 
 export async function GET(
@@ -84,7 +85,13 @@ export async function DELETE(
   if (!permiso) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
 
   const admin = createAdminClient()
+
+  const { data: row } = await admin.from("contrataciones").select("archivo_pdf").eq("id", id).maybeSingle()
+
   const { error } = await admin.from("contrataciones").delete().eq("id", id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  await borrarArchivoStorage((row as { archivo_pdf?: string | null } | null)?.archivo_pdf)
+
   return NextResponse.json({ message: "Contratación eliminada" })
 }

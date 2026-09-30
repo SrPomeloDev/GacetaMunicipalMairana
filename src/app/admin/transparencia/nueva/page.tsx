@@ -116,7 +116,6 @@ export default function NuevoDocumentoPage() {
               <Label>Archivo PDF</Label>
               <FileUpload
                 bucket="documentos"
-                accept="application/pdf"
                 value={form.archivo_pdf}
                 onChange={(url) => setForm((prev) => ({ ...prev, archivo_pdf: url }))}
                 label="PDF"

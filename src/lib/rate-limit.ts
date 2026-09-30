@@ -46,9 +46,12 @@ export function getClientIp(request: Request): string {
   return "unknown"
 }
 
-export function rateLimitExceededResponse(retryAfter: number) {
+export function rateLimitExceededResponse(
+  retryAfter: number,
+  extra: Record<string, unknown> = {}
+) {
   return NextResponse.json(
-    { error: "Demasiadas solicitudes. Inténtalo de nuevo en unos segundos." },
+    { error: "Demasiadas solicitudes. Inténtalo de nuevo en unos segundos.", ...extra },
     { status: 429, headers: { "Retry-After": String(retryAfter) } }
   )
 }

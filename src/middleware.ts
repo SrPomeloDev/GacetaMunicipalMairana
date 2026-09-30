@@ -4,11 +4,18 @@ import { NextResponse, type NextRequest } from "next/server"
 
 const publicAdminPaths = ["/admin/login"]
 
+function jsonConCookies(response: NextResponse, body: { error: string }, status: number) {
+  const res = NextResponse.json(body, { status })
+  response.cookies.getAll().forEach((cookie) => res.cookies.set(cookie))
+  return res
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const isAdminRoute = pathname.startsWith("/admin")
+  const isAdminApi = pathname.startsWith("/api/admin")
 
-  if (!isAdminRoute) {
+  if (!isAdminRoute && !isAdminApi) {
     return NextResponse.next()
   }
 
@@ -46,7 +53,7 @@ export async function middleware(request: NextRequest) {
   if (!authUser) {
     const redirectUrl = new URL("/admin/login", request.url)
     redirectUrl.searchParams.set("redirect", pathname)
-    return NextResponse.redirect(redirectUrl)
+    return isAdminApi ? jsonConCookies(response, { error: "No autorizado" }, 401) : NextResponse.redirect(redirectUrl)
   }
 
   const { data: user } = await supabase
@@ -59,12 +66,12 @@ export async function middleware(request: NextRequest) {
     await supabase.auth.signOut()
     const redirectUrl = new URL("/admin/login", request.url)
     redirectUrl.searchParams.set("error", "inactive")
-    return NextResponse.redirect(redirectUrl)
+    return isAdminApi ? jsonConCookies(response, { error: "Usuario inactivo" }, 403) : NextResponse.redirect(redirectUrl)
   }
 
   return response
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*"],
 }

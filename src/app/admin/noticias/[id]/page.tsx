@@ -219,7 +219,6 @@ export default function NoticiaFormPage() {
               <Label>Imagen Principal (opcional si hay enlace de Facebook)</Label>
               <FileUpload
                 bucket="noticias-imagenes"
-                accept="image/*"
                 value={formData.imagen_principal}
                 onChange={(url) => setFormData((prev) => ({ ...prev, imagen_principal: url }))}
                 label="Imagen"

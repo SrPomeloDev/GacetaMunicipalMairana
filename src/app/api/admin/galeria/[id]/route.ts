@@ -1,14 +1,7 @@
 import { NextResponse } from "next/server"
 import { requireVerModulo, requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 import { createAdminClient } from "@/lib/supabase/admin"
-
-function storagePathFromUrl(url: string): string | null {
-  const marker = "/galeria/"
-  const idx = url.indexOf(marker)
-  if (idx < 0) return null
-  const path = url.slice(idx + marker.length).split("?")[0]
-  return path || null
-}
+import { borrarArchivoStorage } from "@/lib/storage-cleanup"
 
 export async function GET(
   _request: Request,
@@ -83,14 +76,11 @@ export async function DELETE(
 
   const { data: row } = await admin.from("galeria").select("imagen").eq("id", id).single()
   const imagen = (row as { imagen: string } | null)?.imagen
-  if (imagen) {
-    const path = storagePathFromUrl(imagen)
-    if (path) {
-      await admin.storage.from("galeria").remove([path])
-    }
-  }
 
   const { error } = await admin.from("galeria").delete().eq("id", id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  await borrarArchivoStorage(imagen)
+
   return NextResponse.json({ message: "Imagen eliminada" })
 }

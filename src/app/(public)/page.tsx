@@ -406,6 +406,7 @@ function TarjetaInstitucional({ data }: { data: TarjetaData }) {
             alt={data.alcaldeNombre}
             width={56}
             height={56}
+            sizes="56px"
             className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-primary/30"
           />
           <div className="text-center">

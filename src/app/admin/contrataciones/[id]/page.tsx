@@ -205,7 +205,6 @@ export default function ContratacionFormPage() {
                 bucket="documentos"
                 value={formData.archivo_pdf}
                 onChange={(url) => setFormData((prev) => ({ ...prev, archivo_pdf: url ?? "" }))}
-                accept=".pdf"
               />
             </div>
           </CardContent>

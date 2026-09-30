@@ -120,7 +120,6 @@ export default function NuevaGaleriaPage() {
               <Label>Imagen</Label>
               <FileUpload
                 bucket="galeria"
-                accept="image/*"
                 value={form.imagen}
                 onChange={(url) => setForm((prev) => ({ ...prev, imagen: url }))}
                 label="Imagen"

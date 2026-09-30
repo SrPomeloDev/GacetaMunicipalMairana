@@ -5,6 +5,15 @@ import Image from "next/image"
 import { ImageIcon } from "@/lib/icons"
 import { cn } from "@/lib/utils"
 
+function esOptimizable(src: string): boolean {
+  try {
+    const url = new URL(src, "https://placeholder.local")
+    return url.protocol === "https:" && /(^|\.)supabase\.co$/.test(url.hostname)
+  } catch {
+    return false
+  }
+}
+
 interface StorageImageProps {
   src: string
   alt: string
@@ -48,6 +57,8 @@ export function StorageImage({
     )
   }
 
+  const optimizable = esOptimizable(src)
+
   return (
     <Image
       src={src}
@@ -58,7 +69,7 @@ export function StorageImage({
       sizes={sizes}
       loading={loading}
       fetchPriority={fetchPriority}
-      unoptimized
+      unoptimized={!optimizable}
       onError={() => setFailed(true)}
       className={className}
     />

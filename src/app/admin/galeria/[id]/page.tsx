@@ -132,7 +132,6 @@ export default function EditarGaleriaPage() {
               <Label>Imagen</Label>
               <FileUpload
                 bucket="galeria"
-                accept="image/*"
                 value={form.imagen}
                 onChange={(url) => patch({ imagen: url })}
                 label="Imagen"

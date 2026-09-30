@@ -146,6 +146,7 @@ export default function Header({ config }: { config?: HeaderConfig }) {
                 alt="Logo del Municipio"
                 width={56}
                 height={56}
+                sizes="56px"
                 className="h-12 w-auto max-w-[140px] shrink-0 object-contain sm:h-14"
               />
             ) : (

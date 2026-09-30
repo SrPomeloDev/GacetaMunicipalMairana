@@ -138,7 +138,6 @@ export default function SesionFormPage() {
                 bucket="normativa-pdf"
                 value={formData.acta_pdf}
                 onChange={(url) => setFormData((prev) => ({ ...prev, acta_pdf: url }))}
-                accept=".pdf"
               />
             </div>
           </CardContent>

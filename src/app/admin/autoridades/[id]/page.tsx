@@ -170,7 +170,6 @@ export default function AutoridadFormPage() {
               <Label>Foto de la Autoridad</Label>
               <FileUpload
                 bucket="noticias-imagenes"
-                accept="image/*"
                 value={formData.foto}
                 onChange={(url) => setFormData((prev) => ({ ...prev, foto: url }))}
                 label="Foto"

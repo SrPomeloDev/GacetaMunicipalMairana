@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 import { normativaUpdateSchema } from "@/lib/validations/normativa"
 import { sanitizeHtml } from "@/lib/sanitize"
+import { createAdminClient } from "@/lib/supabase/admin"
+import { borrarArchivoStorage } from "@/lib/storage-cleanup"
 
 export async function PUT(
   request: Request,
@@ -57,11 +59,20 @@ export async function DELETE(
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 
+  const { data: actual } = await createAdminClient()
+    .from("normativa")
+    .select("archivo_pdf")
+    .eq("id", id)
+    .maybeSingle()
+
   const { error } = await permiso.supabase
     .from("normativa")
     .delete()
     .eq("id", id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  await borrarArchivoStorage((actual as { archivo_pdf?: string | null } | null)?.archivo_pdf)
+
   return NextResponse.json({ message: "Eliminado correctamente" })
 }

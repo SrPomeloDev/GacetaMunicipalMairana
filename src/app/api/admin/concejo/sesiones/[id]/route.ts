@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { requireVerModulo, requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { borrarArchivoStorage } from "@/lib/storage-cleanup"
 
 export async function GET(
   _request: Request,
@@ -71,7 +72,13 @@ export async function DELETE(
   if (!permiso) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
 
   const admin = createAdminClient()
+
+  const { data: row } = await admin.from("concejo_sesiones").select("acta_pdf").eq("id", id).maybeSingle()
+
   const { error } = await admin.from("concejo_sesiones").delete().eq("id", id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  await borrarArchivoStorage((row as { acta_pdf?: string | null } | null)?.acta_pdf)
+
   return NextResponse.json({ message: "Sesión eliminada" })
 }

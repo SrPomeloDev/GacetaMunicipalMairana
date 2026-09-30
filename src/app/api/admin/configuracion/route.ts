@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server"
 import { requireVerModulo, requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { borrarArchivoStorage } from "@/lib/storage-cleanup"
+import { invalidarCacheStorage } from "@/lib/storage-quota"
+
+const COLUMNAS_ARCHIVO = ["logo_url", "alcalde_foto", "fondo_url"] as const
 
 export async function GET() {
   let permiso: PermisosUsuario | null
@@ -27,6 +31,9 @@ export async function PUT(request: Request) {
 
   const body = await request.json()
   const admin = createAdminClient()
+
+  const { data: actual } = await admin.from("configuracion").select("*").eq("id", 1).maybeSingle()
+  const previo = (actual ?? {}) as Record<string, unknown>
 
   const upsert: Record<string, unknown> = { id: 1 }
   if (body.municipio !== undefined) upsert.municipio = body.municipio
@@ -55,5 +62,15 @@ export async function PUT(request: Request) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  for (const columna of COLUMNAS_ARCHIVO) {
+    const antes = previo[columna]
+    const despues = upsert[columna]
+    if (typeof antes === "string" && antes && antes !== despues) {
+      await borrarArchivoStorage(antes)
+    }
+  }
+
+  invalidarCacheStorage()
   return NextResponse.json(data)
 }

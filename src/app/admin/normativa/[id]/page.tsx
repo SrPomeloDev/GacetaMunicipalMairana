@@ -368,7 +368,6 @@ export default function NormativaFormPage() {
               <Label>Archivo PDF</Label>
               <FileUpload
                 bucket="normativa-pdf"
-                accept="application/pdf"
                 value={formData.archivo_pdf}
                 onChange={(url) => setFormData((prev) => ({ ...prev, archivo_pdf: url }))}
                 label="PDF"

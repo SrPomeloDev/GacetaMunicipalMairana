@@ -152,7 +152,6 @@ export default function EditarDocumentoPage() {
               <Label>Archivo PDF</Label>
               <FileUpload
                 bucket="documentos"
-                accept="application/pdf"
                 value={form.archivo_pdf}
                 onChange={(url) => patch({ archivo_pdf: url })}
                 label="PDF"

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { requireVerModulo, requirePermiso, type PermisosUsuario } from "@/lib/permisos-server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { borrarArchivoStorage } from "@/lib/storage-cleanup"
 import { slugify } from "@/lib/utils"
 
 export async function GET(
@@ -79,7 +80,13 @@ export async function DELETE(
   if (!permiso) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
 
   const admin = createAdminClient()
+
+  const { data: row } = await admin.from("tramites").select("formulario_pdf").eq("id", id).maybeSingle()
+
   const { error } = await admin.from("tramites").delete().eq("id", id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  await borrarArchivoStorage((row as { formulario_pdf?: string | null } | null)?.formulario_pdf)
+
   return NextResponse.json({ message: "Trámite eliminado" })
 }

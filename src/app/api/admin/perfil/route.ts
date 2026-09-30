@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { borrarArchivoStorage } from "@/lib/storage-cleanup"
 
 export async function PATCH(request: Request) {
   const supabase = await createServerSupabaseClient()
@@ -11,6 +12,14 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json()
+  const admin = createAdminClient()
+
+  const { data: filaActual } = await admin
+    .from("usuarios")
+    .select("avatar_url")
+    .eq("id", authUser.id)
+    .maybeSingle()
+  const avatarPrevio = (filaActual as { avatar_url?: string | null } | null)?.avatar_url ?? null
 
   const perfil: Record<string, unknown> = {}
   if (body.nombre !== undefined) {
@@ -56,7 +65,6 @@ export async function PATCH(request: Request) {
   }
 
   if (Object.keys(meta).length > 0) {
-    const admin = createAdminClient()
     const { data: { user: existing } } = await admin.auth.admin.getUserById(authUser.id)
     const currentMeta = (existing?.user_metadata as Record<string, unknown>) ?? {}
     const { error: metaError } = await admin.auth.admin.updateUserById(authUser.id, {
@@ -64,6 +72,13 @@ export async function PATCH(request: Request) {
     })
     if (metaError) {
       return NextResponse.json({ error: metaError.message }, { status: 500 })
+    }
+  }
+
+  if ("avatar_url" in perfil) {
+    const avatarNuevo = (perfil.avatar_url as string | null) ?? null
+    if (avatarPrevio && avatarPrevio !== avatarNuevo) {
+      await borrarArchivoStorage(avatarPrevio)
     }
   }
 

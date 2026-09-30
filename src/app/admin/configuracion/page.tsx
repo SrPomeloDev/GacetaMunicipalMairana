@@ -10,6 +10,7 @@ import { FileUpload } from "@/components/admin/file-upload"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Save, Building2, Share2, Palette, User } from "lucide-react"
+import { StorageQuotaBar } from "@/components/admin/storage-quota-bar"
 
 const DEFAULT_CONFIG = {
   municipio: "Gobierno Autónomo Municipal de Mairana",
@@ -117,6 +118,8 @@ export default function AdminConfiguracionPage() {
         </Button>
       </div>
 
+      <StorageQuotaBar />
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -183,7 +186,6 @@ export default function AdminConfiguracionPage() {
             <FileUpload
               id="cfg-alcalde-foto"
               bucket="noticias-imagenes"
-              accept="image/*"
               value={form.alcalde_foto}
               onChange={(url) => setForm((prev) => ({ ...prev, alcalde_foto: url }))}
               label="Foto del Alcalde"
@@ -255,7 +257,6 @@ export default function AdminConfiguracionPage() {
             <FileUpload
               id="cfg-logo"
               bucket="noticias-imagenes"
-              accept="image/*"
               value={form.logo_url}
               onChange={(url) => setForm((prev) => ({ ...prev, logo_url: url }))}
               label="Logo"
@@ -266,7 +267,6 @@ export default function AdminConfiguracionPage() {
             <FileUpload
               id="cfg-fondo"
               bucket="noticias-imagenes"
-              accept="image/*"
               value={form.fondo_url}
               onChange={(url) => setForm((prev) => ({ ...prev, fondo_url: url }))}
               label="Fondo del Portal"

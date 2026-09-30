@@ -178,7 +178,6 @@ export default function EditarTramitePage() {
               <Label>Formulario PDF</Label>
               <FileUpload
                 bucket="documentos"
-                accept="application/pdf"
                 value={form.formulario_pdf}
                 onChange={(url) => handleChange("formulario_pdf", url)}
                 label="Formulario"

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { getPermisosUsuario } from "@/lib/permisos-server"
+import { getUsoStorage } from "@/lib/storage-quota"
 
 export async function GET() {
   const supabase = await createServerSupabaseClient()
@@ -15,12 +16,13 @@ export async function GET() {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 })
   }
 
-  const [normativasRes, noticiasRes, usuariosRes, estadosRes, aniosRes] = await Promise.all([
+  const [normativasRes, noticiasRes, usuariosRes, estadosRes, aniosRes, storage] = await Promise.all([
     supabase.from("normativa").select("*", { count: "exact", head: true }),
     supabase.from("noticias").select("*", { count: "exact", head: true }),
     supabase.from("usuarios").select("*", { count: "exact", head: true }),
     supabase.from("normativa").select("estado"),
     supabase.from("normativa").select("fecha_publicacion"),
+    getUsoStorage(),
   ])
 
   const estados: Record<string, number> = {}
@@ -48,5 +50,17 @@ export async function GET() {
     total_usuarios: usuariosRes.count || 0,
     normativas_por_estado: estados,
     normativas_por_anio: anios,
+    storage: {
+      usado_bytes: storage.totalBytes,
+      cuota_bytes: storage.quotaBytes,
+      pct: storage.pct,
+      exceeded: storage.exceeded,
+      en_aviso: storage.enAviso,
+      por_bucket: storage.porBucket.map((b) => ({
+        bucket: b.bucket,
+        objetos: b.objetos,
+        bytes: b.bytes,
+      })),
+    },
   })
 }

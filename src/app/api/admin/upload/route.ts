@@ -1,32 +1,38 @@
 import { NextResponse } from "next/server"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { getPermisosUsuario } from "@/lib/permisos-server"
+import { tienePermiso, type Modulo } from "@/lib/roles"
+import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit"
+import { checkCuotaStorage } from "@/lib/storage-quota"
+import { comprimirImagenWebP } from "@/lib/image-compress"
+import {
+  BUCKETS,
+  MIME_POR_EXT,
+  esBucketNombre,
+  extensionesPermitidas,
+  type BucketNombre,
+} from "@/lib/storage-limits"
+import type { CodigoUpload } from "@/lib/upload-errors"
 
-const ALLOWED_BUCKETS: Record<string, string> = {
-  "noticias-imagenes": "image",
-  "normativa-pdf": "pdf",
-  galeria: "image",
-  documentos: "any",
+const BUCKET_MODULOS: Record<BucketNombre, Modulo[]> = {
+  "noticias-imagenes": ["noticias", "autoridades", "usuarios", "configuracion"],
+  "normativa-pdf": ["normativa", "concejo"],
+  galeria: ["galeria"],
+  documentos: ["tramites", "transparencia", "contrataciones"],
 }
 
-const BUCKET_SIZE_LIMITS: Record<string, number> = {
-  "noticias-imagenes": 5242880,
-  "normativa-pdf": 15728640,
-  galeria: 10485760,
-  documentos: 20971520,
-}
+const UPLOADS_POR_MINUTO = 10
+const UPLOAD_WINDOW_MS = 60_000
+const MAX_BODY_EXTRA = 64 * 1024
 
-const MIME_BY_EXT: Record<string, string> = {
-  jpg: "image/jpeg",
-  jpeg: "image/jpeg",
-  png: "image/png",
-  gif: "image/gif",
-  webp: "image/webp",
-  pdf: "application/pdf",
-  doc: "application/msword",
-  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  xls: "application/vnd.ms-excel",
-  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+function fallo(
+  codigo: CodigoUpload,
+  error: string,
+  status: number,
+  extra: Record<string, unknown> = {}
+) {
+  return NextResponse.json({ error, codigo, ...extra }, { status })
 }
 
 function detectKind(bytes: Uint8Array): string | null {
@@ -75,75 +81,158 @@ export async function POST(request: Request) {
 
   const { data: { user: authUser } } = await supabase.auth.getUser()
   if (!authUser) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 })
+    return fallo("NO_AUTORIZADO", "No autorizado", 401)
   }
 
-  const { data: rol } = await supabase.rpc("current_user_role")
-  if (!rol || !["admin", "editor"].includes(rol)) {
-    return NextResponse.json({ error: "No tienes permisos para subir archivos" }, { status: 403 })
+  const permisos = await getPermisosUsuario(supabase)
+  if (!permisos) {
+    return fallo(
+      "SIN_PERMISOS",
+      "No tienes permisos para subir archivos",
+      403
+    )
+  }
+
+  const rl = checkRateLimit(`upload:${authUser.id}`, {
+    limit: UPLOADS_POR_MINUTO,
+    windowMs: UPLOAD_WINDOW_MS,
+  })
+  if (!rl.ok) {
+    return rateLimitExceededResponse(rl.retryAfter, {
+      codigo: "RATE_LIMIT",
+      reintentarEnSeg: rl.retryAfter,
+    })
+  }
+
+  const declaredLength = Number(request.headers.get("content-length") ?? 0)
+  const maxBodyBytes = Math.max(...Object.values(BUCKETS).map((b) => b.bytes)) + MAX_BODY_EXTRA
+  if (Number.isFinite(declaredLength) && declaredLength > maxBodyBytes) {
+    return fallo(
+      "TAMANO_EXCEDIDO",
+      "El archivo es demasiado grande para procesarlo",
+      413,
+      {
+        limiteMb: Math.max(...Object.values(BUCKETS).map((b) => b.mb)),
+        pesoMb: Math.round((declaredLength / 1048576) * 10) / 10,
+      }
+    )
   }
 
   const formData = await request.formData()
   const file = formData.get("file") as File | null
-  const bucket = (formData.get("bucket") as string | null) || "noticias-imagenes"
+  const bucketRaw = (formData.get("bucket") as string | null) || "noticias-imagenes"
 
   if (!file) {
-    return NextResponse.json({ error: "No se envió ningún archivo" }, { status: 400 })
+    return fallo("SIN_ARCHIVO", "No se envió ningún archivo", 400)
   }
 
-  if (!ALLOWED_BUCKETS[bucket]) {
-    return NextResponse.json({ error: "Bucket no permitido" }, { status: 400 })
+  if (!esBucketNombre(bucketRaw)) {
+    return fallo("ERROR_SISTEMA", "Destino de almacenamiento no permitido", 400)
+  }
+  const bucket = bucketRaw
+  const config = BUCKETS[bucket]
+
+  const modulos = BUCKET_MODULOS[bucket] ?? []
+  if (!modulos.some((m) => tienePermiso(permisos.permisos, m, "crear"))) {
+    return fallo(
+      "SIN_PERMISOS",
+      "No tienes permisos para subir archivos",
+      403
+    )
   }
 
   const dot = file.name.lastIndexOf(".")
   const ext = dot >= 0 ? file.name.slice(dot + 1).toLowerCase() : ""
 
-  if (ext === "svg" || file.type === "image/svg+xml") {
-    return NextResponse.json({ error: "Tipo de archivo no permitido por seguridad: .svg" }, { status: 415 })
-  }
+  const allowedExt = extensionesPermitidas(config.mime)
 
-  const allowedExt =
-    ALLOWED_BUCKETS[bucket] === "image"
-      ? ["png", "jpg", "jpeg", "gif", "webp"]
-      : ALLOWED_BUCKETS[bucket] === "pdf"
-        ? ["pdf"]
-        : ["pdf", "png", "jpg", "jpeg", "doc", "docx", "xls", "xlsx"]
+  if (ext === "svg" || file.type === "image/svg+xml") {
+    return fallo(
+      "TIPO_NO_PERMITIDO",
+      "Los archivos .svg no se permiten por seguridad",
+      415,
+      { formatos: allowedExt }
+    )
+  }
 
   if (!allowedExt.includes(ext)) {
-    return NextResponse.json({ error: `Extensión no permitida para este tipo de archivo: .${ext}` }, { status: 400 })
+    return fallo(
+      "TIPO_NO_PERMITIDO",
+      `Este campo no admite archivos .${ext || "sin extensión"}`,
+      400,
+      { formatos: allowedExt }
+    )
   }
 
-  const limit = BUCKET_SIZE_LIMITS[bucket]
-  if (file.size > limit) {
-    return NextResponse.json(
-      { error: `Archivo excede el límite de ${Math.round(limit / 1048576)}MB para este bucket` },
-      { status: 413 }
+  if (file.size > config.bytes) {
+    return fallo(
+      "TAMANO_EXCEDIDO",
+      `El archivo supera el tamaño máximo de ${config.mb}MB`,
+      413,
+      {
+        limiteMb: config.mb,
+        pesoMb: Math.round((file.size / 1048576) * 10) / 10,
+      }
     )
   }
 
   const admin = createAdminClient()
-  const arrayBuffer = await file.arrayBuffer()
-  const buffer = new Uint8Array(arrayBuffer)
+
+  let buffer = new Uint8Array(await file.arrayBuffer())
+  let extFinal = ext
+  let mimeFinal = MIME_POR_EXT[ext] ?? "application/octet-stream"
+  let optimizado = false
+
+  if (config.comprimir) {
+    const comprimido = await comprimirImagenWebP(buffer)
+    if (comprimido) {
+      buffer = comprimido
+      extFinal = "webp"
+      mimeFinal = MIME_POR_EXT.webp
+      optimizado = true
+    }
+  }
 
   const detected = detectKind(buffer)
-  const expected = ext === "jpeg" ? "jpg" : ext
-  if (["jpg", "png", "gif", "webp", "pdf"].includes(expected) && detected !== expected) {
-    return NextResponse.json({ error: "El contenido del archivo no coincide con su extensión" }, { status: 415 })
+  const esperado = extFinal === "jpeg" ? "jpg" : extFinal
+  if (["jpg", "png", "gif", "webp", "pdf"].includes(esperado) && detected !== esperado) {
+    return fallo(
+      "FORMATO_INVALIDO",
+      "El contenido del archivo no coincide con su extensión",
+      415
+    )
+  }
+
+  const cuota = await checkCuotaStorage(buffer.length)
+  if (!cuota.ok) {
+    return fallo("CUOTA_LLENA", cuota.error, cuota.status, {
+      limiteMb: cuota.limiteMb,
+      restanteMb: cuota.restanteMb,
+    })
   }
 
   const timestamp = Date.now()
-  const fileName = `${timestamp}_${authUser.id.slice(0, 8)}_${crypto.randomUUID()}.${ext}`
+  const fileName = `${timestamp}_${authUser.id.slice(0, 8)}_${crypto.randomUUID()}.${extFinal}`
 
   const { data, error } = await admin.storage
     .from(bucket)
     .upload(fileName, buffer, {
-      contentType: MIME_BY_EXT[ext],
+      contentType: mimeFinal,
       upsert: false,
     })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    return fallo("ERROR_SISTEMA", `No se pudo guardar el archivo: ${error.message}`, 500)
+  }
 
   const { data: { publicUrl } } = admin.storage.from(bucket).getPublicUrl(data.path)
 
-  return NextResponse.json({ url: publicUrl, path: data.path, bucket })
+  return NextResponse.json({
+    url: publicUrl,
+    path: data.path,
+    bucket,
+    bytes: buffer.length,
+    optimizado,
+    pesoOriginal: file.size,
+  })
 }

@@ -160,7 +160,6 @@ function PerfilForm({ user }: { user: CurrentUser }) {
                   <Label>Foto de Perfil</Label>
                   <FileUpload
                     bucket="noticias-imagenes"
-                    accept="image/*"
                     value={avatarUrl}
                     onChange={setAvatarUrl}
                     label="Foto"

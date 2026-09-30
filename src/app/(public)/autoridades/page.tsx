@@ -112,6 +112,7 @@ export default function AutoridadesPage() {
                         alt={alcalde.nombre_completo}
                         width={128}
                         height={128}
+                        sizes="128px"
                         className="h-32 w-32 rounded-full object-cover shadow-lg ring-4 ring-primary/20"
                       />
                     ) : (
@@ -168,6 +169,7 @@ export default function AutoridadesPage() {
                         alt={auth.nombre_completo}
                         width={80}
                         height={80}
+                        sizes="80px"
                         className="h-20 w-20 rounded-full object-cover shadow-md"
                       />
                     ) : auth.tipo_autoridad === "alcalde" ? (

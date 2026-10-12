@@ -29,7 +29,7 @@ export default async function ContactoPage() {
   const telefono = data?.telefono || MAIRANA.telefono
   const email = data?.email || MAIRANA.email
   const horario = data?.horario || "Lun a Vie 08:00 - 16:00"
-  const telLink = telHref(data?.telefono)
+  const telLink = telHref(telefono)
   const waLink = whatsappUrl(data?.whatsapp)
 
   const mapLink = `https://www.openstreetmap.org/?mlat=${MAIRANA_LAT}&mlon=${MAIRANA_LON}#map=16/${MAIRANA_LAT}/${MAIRANA_LON}`

@@ -17,12 +17,9 @@ function fixturePdf() {
 
 // Localiza el <select> nativo que contiene una opción con el texto dado
 async function selectConOpcion(page, texto) {
-  const selects = page.locator("select");
-  const n = await selects.count();
-  for (let i = 0; i < n; i++) {
-    if ((await selects.nth(i).innerText()).includes(texto)) return selects.nth(i);
-  }
-  throw new Error(`select con opción "${texto}" no encontrado`);
+  const option = page.locator("select option").filter({ hasText: texto }).first();
+  await expect(option).toBeAttached();
+  return option.locator("xpath=..");
 }
 
 test.describe("Filtros admin inicializados por URL", () => {

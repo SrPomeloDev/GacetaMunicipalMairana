@@ -33,6 +33,9 @@ const DEFAULT_CONFIG = {
   horario: "Lun a Vie 08:00 - 16:00",
 }
 
+// Para reactivar la edición del logo, cambiar a true.
+const LOGO_EDICION_HABILITADA = false
+
 export default function AdminConfiguracionPage() {
   const { addToast } = useToast()
 
@@ -42,36 +45,43 @@ export default function AdminConfiguracionPage() {
 
   useEffect(() => {
     const load = async () => {
-      const res = await fetch("/api/admin/configuracion")
-      const data = await res.json()
-      if (!res.ok) {
-        addToast(data.error || "Error al cargar configuración", "error")
+      try {
+        const res = await fetch("/api/admin/configuracion")
+        const data = await res.json()
+        if (!res.ok) {
+          addToast(data.error || "Error al cargar configuración", "error")
+          return
+        }
+        if (data) {
+          setForm({
+            municipio: data.municipio,
+            lema: data.lema || "",
+            direccion: data.direccion || "",
+            telefono: data.telefono || "",
+            whatsapp: data.whatsapp || "",
+            email: data.email || "",
+            facebook: data.facebook || "",
+            twitter: data.twitter || "",
+            youtube: data.youtube || "",
+            instagram: data.instagram || "",
+            color_primario: data.color_primario || "#EA580C",
+            logo_url: data.logo_url,
+            fondo_url: data.fondo_url,
+            alcalde_foto: data.alcalde_foto,
+            alcalde_nombre: data.alcalde_nombre || "",
+            alcalde_cargo: data.alcalde_cargo || "",
+            descripcion_municipio: data.descripcion_municipio || "",
+            horario: data.horario || "",
+          })
+        }
+      } catch (error) {
+        addToast(
+          error instanceof Error ? `Error al cargar configuración: ${error.message}` : "Error al cargar configuración",
+          "error"
+        )
+      } finally {
         setLoading(false)
-        return
       }
-      if (data) {
-        setForm({
-          municipio: data.municipio,
-          lema: data.lema || "",
-          direccion: data.direccion || "",
-          telefono: data.telefono || "",
-          whatsapp: data.whatsapp || "",
-          email: data.email || "",
-          facebook: data.facebook || "",
-          twitter: data.twitter || "",
-          youtube: data.youtube || "",
-          instagram: data.instagram || "",
-          color_primario: data.color_primario || "#EA580C",
-          logo_url: data.logo_url,
-          fondo_url: data.fondo_url,
-          alcalde_foto: data.alcalde_foto,
-          alcalde_nombre: data.alcalde_nombre || "",
-          alcalde_cargo: data.alcalde_cargo || "",
-          descripcion_municipio: data.descripcion_municipio || "",
-          horario: data.horario || "",
-        })
-      }
-      setLoading(false)
     }
     load()
   }, [addToast])
@@ -83,7 +93,12 @@ export default function AdminConfiguracionPage() {
       const res = await fetch("/api/admin/configuracion", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: 1, ...form }),
+        body: JSON.stringify({
+          id: 1,
+          ...form,
+          // Logo fijo al original mientras la edición está desactivada
+          ...(!LOGO_EDICION_HABILITADA ? { logo_url: null } : {}),
+        }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -96,6 +111,11 @@ export default function AdminConfiguracionPage() {
         return
       }
       addToast("Configuración guardada", "success")
+    } catch (error) {
+      addToast(
+        error instanceof Error ? `Error al guardar configuración: ${error.message}` : "Error al guardar configuración",
+        "error"
+      )
     } finally {
       setSaving(false)
     }
@@ -252,15 +272,17 @@ export default function AdminConfiguracionPage() {
               </div>
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="cfg-logo">Logo del Municipio</Label>
+          <div className="space-y-2 opacity-60">
+            <Label htmlFor="cfg-logo">Logo del Municipio (desactivado temporalmente)</Label>
             <FileUpload
               id="cfg-logo"
               bucket="noticias-imagenes"
               value={form.logo_url}
               onChange={(url) => setForm((prev) => ({ ...prev, logo_url: url }))}
               label="Logo"
+              disabled={!LOGO_EDICION_HABILITADA}
             />
+            <p className="text-xs text-muted-foreground">Edición desactivada: el portal usa el logo original. Para reactivarla, cambiar LOGO_EDICION_HABILITADA a true en esta página.</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="cfg-fondo">Imagen de Fondo del Portal</Label>

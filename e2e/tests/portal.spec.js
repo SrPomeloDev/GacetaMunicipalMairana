@@ -27,7 +27,7 @@ test.describe("Portal público", () => {
 
   test("home: el CTA del hero lleva a la Gaceta Oficial", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("link", { name: "GACETA MUNICIPAL" }).click();
+    await page.getByRole("link", { name: "GACETA MUNICIPAL", exact: true }).click();
     await expect(page).toHaveURL(/\/gaceta/);
     await expect(
       page.getByRole("heading", { level: 1, name: "Gaceta Municipal Oficial" })
@@ -42,10 +42,15 @@ test.describe("Portal público", () => {
     await expect(search).toHaveValue("ordenanza");
   });
 
+  test("contacto: el teléfono tiene enlace para llamar", async ({ page }) => {
+    await page.goto("/contacto");
+    const telefono = page.getByText("Teléfono", { exact: true }).locator("..");
+    await expect(telefono.locator('a[href^="tel:"]')).toBeVisible();
+  });
+
   test("header: acceso funcionarios lleva al login", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("link", { name: "Gaceta Municipal" })).toBeVisible();
-    await page.getByRole("link", { name: "Acceso Funcionarios" }).click();
+    await page.getByRole("banner").getByRole("link", { name: "Acceso Funcionarios", exact: true }).click();
     await expect(page).toHaveURL(/\/admin\/login/);
   });
 
@@ -54,7 +59,7 @@ test.describe("Portal público", () => {
     await expect(
       page.getByRole("heading", { level: 1, name: "Autoridades Municipales" })
     ).toBeVisible();
-    await expect(page.getByRole("heading", { name: /Andres Fidel Rocha/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Andr[eé]s Fidel Rocha/i })).toBeVisible();
     await expect(page.getByText("Alcalde Municipal", { exact: true }).first()).toBeVisible();
   });
 

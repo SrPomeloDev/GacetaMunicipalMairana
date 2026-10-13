@@ -191,6 +191,14 @@ export default async function Footer({ config }: { config: Pick<Configuracion, "
             <Link href="/ayuda" className="underline-offset-4 hover:text-primary hover:underline">
               Ayuda
             </Link>
+            <span className="mx-1 opacity-50">•</span>
+            <Link href="/terminos" className="underline-offset-4 hover:text-primary hover:underline">
+              Términos
+            </Link>
+            <span className="mx-1 opacity-50">•</span>
+            <Link href="/privacidad" className="underline-offset-4 hover:text-primary hover:underline">
+              Privacidad
+            </Link>
           </p>
           <div className="flex items-center gap-2 rounded-full border border-primary/20 bg-card px-3 py-1.5 shadow-sm">
             <FileCheck2 className="h-4 w-4 text-emerald-600" />

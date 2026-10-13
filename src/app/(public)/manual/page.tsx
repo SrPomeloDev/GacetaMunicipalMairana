@@ -193,17 +193,17 @@ export default function ManualIndicePage() {
         <section className="rounded-xl border border-primary/20 bg-primary/5 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <h3 className="font-serif text-lg font-bold text-foreground">
-              Capítulo Especial: Almacenamiento de Archivos y Límites
+              Capítulo especial: cómo subir archivos
             </h3>
             <p className="text-xs text-muted-foreground">
-              Consulte la tabla técnica de 4 buckets (límite de tamaño, WebP, formatos) y resolución de errores TAMANO_EXCEDIDO y CUOTA_LLENA.
+              Qué formato usar, tamaños máximos recomendados y cómo resolver los avisos más comunes.
             </p>
           </div>
           <Link
             href="/manual/archivos"
             className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
           >
-            Ver Almacenamiento
+            Ver cómo subir archivos
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </section>

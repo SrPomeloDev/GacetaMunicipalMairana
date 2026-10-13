@@ -229,7 +229,7 @@ export const SECCIONES_MANUAL: SeccionManualMeta[] = [
     id: "archivos",
     titulo: "Almacenamiento de Archivos",
     categoria: "Infraestructura",
-    subtitulo: "Políticas de buckets, cuotas y optimización",
+    subtitulo: "Qué archivo usar en cada caso, tamaños recomendados y cómo resolver avisos",
     descripcion: "Límites técnicos de almacenamiento, compresión automática WebP y resolución de fallos.",
     icono: "FolderOpen",
     urlPanel: "/admin/configuracion",
@@ -241,7 +241,7 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
   acceso: {
     meta: SECCIONES_MANUAL[0],
     proposito:
-      "El módulo de Acceso regula el ingreso autenticado de funcionarios y operadores de la Gaceta Municipal. Las credenciales se verifican mediante Supabase Auth y validan el estado de la cuenta en la base de datos.",
+      "El módulo de Acceso regula el ingreso de funcionarios y operadores de la Gaceta Municipal. Las credenciales se verifican en el sistema y validan que la cuenta esté activa.",
     requisitos: [
       "Contar con una cuenta institucional previamente dada de alta por un Administrador.",
       "Disponer de un correo electrónico válido y contraseña de al menos 6 caracteres.",
@@ -418,7 +418,7 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
         numero: 4,
         titulo: "Cargar PDF o redactar texto",
         descripcion:
-          "Suba el documento PDF en el campo de archivo (límite 4 MB en bucket normativa-pdf). Si no cuenta con PDF, copie el articulado completo en el editor de texto.",
+          "Suba el documento PDF en el campo de archivo (PDF de hasta 4 MB). Si no cuenta con PDF, copie el articulado completo en el editor de texto.",
       },
       {
         numero: 5,
@@ -505,7 +505,7 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
         numero: 3,
         titulo: "Subir imagen de portada",
         descripcion:
-          "Adjunte una fotografía representativa (hasta 2 MB, bucket noticias-imagenes). El sistema la optimiza automáticamente a formato WebP.",
+          "Adjunte una fotografía representativa (foto de hasta 2 MB). El portal la optimiza automáticamente.",
       },
       {
         numero: 4,
@@ -558,7 +558,7 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
         numero: 3,
         titulo: "Cargar retrato fotográfico",
         descripcion:
-          "Suba una foto nítida de frente (bucket noticias-imagenes, máx 2 MB). Se recomienda fondo neutro institucional.",
+          "Suba una foto nítida de frente (foto de hasta 2 MB). Se recomienda fondo neutro institucional.",
       },
       {
         numero: 4,
@@ -694,7 +694,7 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
       {
         numero: 2,
         titulo: "Adjuntar el acta oficial",
-        descripcion: "Suba el documento digitalizado del acta aprobada (en PDF, máx 4 MB en bucket documentos).",
+        descripcion: "Suba el documento digitalizado del acta aprobada (en PDF, de hasta 4 MB).",
       },
       {
         numero: 3,
@@ -744,7 +744,7 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
       {
         numero: 3,
         titulo: "Adjuntar respaldo documental",
-        descripcion: "Suba el documento en PDF debidamente visado (límite 4 MB en bucket documentos).",
+        descripcion: "Suba el documento en PDF debidamente visado (PDF de hasta 4 MB).",
       },
       {
         numero: 4,
@@ -838,7 +838,7 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
         numero: 1,
         titulo: "Preparar las imágenes",
         descripcion:
-          "Verifique que las fotos estén en formato JPG, PNG o WebP. El límite por archivo es de 3 MB en el bucket galeria.",
+          "Verifique que las fotos estén en formato JPG, PNG o WebP. Cada foto puede pesar hasta 3 MB.",
       },
       {
         numero: 2,
@@ -856,7 +856,7 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
       { nombre: "Título", tipo: "Texto", requerido: true, descripcion: "Pie de foto o título descriptivo.", ejemplo: "EJ-Desfile cívico por el 150 aniversario de Mairana" },
       { nombre: "Descripción", tipo: "Texto largo", requerido: false, descripcion: "Contexto o reseña de la actividad.", ejemplo: "EJ-Estudiantes y juntas vecinales participaron del acto en la plaza principal." },
       { nombre: "Álbum", tipo: "Texto", requerido: true, descripcion: "Colección temática a la que pertenece la foto.", ejemplo: "EJ-Aniversario y Fiestas Cívicas" },
-      { nombre: "Imagen", tipo: "Imagen", requerido: true, descripcion: "Fotografía (máx 3 MB, bucket galeria).", ejemplo: "EJ-plaza-desfile-mairana.webp" },
+      { nombre: "Imagen", tipo: "Imagen", requerido: true, descripcion: "Fotografía (hasta 3 MB).", ejemplo: "EJ-plaza-desfile-mairana.webp" },
       { nombre: "Fecha", tipo: "Fecha", requerido: true, descripcion: "Día del evento.", ejemplo: "2025-09-24" },
       { nombre: "Orden", tipo: "Numérico", requerido: false, descripcion: "Posición dentro del carrusel del álbum.", ejemplo: "1" },
     ],
@@ -901,7 +901,7 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
         numero: 4,
         titulo: "Adjuntar pliegos (DBC) y actualizar estado",
         descripcion:
-          "Suba las bases del pliego en PDF (bucket documentos). Cuando concluya la evaluación, cambie el estado a Adjudicada e indique la empresa ganadora.",
+          "Suba las bases del pliego en PDF (hasta 4 MB). Cuando concluya la evaluación, cambie el estado a Adjudicada e indique la empresa ganadora.",
       },
     ],
     campos: [
@@ -1142,50 +1142,50 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
   archivos: {
     meta: SECCIONES_MANUAL[16],
     proposito:
-      "Documenta las especificaciones técnicas del almacenamiento en la nube (Supabase Storage). Detalla los límites por bucket, compresión automática WebP, cuota global y protocolos de resolución ante errores.",
+      "Explica qué archivo usar en cada formulario, los tamaños máximos recomendados y cómo resolver los avisos más comunes.",
     pasos: [
       {
         numero: 1,
-        titulo: "Identificar el bucket adecuado",
+        titulo: "Elegir el archivo correcto",
         descripcion:
-          "Cada formulario conecta directamente al bucket correspondiente. Asegúrese de que el archivo cumpla con los formatos y peso máximo admitidos.",
+          "Cada formulario acepta ciertos formatos y un peso máximo. Revise la etiqueta del campo antes de subir.",
       },
       {
         numero: 2,
-        titulo: "Compresión automática transparente",
+        titulo: "Optimización automática",
         descripcion:
-          "En los buckets de imágenes (noticias-imagenes y galeria), el sistema redimensiona a 1600 px y convierte a WebP automáticamente en el navegador antes de subir.",
+          "En las fotos (noticias y galería), el portal las achica y optimiza automáticamente antes de subirlas.",
       },
       {
         numero: 3,
-        titulo: "Supervisar cuota de almacenamiento",
+        titulo: "Qué hacer si no hay espacio",
         descripcion:
-          "La cuota total asignada al portal es de 200 MB, con aviso preventivo a partir de 150 MB. Elimine periódicamente archivos obsoletos si la capacidad se aproxima al tope.",
+          "El portal tiene un espacio total de 200 MB. Si se llena, avise al encargado de sistemas para liberar lugar.",
       },
     ],
     campos: [
-      { nombre: "noticias-imagenes", tipo: "Bucket", descripcion: "Imágenes de noticias, logos, fondo de portal y autoridades.", ejemplo: "Máx 2 MB · JPG, PNG, WebP · Comprime a WebP" },
-      { nombre: "galeria", tipo: "Bucket", descripcion: "Fotografías para los álbumes culturales y de obras.", ejemplo: "Máx 3 MB · JPG, PNG, WebP · Comprime a WebP" },
-      { nombre: "normativa-pdf", tipo: "Bucket", descripcion: "Documentos legales escaneados en PDF.", ejemplo: "Máx 4 MB · PDF estricto · Sin compresión" },
-      { nombre: "documentos", tipo: "Bucket", descripcion: "Actas de concejo, transparencia, trámites y DBC.", ejemplo: "Máx 4 MB · PDF, DOCX, XLSX · Sin compresión" },
+      { nombre: "Fotos de noticias", tipo: "Tipo de archivo", descripcion: "Imágenes de noticias, foto de autoridades y foto del alcalde.", ejemplo: "Hasta 2 MB · JPG, PNG, WebP · Se optimizan solas" },
+      { nombre: "Fotos de galería", tipo: "Tipo de archivo", descripcion: "Fotografías para los álbumes culturales y de obras.", ejemplo: "Hasta 3 MB · JPG, PNG, WebP · Se optimizan solas" },
+      { nombre: "PDF de normativa", tipo: "Tipo de archivo", descripcion: "Documentos legales escaneados en PDF.", ejemplo: "Hasta 4 MB · Solo PDF · Súbalos ya optimizados" },
+      { nombre: "Documentos", tipo: "Tipo de archivo", descripcion: "Actas de concejo, transparencia, trámites y contrataciones.", ejemplo: "Hasta 4 MB · PDF, DOC, XLS · Súbalos ya optimizados" },
     ],
     notas: [
-      "Los archivos PDF no son comprimibles por el navegador: si exceden 4 MB, deben optimizarse desde la herramienta de escaneo o dividirse.",
+      "Los PDF no se achican solos: si exceden 4 MB, escanee en calidad estándar o divida el expediente.",
       "Al reemplazar un archivo en cualquier formulario, el sistema elimina automáticamente el archivo anterior para evitar el consumo innecesario de almacenamiento.",
     ],
     erroresComunes: [
       {
-        error: "TAMANO_EXCEDIDO",
-        causa: "El archivo sobrepasa el límite individual configurado para el bucket (2 MB, 3 MB o 4 MB), incluso tras el intento de compresión.",
-        solucion: "Para imágenes: reduzca la resolución a 1600 px de ancho o baje la calidad de exportación JPG. Para PDF: reduzca los DPI de escaneo (150 DPI es ideal para texto legal) o separe el expediente.",
+        error: "Archivo muy pesado",
+        causa: "El archivo supera el tamaño máximo (2, 3 o 4 MB según el tipo de archivo).",
+        solucion: "Para fotos: expórtelas en menor calidad o tamaño. Para PDF: escanee en calidad estándar o divida el expediente.",
       },
       {
-        error: "CUOTA_LLENA",
-        causa: "El almacenamiento total del portal alcanzó el límite máximo de 200 MB.",
-        solucion: "Diríjase al módulo correspondiente y elimine registros o fotografías antiguas que ya no se utilicen, o solicite a soporte una ampliación de capacidad.",
+        error: "Sin espacio en el portal",
+        causa: "El espacio total del portal alcanzó su tope de 200 MB.",
+        solucion: "Avise al encargado de sistemas para liberar espacio.",
       },
       {
-        error: "TIPO_NO_PERMITIDO",
+        error: "Formato no permitido",
         causa: "Se intentó subir un formato no admitido (ejemplo: un archivo .exe o .zip en un campo de PDF).",
         solucion: "Convierta el archivo al formato autorizado especificado en la etiqueta del campo.",
       },

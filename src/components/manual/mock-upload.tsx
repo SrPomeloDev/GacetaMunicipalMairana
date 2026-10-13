@@ -38,7 +38,7 @@ export function MockUpload({
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/50 pb-3">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-foreground">
-            Recreación del Componente FileUpload
+            Cómo se ve la carga de archivos
           </span>
           <Badge variant="soft-warning">Demostración</Badge>
         </div>
@@ -98,7 +98,7 @@ export function MockUpload({
               <span>PDF oficial · 2.1 MB</span>
               <span>·</span>
               <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-                Verificado en servidor
+                Archivo guardado
               </span>
             </div>
           </div>
@@ -126,7 +126,7 @@ export function MockUpload({
             />
           </div>
           <span className="text-xs text-muted-foreground">
-            Optimizando y transfiriendo al bucket seguro…
+            Optimizando y guardando…
           </span>
         </div>
       )}
@@ -164,7 +164,7 @@ export function MockUpload({
               )}
               onClick={() => setErrorActual("TAMANO_EXCEDIDO")}
             >
-              Simular TAMANO_EXCEDIDO
+              Archivo muy pesado
             </button>
             <button
               type="button"
@@ -174,7 +174,7 @@ export function MockUpload({
               )}
               onClick={() => setErrorActual("CUOTA_LLENA")}
             >
-              Simular CUOTA_LLENA
+              Sin espacio
             </button>
           </div>
 
@@ -188,8 +188,8 @@ export function MockUpload({
               </p>
               <p className="text-yellow-700/90 dark:text-yellow-300/90 text-xs leading-relaxed">
                 {errorActual === "TAMANO_EXCEDIDO"
-                  ? "Los documentos PDF no se comprimen automáticamente en el navegador. Reduzca la resolución de escaneo a 150 DPI o separe el archivo antes de subirlo."
-                  : "El portal alcanzó su cuota de 200 MB de almacenamiento global. Elimine publicaciones o fotografías antiguas desde su respectivo módulo."}
+                  ? "Los documentos PDF no se achican solos. Escanee en calidad estándar o divida el archivo antes de subirlo."
+                  : "El portal se quedó sin espacio. Avise al encargado de sistemas para liberar lugar."}
               </p>
             </div>
           </div>
@@ -197,7 +197,7 @@ export function MockUpload({
       )}
 
       <p className="text-xs text-muted-foreground">
-        Formato institucional: los archivos subidos quedan resguardados bajo políticas de acceso seguro de Supabase Storage.
+        El portal guarda sus archivos de forma segura y los optimiza cuando es posible.
       </p>
     </div>
   )

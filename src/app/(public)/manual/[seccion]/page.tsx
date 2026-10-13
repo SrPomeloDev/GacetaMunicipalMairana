@@ -120,10 +120,10 @@ export default async function ManualSeccionPage({
           <section className="space-y-6">
             <div className="space-y-2">
               <h2 className="font-serif text-xl font-bold text-foreground">
-                1. Tabla Técnica de Buckets y Cuotas
+                1. Qué archivo usar en cada caso
               </h2>
               <p className="text-xs text-muted-foreground">
-                Límites configurados en el sistema (src/lib/storage-limits.ts). Supabase Storage aplica estas restricciones tanto en cliente como en servidor.
+                Tamaños máximos y formatos recomendados para fotos y documentos del portal.
               </p>
             </div>
 
@@ -131,10 +131,10 @@ export default async function ManualSeccionPage({
 
             <div className="space-y-2 pt-4">
               <h2 className="font-serif text-xl font-bold text-foreground">
-                2. Recreación del Componente FileUpload
+                2. Cómo se ve la carga de archivos
               </h2>
               <p className="text-xs text-muted-foreground">
-                Comportamiento en sus 3 estados: En Reposo, Subiendo (con barra de progreso) y Cargado (con previsualización y eliminación).
+                Pruebe los 3 momentos: en reposo, subiendo (con barra de progreso) y con archivo guardado. También puede simular los avisos más comunes.
               </p>
             </div>
 

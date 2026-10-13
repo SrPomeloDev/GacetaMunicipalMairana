@@ -90,7 +90,7 @@ export default function Header({ config }: { config?: HeaderConfig }) {
   }, [mobileOpen])
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50">
+    <header className="fixed top-0 left-0 right-0 z-50 print:hidden">
       <div className="hidden border-b border-primary/10 bg-[linear-gradient(to_right,color-mix(in_oklab,var(--primary)_8%,transparent),transparent_40%,color-mix(in_oklab,var(--primary)_8%,transparent))] text-muted-foreground sm:block">
         <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 text-[11px] sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 font-medium">

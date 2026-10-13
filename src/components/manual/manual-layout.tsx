@@ -64,9 +64,10 @@ export function ManualLayout({ children, seccionActivaId }: ManualLayoutProps) {
               size="sm"
               onClick={imprimirManual}
               className="gap-1.5 text-xs"
+              title="Descargar el capítulo en PDF"
             >
               <Printer className="h-4 w-4" />
-              <span className="hidden sm:inline">Imprimir / PDF</span>
+              <span>Descargar PDF</span>
             </Button>
             <Link
               href="/admin/login"

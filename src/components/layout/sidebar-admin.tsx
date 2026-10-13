@@ -177,6 +177,11 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
       </nav>
 
       <div className="shrink-0 border-t border-sidebar-border p-2.5">
+        {!collapsed && (
+          <p className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground animate-in fade-in duration-300">
+            Ayuda
+          </p>
+        )}
         <Link
           href="/manual"
           target="_blank"

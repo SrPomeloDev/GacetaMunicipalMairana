@@ -189,6 +189,21 @@ export default function ManualIndicePage() {
           )}
         </section>
 
+        {/* Descargar el manual en PDF */}
+        <section className="rounded-xl border border-border/70 bg-card p-6 shadow-sm">
+          <div className="flex items-center gap-2">
+            <FileCheck className="h-5 w-5 text-primary" />
+            <h3 className="font-serif text-lg font-bold text-foreground">
+              Descargar el manual en PDF
+            </h3>
+          </div>
+          <ol className="mt-3 space-y-2 text-sm text-muted-foreground">
+            <li className="flex gap-2"><span className="font-bold text-primary">1.</span> Abra el capítulo que necesite desde el índice de abajo.</li>
+            <li className="flex gap-2"><span className="font-bold text-primary">2.</span> Pulse el botón <strong className="text-foreground">Descargar PDF</strong> (arriba a la derecha).</li>
+            <li className="flex gap-2"><span className="font-bold text-primary">3.</span> En el diálogo de impresión elija destino <strong className="text-foreground">Guardar como PDF</strong> y guarde.</li>
+          </ol>
+        </section>
+
         {/* Acceso Rápido a Almacenamiento */}
         <section className="rounded-xl border border-primary/20 bg-primary/5 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">

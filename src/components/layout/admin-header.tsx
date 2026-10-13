@@ -11,6 +11,7 @@ import { useAccessibility } from "@/components/accesibilidad/accessibility-provi
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 import { Bell, ChevronRight, ExternalLink, Menu, Sun, Moon, CaseSensitive } from "lucide-react"
+import { Headset } from "@/lib/icons"
 
 const breadcrumbLabels: Record<string, string> = {
   dashboard: "Panel de Control",
@@ -121,6 +122,16 @@ export default function AdminHeader({ onMenuToggle }: { onMenuToggle?: () => voi
         >
           <CaseSensitive className="h-5 w-5" />
         </Button>
+        <Link
+          href="/manual"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Manual del administrador"
+          title="Manual del administrador"
+          className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "text-muted-foreground hover:text-primary")}
+        >
+          <Headset className="h-5 w-5" />
+        </Link>
         <Link
           href="/"
           target="_blank"

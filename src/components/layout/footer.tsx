@@ -24,7 +24,7 @@ export default async function Footer({ config }: { config: Pick<Configuracion, "
   const waLink = whatsappUrl(config?.whatsapp)
 
   return (
-    <footer className="relative overflow-hidden border-t border-border bg-card text-muted-foreground">
+    <footer className="relative overflow-hidden border-t border-border bg-card text-muted-foreground print:hidden">
       <div className="h-1 w-full bg-gradient-to-r from-primary via-amber-500 to-primary" />
 
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">

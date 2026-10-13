@@ -50,6 +50,10 @@ export default function NewsletterForm() {
             {status === "loading" ? <CircleNotch className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
             Suscribirme
           </Button>
+          <p className="text-[11px] text-muted-foreground">
+            Al suscribirte aceptas el{" "}
+            <a href="/privacidad" className="underline-offset-4 hover:text-primary hover:underline">Aviso de Privacidad</a>.
+          </p>
           {status === "error" && <p className="text-xs text-destructive">{message}</p>}
         </form>
       )}

@@ -167,6 +167,12 @@ export default function ContactoForm() {
               {sending ? <CircleNotch className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               {sending ? "Enviando..." : esDenuncia ? (modoAnonimo ? "Enviar denuncia anónima" : "Enviar denuncia") : "Enviar Mensaje"}
             </Button>
+            <p className="text-center text-xs text-muted-foreground">
+              Al enviar aceptas los{" "}
+              <a href="/terminos" className="underline-offset-4 hover:text-primary hover:underline">Términos</a>
+              {" "}y el{" "}
+              <a href="/privacidad" className="underline-offset-4 hover:text-primary hover:underline">Aviso de Privacidad</a>.
+            </p>
             {error && <p className="text-sm text-destructive">{error}</p>}
           </form>
         )}

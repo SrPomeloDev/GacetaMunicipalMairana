@@ -225,6 +225,13 @@ function LoginContent() {
               <span>Acceso restringido al personal autorizado del G.A.M. Mairana</span>
             )}
           </div>
+
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            Al ingresar aceptas los{" "}
+            <Link href="/terminos" className="underline-offset-4 hover:text-primary hover:underline">Términos</Link>
+            {" "}y el{" "}
+            <Link href="/privacidad" className="underline-offset-4 hover:text-primary hover:underline">Aviso de Privacidad</Link>.
+          </p>
         </div>
       </div>
     </div>

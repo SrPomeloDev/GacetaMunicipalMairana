@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import {
   Home, ScrollText, Newspaper, Users, ShieldCheck, ClipboardList,
   Images, Gavel, Landmark, Building2, Mail, Bot, Headset, ArrowRight, UserGear,
+  BookOpen,
 } from "@/lib/icons"
 
 const GUIA = [
@@ -19,6 +20,7 @@ const GUIA = [
   { href: "/organo-ejecutivo", titulo: "Órgano Ejecutivo", desc: "Alcalde, secretarías y direcciones.", Icon: Building2 },
   { href: "/contacto", titulo: "Contacto", desc: "Escribinos o dejá una denuncia (puede ser anónima).", Icon: Mail },
   { href: "/asistente", titulo: "Asistente virtual", desc: "Preguntale por normativa, trámites y transparencia.", Icon: Bot },
+  { href: "/manual", titulo: "Manual del Administrador", desc: "Guía completa de los 17 módulos, almacenamiento y roles.", Icon: BookOpen },
 ]
 
 const FAQS = [

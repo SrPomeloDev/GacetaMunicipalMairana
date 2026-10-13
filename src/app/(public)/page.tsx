@@ -139,7 +139,7 @@ export default async function HomePage() {
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid items-center gap-12 lg:grid-cols-2">
-            <div className="space-y-7 lg:col-span-2 lg:mx-auto lg:max-w-3xl lg:text-center">
+            <div className="space-y-7 text-center lg:col-span-2 lg:mx-auto lg:max-w-3xl">
               <Reveal>
                 <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-primary/25 bg-card/90 px-4 py-2 text-xs font-semibold text-primary shadow-xs backdrop-blur-md">
                   <Image src="/images/mairana-bandera.svg" alt="Bandera de Mairana" width={24} height={16} unoptimized className="h-4 w-6 rounded-[3px] object-cover" />
@@ -168,7 +168,7 @@ export default async function HomePage() {
               </Reveal>
 
               <Reveal>
-                <div className="flex flex-wrap gap-3 lg:justify-center">
+                <div className="flex flex-wrap justify-center gap-3">
                   <Link href="/gaceta">
                     <Button size="lg" className="gap-2 font-bold shadow-sm shadow-primary/25">
                       <ScrollText className="h-4 w-4" />

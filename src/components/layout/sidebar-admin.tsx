@@ -14,6 +14,7 @@ import { canView } from "@/hooks/use-current-user"
 import {
   PanelLeftClose, PanelLeft, LogOut, X, Code2, ExternalLink
 } from "lucide-react"
+import { BookOpen } from "@/lib/icons"
 import { AdminNavIcon } from "@/components/admin/admin-nav-icon"
 
 const SIDEBAR_KEY = "gaceta-sidebar-collapsed"
@@ -176,6 +177,23 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
       </nav>
 
       <div className="shrink-0 border-t border-sidebar-border p-2.5">
+        <Link
+          href="/manual"
+          target="_blank"
+          rel="noreferrer"
+          onClick={onClose}
+          title={collapsed ? "Manual del administrador" : undefined}
+          className={cn(
+            "group flex items-center gap-3 overflow-hidden rounded-xl border border-primary/25 bg-primary/10 px-3 py-2.5 text-sm font-medium transition-all",
+            collapsed && "justify-center px-2",
+            "text-sidebar-foreground hover:bg-primary hover:text-primary-foreground"
+          )}
+        >
+          <span className="shrink-0 text-primary transition-all group-hover:text-primary-foreground">
+            <BookOpen className="h-5 w-5" />
+          </span>
+          {!collapsed && <span className="truncate whitespace-nowrap animate-in fade-in duration-300">Manual del administrador</span>}
+        </Link>
         <Link
           href="/"
           target="_blank"

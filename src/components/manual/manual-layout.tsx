@@ -42,8 +42,8 @@ export function ManualLayout({ children, seccionActivaId }: ManualLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Cabecera del Manual */}
-      <header className="border-b border-border/80 bg-card/60 backdrop-blur-md sticky top-0 z-20 print:static print:bg-white print:border-b">
+      {/* Cabecera del Manual (estática: evita superposición con el header global fijo) */}
+      <header className="border-b border-border/80 bg-card/60 print:static print:bg-white print:border-b">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
             <Link
@@ -82,9 +82,44 @@ export function ManualLayout({ children, seccionActivaId }: ManualLayoutProps) {
       {/* Contenedor con Sidebar y Contenido */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 print:p-0">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 print:block">
-          {/* Sidebar de Navegación Documental */}
-          <aside className="lg:col-span-3 print:hidden">
-            <div className="sticky top-20 space-y-4 rounded-xl border border-border/70 bg-card p-4 shadow-sm">
+          {/* Índice colapsable solo en móvil */}
+          <details className="lg:hidden print:hidden group rounded-xl border border-border/70 bg-card shadow-sm">
+            <summary className="flex cursor-pointer list-none items-center justify-between p-4 text-sm font-semibold text-foreground">
+              <span className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4 text-primary" />
+                Índice de módulos (17)
+              </span>
+              <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
+            </summary>
+            <nav className="max-h-80 space-y-1 overflow-y-auto border-t border-border/60 p-3">
+              {seccionesFiltradas.map((s, idx) => {
+                const href = `/manual/${s.id}`
+                const activa = seccionActivaId === s.id || pathname === href
+                return (
+                  <Link
+                    key={s.id}
+                    href={href}
+                    onClick={(e) => (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open")}
+                    className={cn(
+                      "flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
+                      activa
+                        ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    <span className="text-[10px] opacity-70">
+                      {(idx + 1).toString().padStart(2, "0")}.
+                    </span>
+                    <span className="truncate">{s.titulo}</span>
+                  </Link>
+                )
+              })}
+            </nav>
+          </details>
+
+          {/* Sidebar de Navegación Documental (desktop) */}
+          <aside className="hidden lg:col-span-2 lg:block print:hidden">
+            <div className="z-10 space-y-3 rounded-xl border border-border/70 bg-card p-3 shadow-sm lg:sticky lg:top-[124px] xl:top-[128px]">
               <div className="flex items-center justify-between border-b border-border/60 pb-3">
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   Índice de Módulos (17)
@@ -108,7 +143,7 @@ export function ManualLayout({ children, seccionActivaId }: ManualLayoutProps) {
                 />
               </div>
 
-              <nav className="max-h-[calc(100vh-280px)] space-y-1 overflow-y-auto pr-1">
+              <nav className="max-h-[calc(100vh-320px)] space-y-1 overflow-y-auto pr-1">
                 {seccionesFiltradas.map((s, idx) => {
                   const href = `/manual/${s.id}`
                   const activa = seccionActivaId === s.id || pathname === href
@@ -141,15 +176,11 @@ export function ManualLayout({ children, seccionActivaId }: ManualLayoutProps) {
                   )
                 })}
               </nav>
-
-              <div className="border-t border-border/60 pt-3 text-[11px] text-muted-foreground">
-                <p>Manual oficial para el personal del Gobierno Autónomo Municipal de Mairana.</p>
-              </div>
             </div>
           </aside>
 
           {/* Área Principal de Contenido Documental */}
-          <main className="min-w-0 lg:col-span-9 print:w-full">
+          <main className="min-w-0 lg:col-span-10 print:w-full">
             {children}
           </main>
         </div>

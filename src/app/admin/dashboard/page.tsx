@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { cn, formatDate } from "@/lib/utils"
-import { FileText, Newspaper, Users, ArrowRight, PlusCircle, BarChart3, Eye, Image as ImageIcon, Shield, PieChart, Inbox, Gavel, UserX, ClipboardList } from "lucide-react"
+import { FileText, Newspaper, Users, ArrowRight, PlusCircle, BarChart3, Eye, Image as ImageIcon, Shield, PieChart, Inbox, Gavel, UserX, ClipboardList, BookOpen } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -468,6 +468,24 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="min-w-0 space-y-6">
+          <Card className="border-primary/25 bg-primary/5">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+                  <BookOpen className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-medium text-foreground">Manual del administrador</p>
+                  <p className="text-sm text-muted-foreground">Guía paso a paso por módulo</p>
+                </div>
+              </div>
+              <Link href="/manual" target="_blank" rel="noreferrer">
+                <Button className="mt-4 w-full">
+                  Abrir manual
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
           {visibleQuickActions.length > 0 && (
           <Card>
             <CardHeader>

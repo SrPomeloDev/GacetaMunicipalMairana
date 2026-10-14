@@ -237,6 +237,26 @@ export const SECCIONES_MANUAL: SeccionManualMeta[] = [
   },
 ]
 
+export const AUDIENCIA_POR_MODULO: Record<string, string> = {
+  acceso: "Todos los funcionarios con cuenta: cada uno entra con su correo y contraseña.",
+  dashboard: "Todos (seguimiento diario) + Alcalde y directores (visión ejecutiva).",
+  normativa: "Asesoría legal + Secretaría del Concejo + editores autorizados.",
+  noticias: "Comunicación y prensa + editores.",
+  autoridades: "Recursos humanos / administración + editores.",
+  dependencias: "Administración + planificación.",
+  categorias: "Administradores y editores que clasifican contenido.",
+  concejo: "Secretaría del Concejo Municipal.",
+  transparencia: "Planificación + responsable de transparencia (Ley 341).",
+  tramites: "Cada unidad dueña de sus trámites + ventanilla de atención.",
+  galeria: "Comunicación y prensa.",
+  contrataciones: "Adquisiciones / contrataciones (SICOES) + asesoría legal.",
+  suscripciones: "Comunicación (boletín).",
+  mensajes: "Ventanilla y atención ciudadana (bandeja y respuestas).",
+  usuarios: "Solo administradores: cuentas, roles y permisos.",
+  configuracion: "Solo administradores: municipio, alcalde, redes y apariencia (incluye perfil propio).",
+  archivos: "Todos los que suben archivos: fotos y documentos por módulo.",
+}
+
 export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
   acceso: {
     meta: SECCIONES_MANUAL[0],

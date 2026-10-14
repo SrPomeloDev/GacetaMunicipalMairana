@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ManualLayout } from "@/components/manual/manual-layout"
-import { CONTENIDO_MANUAL, SECCIONES_MANUAL } from "@/lib/manual-contenido"
+import { CONTENIDO_MANUAL, SECCIONES_MANUAL, AUDIENCIA_POR_MODULO } from "@/lib/manual-contenido"
 import { Paso } from "@/components/manual/paso"
 import { MockForm } from "@/components/manual/mock-form"
 import { MockUpload } from "@/components/manual/mock-upload"
@@ -94,6 +94,16 @@ export default async function ManualSeccionPage({
             {seccion.proposito}
           </p>
         </header>
+
+        {/* A quién va dirigido */}
+        {AUDIENCIA_POR_MODULO[seccionId] && (
+          <section className="rounded-xl border-l-4 border-l-primary border border-border/70 bg-primary/5 p-5 shadow-sm">
+            <p className="text-sm text-foreground">
+              <span className="font-bold">Dirigido a: </span>
+              {AUDIENCIA_POR_MODULO[seccionId]}
+            </p>
+          </section>
+        )}
 
         {/* Requisitos Previos (si aplica) */}
         {seccion.requisitos && seccion.requisitos.length > 0 && (

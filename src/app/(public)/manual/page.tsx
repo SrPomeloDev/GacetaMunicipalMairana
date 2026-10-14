@@ -88,12 +88,15 @@ export default function ManualIndicePage() {
               <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Buscar por palabra clave (ej. decretos, storage, resoluciones, contrataciones)..."
+                placeholder="Buscar por palabra clave (ej. decretos, resoluciones, contrataciones)..."
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 className="pl-9 h-11 text-sm bg-card"
               />
             </div>
+            <p className="text-xs text-muted-foreground print:hidden sm:ml-3">
+              Quite el filtro para imprimir el índice completo
+            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-1.5">

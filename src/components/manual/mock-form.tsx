@@ -28,6 +28,8 @@ export function MockForm({ titulo, subtitulo, campos, botonTexto = "Guardar Camb
   })
 
   return (
+    <>
+    <div className="print:hidden">
     <Card className="border-border/80 shadow-card">
       <CardHeader>
         <div className="flex items-center justify-between">
@@ -131,5 +133,36 @@ export function MockForm({ titulo, subtitulo, campos, botonTexto = "Guardar Camb
         </Button>
       </CardFooter>
     </Card>
+    </div>
+
+    <div className="hidden print:block space-y-3 rounded-xl border border-border/80 p-5">
+      <div>
+        <p className="font-serif text-lg font-bold text-foreground">{titulo}</p>
+        <p className="text-sm text-muted-foreground">{subtitulo}</p>
+      </div>
+      <dl className="space-y-2">
+        {campos.map((campo) => {
+          let valor: string
+          if (campo.type === "checkbox") {
+            valor = campo.value ? "Sí (marcado)" : "No marcado"
+          } else if (campo.type === "select") {
+            const opcion = (campo.options ?? []).find((o) => o.value === campo.value)
+            valor = opcion ? opcion.label : String(campo.value ?? "")
+          } else if (campo.type === "file-stub") {
+            valor = `${String(campo.value ?? "archivo.pdf")} (documento cargado)`
+          } else {
+            valor = String(campo.value ?? "")
+          }
+          return (
+            <div key={campo.name} className="rounded-lg border border-border p-2.5">
+              <dt className="text-xs font-semibold text-foreground">{campo.label}</dt>
+              <dd className="text-sm text-muted-foreground">{valor || "(vacío)"}</dd>
+            </div>
+          )
+        })}
+      </dl>
+      <p className="text-xs text-muted-foreground">Al terminar, pulse el botón «{botonTexto}».</p>
+    </div>
+    </>
   )
 }

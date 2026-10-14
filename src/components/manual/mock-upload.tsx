@@ -34,6 +34,8 @@ export function MockUpload({
   }, [estado])
 
   return (
+    <>
+    <div className="print:hidden">
     <div className="space-y-4 rounded-xl border border-border/80 bg-card p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/50 pb-3">
         <div className="flex items-center gap-2">
@@ -200,5 +202,65 @@ export function MockUpload({
         El portal guarda sus archivos de forma segura y los optimiza cuando es posible.
       </p>
     </div>
+    </div>
+
+    <div className="hidden print:block space-y-4 rounded-xl border border-border/80 bg-card p-5">
+      <p className="text-sm font-semibold text-foreground">Cómo se ve la carga de archivos (los cuatro momentos)</p>
+
+      <div className="space-y-1.5">
+        <p className="text-xs font-semibold text-foreground">1. En reposo: zona de carga</p>
+        <div className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border px-4 py-6 text-center">
+          <Upload className="h-6 w-6 text-muted-foreground" />
+          <span className="text-sm font-medium text-foreground">Haga clic para seleccionar o arrastre un documento</span>
+          <span className="text-xs text-muted-foreground">PDF · máx 4 MB · Documento oficial escaneado</span>
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <p className="text-xs font-semibold text-foreground">2. Subiendo el archivo</p>
+        <div className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/40 px-4 py-6 text-center">
+          <Loader2 className="h-6 w-6 text-primary" />
+          <span className="text-sm font-medium text-foreground">Subiendo archivo… 68%</span>
+          <div className="h-1.5 w-48 overflow-hidden rounded-full bg-muted">
+            <div className="h-full rounded-full bg-primary" style={{ width: "68%" }} />
+          </div>
+          <span className="text-xs text-muted-foreground">Optimizando y guardando…</span>
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <p className="text-xs font-semibold text-foreground">3. Archivo cargado</p>
+        <div className="flex items-center gap-3 rounded-xl border border-border p-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-border/60">
+            <FileText className="h-6 w-6 text-primary" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium text-foreground">EJ-decreto-edil-014-2026.pdf</p>
+            <p className="text-xs text-muted-foreground">PDF oficial · 2.1 MB · Archivo guardado</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <p className="text-xs font-semibold text-foreground">4. Avisos de error y qué hacer</p>
+        <div className="space-y-2">
+          <div className="flex items-start gap-3 rounded-xl border border-yellow-500/30 px-4 py-3 text-sm">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-yellow-600" />
+            <div className="space-y-1">
+              <p className="font-medium text-yellow-800">El archivo pesa 6.4 MB y el máximo es 4 MB</p>
+              <p className="text-xs leading-relaxed text-yellow-700">Los documentos PDF no se achican solos. Escanee en calidad estándar o divida el archivo antes de subirlo.</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3 rounded-xl border border-yellow-500/30 px-4 py-3 text-sm">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-yellow-600" />
+            <div className="space-y-1">
+              <p className="font-medium text-yellow-800">El portal se quedó sin espacio de almacenamiento</p>
+              <p className="text-xs leading-relaxed text-yellow-700">El portal se quedó sin espacio. Avise al encargado de sistemas para liberar lugar.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </>
   )
 }

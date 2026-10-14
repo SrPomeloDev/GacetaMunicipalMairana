@@ -371,6 +371,18 @@ export default async function HomePage() {
           </Reveal>
         </div>
       </section>
+
+      {/* Botón flotante de capacitación para funcionarios */}
+      <Link
+        href="/manual"
+        aria-label="Ayuda al funcionario: Manual del administrador"
+        title="Ayuda al funcionario"
+        className="fixed bottom-5 left-5 z-40 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 transition-transform hover:scale-105 active:scale-95 print:hidden"
+      >
+        <BookOpen className="h-5 w-5" />
+        <span className="hidden sm:inline">Ayuda al funcionario</span>
+        <span className="sm:hidden">Ayuda</span>
+      </Link>
     </>
   )
 }

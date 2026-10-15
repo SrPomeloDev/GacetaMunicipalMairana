@@ -237,8 +237,7 @@ export const SECCIONES_MANUAL: SeccionManualMeta[] = [
   },
 ]
 
-export const AUDIENCIA_POR_MODULO: Record<string, string> = {
-  acceso: "Todos los funcionarios con cuenta: cada uno entra con su correo y contraseña.",
+export const AUDIENCIA_POR_MODULO: Record<string, string> = {  acceso: "Todos los funcionarios con cuenta: cada uno entra con su correo y contraseña.",
   dashboard: "Todos (seguimiento diario) + Alcalde y directores (visión ejecutiva).",
   normativa: "Asesoría legal + Secretaría del Concejo + editores autorizados.",
   noticias: "Comunicación y prensa + editores.",
@@ -255,6 +254,46 @@ export const AUDIENCIA_POR_MODULO: Record<string, string> = {
   usuarios: "Solo administradores: cuentas, roles y permisos.",
   configuracion: "Solo administradores: municipio, alcalde, redes y apariencia (incluye perfil propio).",
   archivos: "Todos los que suben archivos: fotos y documentos por módulo.",
+}
+
+const MODULOS_NOMBRE_IMPRESION: Record<string, string> = {
+  login: "la pantalla de ingreso",
+  dashboard: "el Panel de Control",
+  normativa: "el módulo Normativa",
+  noticias: "el módulo Noticias",
+  autoridades: "el módulo Autoridades",
+  dependencias: "el módulo Dependencias",
+  categorias: "el módulo Categorías",
+  concejo: "el módulo Concejo",
+  transparencia: "el módulo Transparencia",
+  tramites: "el módulo Trámites",
+  galeria: "el módulo Galería",
+  contrataciones: "el módulo Contrataciones",
+  suscripciones: "el módulo Suscripciones",
+  mensajes: "el módulo Mensajes",
+  usuarios: "el módulo Usuarios",
+  configuracion: "el módulo Configuración",
+  perfil: "Mi Perfil",
+}
+
+export function textoParaImpresion(texto: string): string {
+  return texto
+    .replace(/\/admin\/concejo\/sesiones\/nueva/g, "el módulo Concejo")
+    .replace(/\/admin\/([a-z-]+)(\/[a-z-]+)?/g, (_m, mod: string) => MODULOS_NOMBRE_IMPRESION[mod] || "el panel")
+    .replace(/https?:\/\/[^\s)]+/g, "el enlace correspondiente")
+}
+
+export function ejemploParaImpresion(nombre: string, ejemplo: string): string {
+  const e = ejemplo.trim()
+  if (e === "true") return "Sí"
+  if (e === "false") return "No"
+  if (/^ej-[a-z0-9-]+$/.test(e)) return "Se genera solo, no se llena"
+  if (/^EJ-[\w-]+\.(pdf|webp|jpg|jpeg|png|doc|docx|xls|xlsx)$/i.test(e)) {
+    return /\.(jpg|jpeg|png|webp)$/i.test(e) ? "Foto de ejemplo" : "Documento de ejemplo"
+  }
+  if (/^https?:\/\//.test(e)) return "Enlace de ejemplo"
+  if (/slug/i.test(nombre)) return "Se crea solo a partir del título, no hay que llenarlo."
+  return ejemplo
 }
 
 export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {

@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { ManualLayout } from "@/components/manual/manual-layout"
-import { SECCIONES_MANUAL } from "@/lib/manual-contenido"
+import { SECCIONES_MANUAL, CONTENIDO_MANUAL, AUDIENCIA_POR_MODULO, textoParaImpresion, ejemploParaImpresion } from "@/lib/manual-contenido"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -15,6 +15,7 @@ import {
   Shield,
   FileCheck,
   FolderOpen,
+  Printer,
 } from "lucide-react"
 
 export default function ManualIndicePage() {
@@ -46,7 +47,7 @@ export default function ManualIndicePage() {
     <ManualLayout>
       <div className="space-y-8">
         {/* Banner de Presentación Documental */}
-        <section className="rounded-2xl border border-border/80 bg-gradient-to-br from-card via-card to-muted/40 p-6 sm:p-8 shadow-sm">
+        <section className="rounded-2xl border border-border/80 bg-gradient-to-br from-card via-card to-muted/40 p-6 sm:p-8 shadow-sm print:hidden">
           <div className="max-w-3xl space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
               <BookOpen className="h-3.5 w-3.5" />
@@ -61,6 +62,13 @@ export default function ManualIndicePage() {
               Guía técnica y operativa para la administración de la Gaceta Municipal de Mairana.
               Consulte procedimientos paso a paso, especificaciones de campos, capacidades de almacenamiento y resolución de incidencias.
             </p>
+
+            <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-muted-foreground">
+              <Button onClick={() => window.print()} className="gap-1.5">
+                <Printer className="h-4 w-4" />
+                Imprimir manual completo
+              </Button>
+            </div>
 
             <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5 font-medium text-foreground">
@@ -82,7 +90,7 @@ export default function ManualIndicePage() {
         </section>
 
         {/* Buscador Rápido y Filtro por Categoría */}
-        <section className="space-y-4">
+        <section className="space-y-4 print:hidden">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -118,7 +126,7 @@ export default function ManualIndicePage() {
         </section>
 
         {/* Cuadrícula de Capítulos */}
-        <section className="space-y-4">
+        <section className="space-y-4 print:hidden">
           <div className="flex items-center justify-between">
             <h2 className="font-serif text-xl font-bold text-foreground">
               Capítulos y Módulos del Sistema
@@ -193,7 +201,7 @@ export default function ManualIndicePage() {
         </section>
 
         {/* Descargar el manual en PDF */}
-        <section className="rounded-xl border border-border/70 bg-card p-6 shadow-sm">
+        <section className="rounded-xl border border-border/70 bg-card p-6 shadow-sm print:hidden">
           <div className="flex items-center gap-2">
             <FileCheck className="h-5 w-5 text-primary" />
             <h3 className="font-serif text-lg font-bold text-foreground">
@@ -208,7 +216,7 @@ export default function ManualIndicePage() {
         </section>
 
         {/* Acceso Rápido a Almacenamiento */}
-        <section className="rounded-xl border border-primary/20 bg-primary/5 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <section className="rounded-xl border border-primary/20 bg-primary/5 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
           <div className="space-y-1">
             <h3 className="font-serif text-lg font-bold text-foreground">
               Capítulo especial: cómo subir archivos
@@ -225,6 +233,78 @@ export default function ManualIndicePage() {
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </section>
+
+        {/* Versión completa solo para impresión */}
+        <div className="hidden print:block">
+          <h1 className="text-2xl font-bold">Manual del Administrador — Gaceta Municipal de Mairana</h1>
+          <p className="text-sm">Los 17 módulos con su contenido completo · Octubre de 2026</p>
+          {SECCIONES_MANUAL.map((s, idx) => {
+            const c = CONTENIDO_MANUAL[s.id]
+            if (!c) return null
+            const pasos = c.pasos || []
+            const campos = c.campos || []
+            const errores = c.erroresComunes || []
+            const notas = c.notas || []
+            return (
+              <section key={s.id} className="mt-6">
+                <h2 className="text-xl font-bold">
+                  Capítulo {(idx + 1).toString().padStart(2, "0")}: {s.titulo}
+                </h2>
+                <p className="text-sm font-medium">{s.subtitulo}</p>
+                {AUDIENCIA_POR_MODULO[s.id] && (
+                  <p className="mt-1 text-sm"><strong>Dirigido a: </strong>{AUDIENCIA_POR_MODULO[s.id]}</p>
+                )}
+                <p className="mt-1 text-sm">{textoParaImpresion(c.proposito)}</p>
+                {(pasos).length > 0 && (
+                  <>
+                    <h3 className="mt-3 text-base font-bold">Paso a paso</h3>
+                    <ol className="list-decimal pl-5 text-sm">
+                      {pasos.map((p) => (
+                        <li key={p.numero} className="mt-1">
+                          <strong>{textoParaImpresion(p.titulo)}:</strong> {textoParaImpresion(p.descripcion)}
+                        </li>
+                      ))}
+                    </ol>
+                  </>
+                )}
+                {(campos).length > 0 && (
+                  <>
+                    <h3 className="mt-3 text-base font-bold">Campos principales</h3>
+                    <ul className="list-disc pl-5 text-sm">
+                      {campos.map((f) => (
+                        <li key={f.nombre} className="mt-1">
+                          <strong>{f.nombre}:</strong> {textoParaImpresion(f.descripcion)} <em>Ej.: {ejemploParaImpresion(f.nombre, f.ejemplo)}</em>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                {(errores).length > 0 && (
+                  <>
+                    <h3 className="mt-3 text-base font-bold">Avisos comunes y solución</h3>
+                    <ul className="list-disc pl-5 text-sm">
+                      {errores.map((e) => (
+                        <li key={e.error} className="mt-1">
+                          <strong>{e.error}:</strong> {textoParaImpresion(e.causa)} <strong>Solución:</strong> {textoParaImpresion(e.solucion)}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                {(notas).length > 0 && (
+                  <>
+                    <h3 className="mt-3 text-base font-bold">Notas</h3>
+                    <ul className="list-disc pl-5 text-sm">
+                      {notas.map((n, i) => (
+                        <li key={i} className="mt-1">{textoParaImpresion(n)}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </section>
+            )
+          })}
+        </div>
       </div>
     </ManualLayout>
   )

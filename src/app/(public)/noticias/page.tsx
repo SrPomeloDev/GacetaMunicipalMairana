@@ -142,7 +142,7 @@ export default function NoticiasPage() {
                       sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                       loading={idx === 0 ? "eager" : undefined}
                       fetchPriority={idx === 0 ? "high" : undefined}
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="object-contain transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : item.facebook_url ? (
                     <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[#1877F2]">

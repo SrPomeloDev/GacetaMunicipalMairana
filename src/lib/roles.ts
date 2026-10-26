@@ -99,9 +99,9 @@ export const ROLES: Record<string, RolDef> = {
   publicador: {
     label: "Publicador",
     color: "bg-green-100 text-green-700",
-    descripcion: "Solo puede publicar contenido aprobado.",
+    descripcion: "Carga contenido para revisión; el administrador lo publica.",
     permisos: {
-      normativa: PUBLICAR,
+      normativa: ["crear", "editar"],
       noticias: PUBLICAR,
       autoridades: PUBLICAR,
       transparencia: PUBLICAR,
@@ -140,6 +140,10 @@ export function tienePermiso(permisos: Permisos, modulo: Modulo, accion: Accion)
 
 export function puedeVerModulo(permisos: Permisos, modulo: Modulo): boolean {
   return (permisos[modulo] ?? []).length > 0
+}
+
+export function puedeVerAprobaciones(rol: string | null | undefined): boolean {
+  return rol === "admin"
 }
 
 export function rolLabel(rol: string): string {

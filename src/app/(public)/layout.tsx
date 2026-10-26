@@ -27,7 +27,7 @@ export default async function PublicLayout({ children }: { children: React.React
     <div className="min-h-screen font-sans antialiased overflow-x-clip">
       <PortalConfigProvider fondoUrl={config?.fondo_url || null}>
         <Header config={config} />
-        <main className="min-h-screen pt-16 sm:pt-[100px] xl:pt-[104px]">{children}</main>
+        <main className="min-h-screen pt-16 sm:pt-[100px] xl:pt-[104px] print:pt-0 print:min-h-0">{children}</main>
         <Footer config={config} />
       </PortalConfigProvider>
     </div>

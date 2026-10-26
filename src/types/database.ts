@@ -169,6 +169,10 @@ export interface Database {
         Args: Record<string, never>
         Returns: boolean
       }
+      revisar_normativa: {
+        Args: { p_id: string; p_aprobar: boolean; p_motivo?: string | null }
+        Returns: Normativa
+      }
     }
     Enums: Record<string, never>
   }

@@ -11,6 +11,7 @@ import { Pagination } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge"
 import { ConfirmDialog } from "@/components/admin/confirm-dialog"
 import { useToast } from "@/components/ui/toast"
+import { useCurrentUser } from "@/hooks/use-current-user"
 import { formatDate, getEstadoColor, getEstadoLabel } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { Pencil, Plus, Trash2 } from "lucide-react"
@@ -19,10 +20,16 @@ import type { Normativa } from "@/types"
 
 const PAGE_SIZE = 20
 const ESTADOS = ["vigente", "derogada", "modificada", "suspendida", "abrogada"]
-const LIST_COLUMNS = "id,numero,titulo,categoria_id,estado,fecha_publicacion,publicada"
+const LIST_COLUMNS = "id,numero,titulo,categoria_id,estado,fecha_publicacion,publicada,estado_aprobacion,motivo_rechazo,created_by"
+const APROBACION_BADGES: Record<string, { label: string; className: string }> = {
+  pendiente: { label: "Pendiente", className: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" },
+  aprobado: { label: "Aprobada", className: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300" },
+  rechazado: { label: "Rechazada", className: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300" },
+}
 
 function NormativaListContent() {
   const searchParams = useSearchParams()
+  const { user } = useCurrentUser()
   const [normativas, setNormativas] = useState<Normativa[]>([])
   const [categorias, setCategorias] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
@@ -37,6 +44,10 @@ function NormativaListContent() {
   const [publicadaFilter, setPublicadaFilter] = useState(() =>
     searchParams.get("publicada") === "false" ? "no" : "todas"
   )
+  const [aprobacionFilter, setAprobacionFilter] = useState(() => {
+    const v = searchParams.get("estado_aprobacion")
+    return v === "pendiente" || v === "rechazado" || v === "aprobado" ? v : "todas"
+  })
   const [deleteTarget, setDeleteTarget] = useState<Normativa | null>(null)
   const { addToast } = useToast()
   const supabase = useMemo(() => createClient(), [])
@@ -51,6 +62,7 @@ function NormativaListContent() {
     if (estadoFilter !== "todas") query = query.eq("estado", estadoFilter as Normativa["estado"])
     if (categoriaFilter !== "todas") query = query.eq("categoria_id", categoriaFilter)
     if (publicadaFilter !== "todas") query = query.eq("publicada", publicadaFilter === "si")
+    if (aprobacionFilter !== "todas") query = query.eq("estado_aprobacion", aprobacionFilter as Normativa["estado_aprobacion"])
     query = query.order(sortColumn, { ascending: sortDirection === "asc", nullsFirst: false })
     const from = (page - 1) * PAGE_SIZE
     const { data, error, count } = await query.range(from, from + PAGE_SIZE - 1)
@@ -61,7 +73,7 @@ function NormativaListContent() {
       setTotalCount(count ?? 0)
     }
     setLoading(false)
-  }, [supabase, addToast, page, search, estadoFilter, categoriaFilter, publicadaFilter, sortColumn, sortDirection])
+  }, [supabase, addToast, page, search, estadoFilter, categoriaFilter, publicadaFilter, aprobacionFilter, sortColumn, sortDirection])
 
   const fetchCategorias = useCallback(async () => {
     const { data, error } = await supabase.from("categorias_normativa").select("id,nombre")
@@ -134,18 +146,38 @@ function NormativaListContent() {
       <Badge className={getEstadoColor(val)}>{getEstadoLabel(val)}</Badge>
     )},
     { key: "fecha_publicacion", label: "Fecha", sortable: true, render: (val) => val ? formatDate(val, "short") : "-" },
-    { key: "acciones", label: "Acciones", render: (_val, row) => (
-      <div className="flex gap-1">
-        <Link href={`/admin/normativa/${(row as Normativa).id}`}>
-          <Button variant="outline" size="icon-sm" aria-label="Editar" title="Editar">
-            <Pencil className="h-4 w-4" />
-          </Button>
-        </Link>
-        <Button variant="ghost" size="icon-sm" aria-label="Eliminar" title="Eliminar" className="text-destructive hover:text-destructive" onClick={() => setDeleteTarget(row as Normativa)}>
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
-    )},
+    { key: "estado_aprobacion", label: "Aprobación", render: (val, row) => {
+      const item = APROBACION_BADGES[val as string] ?? APROBACION_BADGES.pendiente
+      const motivo = (row as Normativa).motivo_rechazo
+      return (
+        <div className="space-y-1">
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${item.className}`}>{item.label}</span>
+          {val === "rechazado" && motivo && (
+            <p className="max-w-[220px] truncate text-xs text-muted-foreground" title={motivo}>{motivo}</p>
+          )}
+        </div>
+      )
+    }},
+    { key: "acciones", label: "Acciones", render: (_val, row) => {
+      const n = row as Normativa
+      const puedeEliminar = !user
+        || user.rol === "admin"
+        || (n.created_by === user.id && n.estado_aprobacion !== "aprobado" && !n.publicada)
+      return (
+        <div className="flex gap-1">
+          <Link href={`/admin/normativa/${n.id}`}>
+            <Button variant="outline" size="icon-sm" aria-label="Editar" title="Editar">
+              <Pencil className="h-4 w-4" />
+            </Button>
+          </Link>
+          {puedeEliminar && (
+            <Button variant="ghost" size="icon-sm" aria-label="Eliminar" title="Eliminar" className="text-destructive hover:text-destructive" onClick={() => setDeleteTarget(n)}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      )
+    }},
   ]
 
   return (
@@ -181,6 +213,17 @@ function NormativaListContent() {
               { value: "todas", label: "Todas" },
               { value: "si", label: "Publicadas" },
               { value: "no", label: "No publicadas" },
+            ]}
+          />
+          <Select
+            className="sm:w-44"
+            value={aprobacionFilter}
+            onChange={(e) => { setAprobacionFilter(e.target.value); setPage(1) }}
+            options={[
+              { value: "todas", label: "Toda aprobación" },
+              { value: "pendiente", label: "Pendientes" },
+              { value: "aprobado", label: "Aprobadas" },
+              { value: "rechazado", label: "Rechazadas" },
             ]}
           />
         </div>

@@ -490,7 +490,7 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
       { nombre: "Número", tipo: "Texto", requerido: true, descripcion: "Correlativo formal del instrumento legal.", ejemplo: "EJ-LEY-014/2026" },
       { nombre: "Estado", tipo: "Selector", requerido: true, descripcion: "Situación jurídica de la norma.", ejemplo: "Vigente" },
       { nombre: "Título", tipo: "Texto", requerido: true, descripcion: "Nombre formal de la ley u ordenanza.", ejemplo: "EJ-Ley Municipal de Fomento a la Producción Tabacalera Sostenible" },
-      { nombre: "Slug", tipo: "Texto", requerido: false, descripcion: "Identificador web autogenerado a partir del título.", ejemplo: "ej-ley-fomento-produccion-tabacalera" },
+      { nombre: "Slug", tipo: "Texto", requerido: false, descripcion: "Enlace web generado automáticamente a partir del título.", ejemplo: "ej-ley-fomento-produccion-tabacalera" },
       { nombre: "Categoría", tipo: "Selector", requerido: true, descripcion: "Tipo de instrumento normativo.", ejemplo: "Ley Municipal" },
       { nombre: "Dependencia", tipo: "Selector", requerido: true, descripcion: "Órgano emisor del acto administrativo.", ejemplo: "H. Concejo Municipal" },
       { nombre: "Fecha Aprobación", tipo: "Fecha", requerido: true, descripcion: "Fecha de sanción o aprobación.", ejemplo: "2026-03-15" },
@@ -540,7 +540,8 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
       ],
     },
     notas: [
-      "El buscador público de normativa indexa automáticamente el título, número, resumen y texto completo mediante la función SQL buscar_normativa().",
+      "El buscador público de la Gaceta indexa automáticamente el título, número, resumen y texto completo de cada normativa para facilitar la búsqueda ciudadana.",
+      "Flujo de publicación: el personal editor registra los borradores (quedando en estado Pendiente) y la máxima autoridad (Alcalde / Admin) los revisa y aprueba para su publicación oficial.",
     ],
   },
 
@@ -712,15 +713,15 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
       },
       {
         numero: 3,
-        titulo: "Generar el slug",
-        descripcion: "El sistema genera automáticamente el slug web para los enlaces de filtrado.",
+        titulo: "Identificador de enlace",
+        descripcion: "El sistema genera automáticamente el enlace web a partir del nombre.",
       },
     ],
     campos: [
       { nombre: "Nombre", tipo: "Texto", requerido: true, descripcion: "Etiqueta visible al ciudadano.", ejemplo: "EJ-Medio Ambiente y Recursos Hídricos" },
-      { nombre: "Slug", tipo: "Texto", requerido: false, descripcion: "Ruta URL para el motor de filtros.", ejemplo: "ej-medio-ambiente" },
+      { nombre: "Slug", tipo: "Texto", requerido: false, descripcion: "Enlace web generado automáticamente a partir del nombre.", ejemplo: "ej-medio-ambiente" },
       { nombre: "Tipo", tipo: "Selector", requerido: true, descripcion: "Módulo en el que tendrá efecto.", ejemplo: "normativa" },
-      { nombre: "Color", tipo: "Texto (Color)", requerido: false, descripcion: "Código hexadecimal o identificador de color.", ejemplo: "#00978A" },
+      { nombre: "Color", tipo: "Texto (Color)", requerido: false, descripcion: "Código de color institucional (ej. #00978A).", ejemplo: "#00978A" },
       { nombre: "Orden", tipo: "Numérico", requerido: true, descripcion: "Secuencia en las listas desplegables.", ejemplo: "2" },
     ],
     mockTabla: {
@@ -865,7 +866,7 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
     ],
     campos: [
       { nombre: "Título", tipo: "Texto", requerido: true, descripcion: "Nombre del trámite.", ejemplo: "EJ-Licencia de Funcionamiento de Actividades Económicas" },
-      { nombre: "Slug", tipo: "Texto", requerido: false, descripcion: "Enlace amigable autogenerado.", ejemplo: "ej-licencia-funcionamiento" },
+      { nombre: "Slug", tipo: "Texto", requerido: false, descripcion: "Enlace amigable generado automáticamente a partir del título.", ejemplo: "ej-licencia-funcionamiento" },
       { nombre: "Descripción", tipo: "Texto largo", requerido: true, descripcion: "Procedimiento paso a paso para el vecino.", ejemplo: "EJ-1. Presentar requisitos en ventanilla única. 2. Inspección técnica en 48 hrs..." },
       { nombre: "Requisitos", tipo: "Texto largo", requerido: true, descripcion: "Documentación que el ciudadano debe presentar.", ejemplo: "EJ-Fotocopia de CI, NIT si corresponde, croquis de ubicación y última factura de luz." },
       { nombre: "Dependencia", tipo: "Selector", requerido: true, descripcion: "Unidad municipal responsable.", ejemplo: "Dirección de Recaudaciones" },
@@ -1193,8 +1194,8 @@ export const CONTENIDO_MANUAL: Record<string, ContenidoSeccionManual> = {
       botonTexto: "Guardar Configuración",
     },
     notas: [
-      "El portal público renderiza dinámicamente estos valores sin requerir una recompilación de código.",
-      "El color institucional naranja (#EA580C) está fijado por normativa de marca del portal para garantizar uniformidad.",
+      "El portal público refleja estos cambios de manera inmediata en todo el sitio web municipal.",
+      "El color institucional naranja (#EA580C) está fijado por normativa de identidad visual del municipio para garantizar uniformidad.",
     ],
   },
 

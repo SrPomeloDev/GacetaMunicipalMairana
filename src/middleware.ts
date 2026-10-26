@@ -58,7 +58,7 @@ export async function middleware(request: NextRequest) {
 
   const { data: user } = await supabase
     .from("usuarios")
-    .select("activo, rol")
+    .select("activo, rol, ultimo_acceso")
     .eq("id", authUser.id)
     .single()
 
@@ -67,6 +67,14 @@ export async function middleware(request: NextRequest) {
     const redirectUrl = new URL("/admin/login", request.url)
     redirectUrl.searchParams.set("error", "inactive")
     return isAdminApi ? jsonConCookies(response, { error: "Usuario inactivo" }, 403) : NextResponse.redirect(redirectUrl)
+  }
+
+  const ultimo = user.ultimo_acceso ? new Date(user.ultimo_acceso).getTime() : 0
+  if (!ultimo || Date.now() - ultimo > 10 * 60 * 1000) {
+    await supabase
+      .from("usuarios")
+      .update({ ultimo_acceso: new Date().toISOString() })
+      .eq("id", authUser.id)
   }
 
   return response

@@ -17,47 +17,86 @@ if (!BASE || !KEY) {
   process.exit(1);
 }
 
-const EMAIL = "e2e-admin@gaceta.local";
-const PASSWORD = "E2eAdmin-" + crypto.randomBytes(9).toString("hex");
 const OUT = ".admin-credentials.json";
-const authHeaders = {
+const headers = {
   apikey: KEY,
   Authorization: `Bearer ${KEY}`,
   "Content-Type": "application/json",
 };
 
-(async () => {
-  // 1. Crear usuario en auth.users (el trigger handle_new_user crea la fila en usuarios con el rol de metadata)
+async function listarUsuarios() {
+  const res = await fetch(`${BASE}/auth/v1/admin/users?page=1&per_page=1000`, { headers });
+  const body = await res.json();
+  return body.users || [];
+}
+
+async function upsertUsuario({ email, nombre, rol }) {
+  const password = "E2e-" + crypto.randomBytes(9).toString("hex");
   const res = await fetch(`${BASE}/auth/v1/admin/users`, {
     method: "POST",
-    headers: authHeaders,
+    headers,
     body: JSON.stringify({
-      email: EMAIL,
-      password: PASSWORD,
+      email,
+      password,
       email_confirm: true,
-      user_metadata: { nombre: "E2E Admin", rol: "admin" },
+      user_metadata: { nombre, rol },
     }),
   });
   const body = await res.json();
-  console.log("PROVISION create-user status:", res.status);
-  if (body.code) console.log("PROVISION error:", body.code, body.msg ?? body.message);
-  if (!body.id) {
-    if (body.code === "user_exists") {
-      console.log("PROVISION el usuario ya existe (no puedo recuperar password, regenero en su lugar)");
+  console.log(`PROVISION create-user ${email} status:`, res.status);
+
+  let id = body.id;
+  let creado = true;
+
+  if (!id) {
+    const yaExiste = ["user_exists", "email_exists"].includes(body.code) || res.status === 422;
+    if (!yaExiste) {
+      throw new Error(`no se pudo crear ${email}: ${body.code || ""} ${body.msg || body.message || ""}`);
     }
-    process.exit(1);
+    const existente = (await listarUsuarios()).find((u) => u.email === email);
+    if (!existente) throw new Error(`no se encontró ${email} en auth.users`);
+    id = existente.id;
+    creado = false;
+    const upd = await fetch(`${BASE}/auth/v1/admin/users/${id}`, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify({
+        password,
+        email_confirm: true,
+        user_metadata: { ...(existente.user_metadata || {}), nombre, rol },
+      }),
+    });
+    const updBody = await upd.json();
+    if (!updBody.id) {
+      throw new Error(`no se pudo actualizar ${email}: ${updBody.code || ""} ${updBody.msg || updBody.message || ""}`);
+    }
   }
-  console.log("PROVISION user id:", body.id);
 
-  // 2. Verificar que el trigger insertó la fila en usuarios con rol admin
-  const u = await (
-    await fetch(`${BASE}/rest/v1/usuarios?select=id,email,rol,activo&email=eq.${encodeURIComponent(EMAIL)}`, {
-      headers: authHeaders,
-    })
-  ).json();
-  console.log("PROVISION fila usuarios:", JSON.stringify(u));
+  const patch = await fetch(`${BASE}/rest/v1/usuarios?id=eq.${id}`, {
+    method: "PATCH",
+    headers: { ...headers, Prefer: "return=representation" },
+    body: JSON.stringify({ rol, activo: true, nombre }),
+  });
+  const fila = await patch.json();
+  console.log(`PROVISION fila usuarios ${email}:`, JSON.stringify(fila));
 
-  // 3. Guardar credenciales (gitignored)
-  fs.writeFileSync(OUT, JSON.stringify({ email: EMAIL, password: PASSWORD }, null, 2));
+  return { email, password, id, creado };
+}
+
+(async () => {
+  const admin = await upsertUsuario({ email: "e2e-admin@gaceta.local", nombre: "E2E Admin", rol: "admin" });
+  const editor = await upsertUsuario({ email: "e2e-editor@gaceta.local", nombre: "E2E Editor", rol: "editor" });
+
+  fs.writeFileSync(
+    OUT,
+    JSON.stringify(
+      {
+        admin: { email: admin.email, password: admin.password },
+        editor: { email: editor.email, password: editor.password },
+      },
+      null,
+      2
+    )
+  );
   console.log("PROVISION credenciales guardadas en", OUT);
 })();

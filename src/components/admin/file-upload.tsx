@@ -273,7 +273,7 @@ export function FileUpload({
         <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/40 p-3">
           <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-background">
             {preview ? (
-              <Image src={preview} alt="Vista previa" fill className="object-cover" unoptimized />
+              <Image src={preview} alt="Vista previa" fill className="object-contain" unoptimized />
             ) : config.mime === "image" ? (
               <ImageIcon className="h-6 w-6 text-muted-foreground" />
             ) : (

@@ -7,10 +7,13 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "subir-leyes": "node scripts/subir-leyes.mjs"
+    "subir-leyes": "node scripts/subir-leyes.mjs",
+    "usuarios:csv": "node scripts/crear-usuarios-solicitudes.mjs",
+    "mcp": "tsx mcp-server/server.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@phosphor-icons/react": "^2.1.10",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.45.0",
@@ -46,6 +49,7 @@
     "eslint-config-next": "16.3.6",
     "postcss-nesting": "^14.0.1",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   },
   "overrides": {

@@ -13,9 +13,10 @@ import { RichTextEditor } from "@/components/admin/rich-text-editor"
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/lib/supabase/client"
-import { slugify, hoyLocalISO } from "@/lib/utils"
+import { useCurrentUser } from "@/hooks/use-current-user"
+import { cn, slugify, hoyLocalISO, formatDate } from "@/lib/utils"
 import { sanitizeHtml } from "@/lib/sanitize"
-import { ArrowLeft } from "lucide-react"
+import { AlertTriangle, ArrowLeft, CheckCircle2, Clock, XCircle } from "lucide-react"
 import type { Normativa, ModificacionNormativa } from "@/types"
 
 const ESTADOS_OPTIONS = [
@@ -32,6 +33,27 @@ const TIPO_MODIFICACION_LABEL: Record<string, string> = {
 }
 
 const TIPO_MODIFICACION_OPTIONS = Object.entries(TIPO_MODIFICACION_LABEL).map(([value, label]) => ({ value, label }))
+
+const APROBACION_UI = {
+  pendiente: {
+    icon: Clock,
+    titulo: "Pendiente de aprobación",
+    desc: "El Alcalde debe revisar y aprobar esta normativa para que se publique en la Gaceta.",
+    clase: "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200",
+  },
+  aprobado: {
+    icon: CheckCircle2,
+    titulo: "Aprobada y publicada",
+    desc: "Esta normativa ya es visible al público.",
+    clase: "border-green-300 bg-green-50 text-green-900 dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200",
+  },
+  rechazado: {
+    icon: XCircle,
+    titulo: "Rechazada",
+    desc: "Corrige la normativa y guarda los cambios para enviarla nuevamente a revisión.",
+    clase: "border-red-300 bg-red-50 text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200",
+  },
+} as const
 
 interface ModificacionRow {
   id: string
@@ -74,6 +96,19 @@ export default function NormativaFormPage() {
   const [loading, setLoading] = useState(true)
   const [slugTouched, setSlugTouched] = useState(false)
   const [tab, setTab] = useState<"editar" | "vista">("editar")
+
+  const { user } = useCurrentUser()
+  const esAdmin = user?.rol === "admin"
+  const [aprobacion, setAprobacion] = useState<{
+    estado: Normativa["estado_aprobacion"]
+    motivo: string | null
+    aprobadoEn: string | null
+  }>({ estado: "pendiente", motivo: null, aprobadoEn: null })
+  const [rechazando, setRechazando] = useState(false)
+  const [motivoRechazo, setMotivoRechazo] = useState("")
+  const [revisando, setRevisando] = useState(false)
+  const [aprobadoPorId, setAprobadoPorId] = useState<string | null>(null)
+  const [aprobadoPorNombre, setAprobadoPorNombre] = useState<string | null>(null)
 
   const [modificaciones, setModificaciones] = useState<ModificacionRow[]>([])
   const [normativasOpts, setNormativasOpts] = useState<{ value: string; label: string }[]>([])
@@ -139,11 +174,26 @@ export default function NormativaFormPage() {
           publicada: n.publicada,
           vigencia_indefinida: !n.fecha_vigencia,
         })
+        setAprobacion({
+          estado: n.estado_aprobacion ?? "pendiente",
+          motivo: n.motivo_rechazo ?? null,
+          aprobadoEn: n.aprobado_en ?? null,
+        })
+        setAprobadoPorId(n.aprobado_por ?? null)
       }
       setLoading(false)
     }
     init()
   }, [isNew, params.id, supabase, router, addToast])
+
+  useEffect(() => {
+    if (!esAdmin || !aprobadoPorId) return
+    const run = async () => {
+      const { data } = await supabase.from("usuarios").select("nombre").eq("id", aprobadoPorId).maybeSingle()
+      if (data) setAprobadoPorNombre((data as { nombre: string }).nombre)
+    }
+    run()
+  }, [esAdmin, aprobadoPorId, supabase])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
@@ -177,6 +227,7 @@ export default function NormativaFormPage() {
     }
     setSubmitting(true)
     try {
+      const authUserId = user?.id ?? (await supabase.auth.getUser()).data.user?.id
       const payload = {
         numero: formData.numero,
         slug: formData.slug || slugify(formData.titulo),
@@ -191,8 +242,10 @@ export default function NormativaFormPage() {
         fecha_vigencia: formData.vigencia_indefinida ? null : formData.fecha_vigencia || null,
         numero_paginas: formData.numero_paginas ? Number(formData.numero_paginas) : null,
         archivo_pdf: formData.archivo_pdf,
-        publicada: formData.publicada,
+        publicada: esAdmin ? formData.publicada : false,
+        estado_aprobacion: (esAdmin && formData.publicada ? "aprobado" : "pendiente") as Normativa["estado_aprobacion"],
         metadata: {},
+        ...(isNew && authUserId ? { created_by: authUserId } : {}),
       }
       const { error } = isNew
         ? await supabase.from("normativa").insert(payload)
@@ -205,6 +258,55 @@ export default function NormativaFormPage() {
       router.push("/admin/normativa")
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const revisar = async (aprobar: boolean) => {
+    if (!aprobar && !motivoRechazo.trim()) {
+      addToast("Indica el motivo del rechazo", "error")
+      return
+    }
+    setRevisando(true)
+    try {
+      const { error } = await supabase.rpc("revisar_normativa", {
+        p_id: params.id as string,
+        p_aprobar: aprobar,
+        p_motivo: aprobar ? null : motivoRechazo.trim(),
+      })
+      if (error) {
+        addToast(error.message, "error")
+        return
+      }
+      const { data } = await supabase
+        .from("normativa")
+        .select("publicada,fecha_publicacion,estado_aprobacion,aprobado_en,motivo_rechazo")
+        .eq("id", params.id as string)
+        .single()
+      const fila = data as {
+        publicada: boolean
+        fecha_publicacion: string | null
+        estado_aprobacion: Normativa["estado_aprobacion"]
+        aprobado_en: string | null
+        motivo_rechazo: string | null
+      } | null
+      if (fila) {
+        setAprobacion({
+          estado: fila.estado_aprobacion,
+          motivo: fila.motivo_rechazo,
+          aprobadoEn: fila.aprobado_en,
+        })
+        setFormData((prev) => ({
+          ...prev,
+          publicada: fila.publicada,
+          fecha_publicacion: fila.fecha_publicacion ?? prev.fecha_publicacion,
+        }))
+      }
+      setAprobadoPorNombre(user?.nombre ?? null)
+      setRechazando(false)
+      setMotivoRechazo("")
+      addToast(aprobar ? "Normativa aprobada y publicada" : "Normativa rechazada", "success")
+    } finally {
+      setRevisando(false)
     }
   }
 
@@ -270,6 +372,9 @@ export default function NormativaFormPage() {
     return <div className="space-y-4">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
   }
 
+  const aprobacionUi = APROBACION_UI[aprobacion.estado]
+  const AprobacionIcon = aprobacionUi.icon
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div className="flex flex-wrap items-center gap-3">
@@ -281,6 +386,75 @@ export default function NormativaFormPage() {
         </Link>
         <h1 className="text-2xl font-bold">{isNew ? "Nueva Normativa" : "Editar Normativa"}</h1>
       </div>
+      {!isNew && (
+        <div className={cn("flex items-start gap-3 rounded-xl border p-4", aprobacionUi.clase)}>
+          <AprobacionIcon className="mt-0.5 h-5 w-5 shrink-0" />
+          <div className="space-y-1">
+            <p className="text-sm font-semibold">{aprobacionUi.titulo}</p>
+            <p className="text-sm opacity-90">
+              {aprobacion.estado === "rechazado" && aprobacion.motivo ? aprobacion.motivo : aprobacionUi.desc}
+            </p>
+            {aprobacion.aprobadoEn && (
+              <p className="text-xs opacity-80">
+                {aprobacion.estado === "aprobado" ? "Aprobada" : "Rechazada"} el{" "}
+                {formatDate(aprobacion.aprobadoEn, "full")}
+                {esAdmin && aprobadoPorNombre ? ` por ${aprobadoPorNombre}` : ""}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+      {!isNew && !esAdmin && aprobacion.estado === "aprobado" && (
+        <div className="flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+          <div className="space-y-1">
+            <p className="text-sm font-semibold">Esta normativa está publicada</p>
+            <p className="text-sm opacity-90">
+              Si guardas cambios, saldrá de la Gaceta y volverá a revisión del Alcalde hasta que la apruebe de nuevo.
+            </p>
+          </div>
+        </div>
+      )}
+      {!isNew && esAdmin && aprobacion.estado !== "aprobado" && (
+        <Card>
+          <CardHeader><CardTitle>Revisión del Alcalde</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Al aprobar, la normativa se publica de inmediato en la Gaceta.
+            </p>
+            {rechazando ? (
+              <div className="space-y-3">
+                <textarea
+                  value={motivoRechazo}
+                  onChange={(e) => setMotivoRechazo(e.target.value)}
+                  rows={3}
+                  placeholder="Motivo del rechazo (visible para quien subió la normativa)"
+                  className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="destructive" loading={revisando} onClick={() => revisar(false)}>
+                    Confirmar rechazo
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => { setRechazando(false); setMotivoRechazo("") }}>
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" loading={revisando} onClick={() => revisar(true)}>
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  Aprobar y publicar
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setRechazando(true)}>
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Rechazar
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader><CardTitle>Datos Generales</CardTitle></CardHeader>
@@ -355,8 +529,16 @@ export default function NormativaFormPage() {
                 <Input type="number" min="1" name="numero_paginas" value={formData.numero_paginas} onChange={handleChange} placeholder="0" />
               </div>
               <div className="flex items-end gap-2 pb-1">
-                <input type="checkbox" name="publicada" id="publicada" checked={formData.publicada} onChange={handleChange} className="h-4 w-4 rounded border-input text-primary focus:ring-primary" />
-                <Label htmlFor="publicada">Publicada (visible al público)</Label>
+                {esAdmin ? (
+                  <>
+                    <input type="checkbox" name="publicada" id="publicada" checked={formData.publicada} onChange={handleChange} className="h-4 w-4 rounded border-input text-primary focus:ring-primary" />
+                    <Label htmlFor="publicada">Publicada (visible al público)</Label>
+                  </>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    La publicación la realiza el Alcalde al aprobar la normativa.
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>

@@ -12,12 +12,12 @@ function readCredentials() {
   }
   return {
     admin: {
-      email: process.env.E2E_ADMIN_EMAIL || saved.email || "e2e-admin@gaceta.local",
-      password: process.env.E2E_ADMIN_PASSWORD || saved.password || "",
+      email: process.env.E2E_ADMIN_EMAIL || saved.admin?.email || saved.email || "e2e-admin@gaceta.local",
+      password: process.env.E2E_ADMIN_PASSWORD || saved.admin?.password || saved.password || "",
     },
     editor: {
-      email: process.env.E2E_EDITOR_EMAIL || "profpbz@gmail.com",
-      password: process.env.E2E_EDITOR_PASSWORD || "13727173",
+      email: process.env.E2E_EDITOR_EMAIL || saved.editor?.email || "e2e-editor@gaceta.local",
+      password: process.env.E2E_EDITOR_PASSWORD || saved.editor?.password || "",
     },
   };
 }

@@ -56,7 +56,7 @@ export default async function NoticiaDetailPage({ params }: { params: Promise<{ 
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         {n.imagen_principal ? (
         <div className="relative mb-8 aspect-video overflow-hidden rounded-2xl">
-          <StorageImage src={n.imagen_principal} alt={n.titulo} fill sizes="(min-width: 896px) 896px, 100vw" className="object-cover" />
+          <StorageImage src={n.imagen_principal} alt={n.titulo} fill sizes="(min-width: 896px) 896px, 100vw" className="object-contain" />
         </div>
       ) : !n.facebook_url ? (
         <div className="aspect-video rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-8">

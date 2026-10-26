@@ -10,7 +10,9 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/components/ui/toast"
 import { createClient } from "@/lib/supabase/client"
 import { useCurrentUser, can, canView } from "@/hooks/use-current-user"
+import { AprobacionesPendientes } from "@/components/admin/aprobaciones-pendientes"
 import type { Modulo } from "@/lib/roles"
+import { puedeVerAprobaciones } from "@/lib/roles"
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell } from "recharts"
 
 interface Stats {
@@ -27,6 +29,7 @@ interface Pendientes {
   mensajes: number
   noticias: number
   normativa: number
+  normativaPendientes: number
   transparencia: number
   contrataciones: number
   usuarios: number
@@ -101,8 +104,9 @@ export default function AdminDashboardPage() {
   })
 
   const fetchStats = useCallback(async () => {
-    const [normativa, noticias, usuarios, autoridades, galeria, tramites] = await Promise.all([
+    const [normativa, normativaPub, noticias, usuarios, autoridades, galeria, tramites] = await Promise.all([
       supabase.from("normativa").select("id", { count: "exact", head: true }),
+      supabase.from("normativa").select("id", { count: "exact", head: true }).eq("publicada", true),
       supabase.from("noticias").select("id", { count: "exact", head: true }),
       supabase.from("usuarios").select("id", { count: "exact", head: true }),
       supabase.from("autoridades").select("id", { count: "exact", head: true }),
@@ -110,7 +114,7 @@ export default function AdminDashboardPage() {
       supabase.from("tramites").select("id", { count: "exact", head: true }),
     ])
 
-    const errores = [normativa, noticias, usuarios, autoridades, galeria, tramites].filter((r) => r.error)
+    const errores = [normativa, normativaPub, noticias, usuarios, autoridades, galeria, tramites].filter((r) => r.error)
     if (errores.length > 0) {
       setStatsError(true)
       addToast(errores[0].error?.message || "Error al cargar estadísticas", "error")
@@ -132,7 +136,7 @@ export default function AdminDashboardPage() {
         )
       }
       setStats({
-        normativas: normativa.count || 0,
+        normativas: normativaPub.count || 0,
         noticias: noticias.count || 0,
         usuarios: usuarios.count || 0,
         autoridades: autoridades.count || 0,
@@ -142,10 +146,11 @@ export default function AdminDashboardPage() {
       })
     }
 
-    const [mensajesPend, noticiasPend, normativaPend, transparenciaPend, contratacionesPend, usuariosPend] = await Promise.all([
+    const [mensajesPend, noticiasPend, normativaPend, normativaAprob, transparenciaPend, contratacionesPend, usuariosPend] = await Promise.all([
       supabase.from("contacto_mensajes").select("id", { count: "exact", head: true }).eq("leido", false),
       supabase.from("noticias").select("id", { count: "exact", head: true }).eq("publicada", false),
       supabase.from("normativa").select("id", { count: "exact", head: true }).eq("publicada", false),
+      supabase.from("normativa").select("id", { count: "exact", head: true }).eq("estado_aprobacion", "pendiente"),
       supabase.from("transparencia").select("id", { count: "exact", head: true }).eq("publicada", false),
       supabase.from("contrataciones").select("id", { count: "exact", head: true }).eq("estado", "publicada"),
       supabase.from("usuarios").select("id", { count: "exact", head: true }).eq("activo", false),
@@ -154,6 +159,7 @@ export default function AdminDashboardPage() {
       mensajes: mensajesPend.error ? 0 : mensajesPend.count ?? 0,
       noticias: noticiasPend.error ? 0 : noticiasPend.count ?? 0,
       normativa: normativaPend.error ? 0 : normativaPend.count ?? 0,
+      normativaPendientes: normativaAprob.error ? 0 : normativaAprob.count ?? 0,
       transparencia: transparenciaPend.error ? 0 : transparenciaPend.count ?? 0,
       contrataciones: contratacionesPend.error ? 0 : contratacionesPend.count ?? 0,
       usuarios: usuariosPend.error ? 0 : usuariosPend.count ?? 0,
@@ -227,10 +233,14 @@ export default function AdminDashboardPage() {
       ]
     : []
 
+  const esAdmin = puedeVerAprobaciones(user?.rol)
+
   const pendientesItems = [
     { key: "mensajes", label: "Mensajes sin leer", desc: "Revisar bandeja", value: pendientes?.mensajes ?? 0, href: "/admin/mensajes?no_leidos=true", icon: Inbox, bg: "bg-amber-500" },
     { key: "noticias", label: "Noticias sin publicar", desc: "Borradores pendientes", value: pendientes?.noticias ?? 0, href: "/admin/noticias?publicada=false", icon: Newspaper, bg: "bg-blue-500" },
-    { key: "normativa", label: "Normativas sin publicar", desc: "Borradores pendientes", value: pendientes?.normativa ?? 0, href: "/admin/normativa?publicada=false", icon: FileText, bg: "bg-orange-600" },
+    esAdmin
+      ? { key: "normativa", label: "Pendientes de aprobación", desc: "Normativa esperando al Alcalde", value: pendientes?.normativaPendientes ?? 0, href: "/admin/normativa?estado_aprobacion=pendiente", icon: FileText, bg: "bg-orange-600" }
+      : { key: "normativa", label: "Normativas sin publicar", desc: "Borradores pendientes", value: pendientes?.normativa ?? 0, href: "/admin/normativa?publicada=false", icon: FileText, bg: "bg-orange-600" },
     { key: "transparencia", label: "Transparencia sin publicar", desc: "Documentos pendientes", value: pendientes?.transparencia ?? 0, href: "/admin/transparencia?publicada=false", icon: Shield, bg: "bg-purple-500" },
     { key: "contrataciones", label: "Contrataciones activas", desc: "Convocatorias publicadas", value: pendientes?.contrataciones ?? 0, href: "/admin/contrataciones?estado=publicada", icon: Gavel, bg: "bg-cyan-600" },
     { key: "usuarios", label: "Usuarios inactivos", desc: "Cuentas por revisar", value: pendientes?.usuarios ?? 0, href: "/admin/usuarios?activo=false", icon: UserX, bg: "bg-red-500" },
@@ -290,6 +300,8 @@ export default function AdminDashboardPage() {
           Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-32 w-full" />)
         )}
       </div>
+
+      <AprobacionesPendientes max={3} />
 
       <div>
         <div className="mb-3 flex items-center justify-between">
@@ -475,7 +487,7 @@ export default function AdminDashboardPage() {
                   <BookOpen className="h-5 w-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-medium text-foreground">Manual del administrador</p>
+                  <p className="font-medium text-foreground">Manual del funcionario</p>
                   <p className="text-sm text-muted-foreground">Guía paso a paso por módulo</p>
                 </div>
               </div>

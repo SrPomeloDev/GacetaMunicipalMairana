@@ -13,6 +13,7 @@ import { ConfirmDialog } from "@/components/admin/confirm-dialog"
 import { IconBox } from "@/components/ui/icon-box"
 import { useToast } from "@/components/ui/toast"
 import { createClient } from "@/lib/supabase/client"
+import { formatDate } from "@/lib/utils"
 import { Search, Plus, Pencil, Trash2, CheckCircle2, XCircle, User } from "lucide-react"
 import type { Usuario } from "@/types"
 
@@ -99,6 +100,9 @@ function AdminUsuariosContent() {
         {val ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
         {val ? "Activo" : "Inactivo"}
       </span>
+    )},
+    { key: "ultimo_acceso", label: "Último acceso", render: (val) => (
+      <span className="text-muted-foreground">{val ? formatDate(val as string, "full") : "Nunca"}</span>
     )},
     { key: "acciones", label: "Acciones", render: (_val, row) => (
       <div className="flex gap-2">

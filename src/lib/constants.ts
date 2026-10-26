@@ -1,3 +1,5 @@
+import type { Modulo } from '@/lib/roles'
+
 export const SITE_NAME = 'Gaceta Municipal de Mairana'
 export const SITE_DESCRIPTION = 'Gaceta Oficial del Gobierno Autónomo Municipal de Mairana - Provincia Florida, Santa Cruz, Bolivia'
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
@@ -65,20 +67,29 @@ export function isGacetaPath(pathname: string): boolean {
   )
 }
 
-export const ADMIN_NAV = [
-  { href: '/admin/dashboard', label: 'Panel de Control', icon: 'LayoutDashboard', modulo: 'configuracion' as const },
-  { href: '/admin/normativa', label: 'Normativa', icon: 'FileText', modulo: 'normativa' as const },
-  { href: '/admin/noticias', label: 'Noticias', icon: 'Newspaper', modulo: 'noticias' as const },
-  { href: '/admin/autoridades', label: 'Autoridades', icon: 'Users', modulo: 'autoridades' as const },
-  { href: '/admin/dependencias', label: 'Dependencias', icon: 'Building2', modulo: 'dependencias' as const },
-  { href: '/admin/categorias', label: 'Categorías', icon: 'Tags', modulo: 'categorias' as const },
-  { href: '/admin/concejo', label: 'Concejo', icon: 'Landmark', modulo: 'concejo' as const },
-  { href: '/admin/transparencia', label: 'Transparencia', icon: 'Shield', modulo: 'transparencia' as const },
-  { href: '/admin/tramites', label: 'Trámites', icon: 'ClipboardList', modulo: 'tramites' as const },
-  { href: '/admin/galeria', label: 'Galería', icon: 'Image', modulo: 'galeria' as const },
-  { href: '/admin/contrataciones', label: 'Contrataciones', icon: 'Gavel', modulo: 'contrataciones' as const },
-  { href: '/admin/suscripciones', label: 'Suscripciones', icon: 'Mail', modulo: 'suscripciones' as const },
-  { href: '/admin/mensajes', label: 'Mensajes', icon: 'Inbox', modulo: 'mensajes' as const },
-  { href: '/admin/usuarios', label: 'Usuarios', icon: 'UserCog', modulo: 'usuarios' as const },
-  { href: '/admin/configuracion', label: 'Configuración', icon: 'Settings', modulo: 'configuracion' as const },
+export interface AdminNavItem {
+  href: string
+  label: string
+  icon: string
+  modulo: Modulo
+  soloAdmin?: boolean
+}
+
+export const ADMIN_NAV: AdminNavItem[] = [
+  { href: '/admin/dashboard', label: 'Panel de Control', icon: 'LayoutDashboard', modulo: 'configuracion' },
+  { href: '/admin/normativa', label: 'Normativa', icon: 'FileText', modulo: 'normativa' },
+  { href: '/admin/aprobaciones', label: 'Aprobaciones', icon: 'CheckCircle2', modulo: 'normativa', soloAdmin: true },
+  { href: '/admin/noticias', label: 'Noticias', icon: 'Newspaper', modulo: 'noticias' },
+  { href: '/admin/autoridades', label: 'Autoridades', icon: 'Users', modulo: 'autoridades' },
+  { href: '/admin/dependencias', label: 'Dependencias', icon: 'Building2', modulo: 'dependencias' },
+  { href: '/admin/categorias', label: 'Categorías', icon: 'Tags', modulo: 'categorias' },
+  { href: '/admin/concejo', label: 'Concejo', icon: 'Landmark', modulo: 'concejo' },
+  { href: '/admin/transparencia', label: 'Transparencia', icon: 'Shield', modulo: 'transparencia' },
+  { href: '/admin/tramites', label: 'Trámites', icon: 'ClipboardList', modulo: 'tramites' },
+  { href: '/admin/galeria', label: 'Galería', icon: 'Image', modulo: 'galeria' },
+  { href: '/admin/contrataciones', label: 'Contrataciones', icon: 'Gavel', modulo: 'contrataciones' },
+  { href: '/admin/suscripciones', label: 'Suscripciones', icon: 'Mail', modulo: 'suscripciones' },
+  { href: '/admin/mensajes', label: 'Mensajes', icon: 'Inbox', modulo: 'mensajes' },
+  { href: '/admin/usuarios', label: 'Usuarios', icon: 'UserCog', modulo: 'usuarios' },
+  { href: '/admin/configuracion', label: 'Configuración', icon: 'Settings', modulo: 'configuracion' },
 ]

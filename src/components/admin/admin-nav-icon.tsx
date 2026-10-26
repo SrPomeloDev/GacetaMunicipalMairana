@@ -14,6 +14,7 @@ import {
   Gavel,
   Mail,
   Inbox,
+  CheckCircle2,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
@@ -33,6 +34,7 @@ export const ADMIN_NAV_ICONS: Record<string, LucideIcon> = {
   Gavel,
   Mail,
   Inbox,
+  CheckCircle2,
 }
 
 export function AdminNavIcon({ name, className }: { name: string; className?: string }) {

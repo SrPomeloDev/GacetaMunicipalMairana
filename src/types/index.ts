@@ -1,3 +1,5 @@
+export type EstadoAprobacion = 'pendiente' | 'aprobado' | 'rechazado'
+
 export type Usuario = {
   id: string
   nombre: string
@@ -6,6 +8,7 @@ export type Usuario = {
   rol: 'admin' | 'editor' | 'publicador'
   dependencia_id: string | null
   activo: boolean
+  ultimo_acceso: string | null
   created_at: string
 }
 
@@ -52,6 +55,10 @@ export type Normativa = {
   visitas: number
   metadata: Record<string, unknown>
   publicada: boolean
+  estado_aprobacion: EstadoAprobacion
+  aprobado_por: string | null
+  aprobado_en: string | null
+  motivo_rechazo: string | null
   created_by: string | null
   created_at: string
   updated_at: string

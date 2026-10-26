@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { ADMIN_NAV } from "@/lib/constants"
 import { can, canView, useCurrentUser } from "@/hooks/use-current-user"
 import type { Modulo } from "@/lib/roles"
+import { puedeVerAprobaciones } from "@/lib/roles"
 import { AdminNavIcon } from "@/components/admin/admin-nav-icon"
 import {
   CircleUserRound,
@@ -58,6 +59,7 @@ export default function CommandPalette() {
   const comandos = useMemo<Comando[]>(() => {
     const lista: Comando[] = []
     for (const item of ADMIN_NAV) {
+      if (item.soloAdmin && !puedeVerAprobaciones(user?.rol)) continue
       if (item.href !== "/admin/dashboard" && !canView(user, item.modulo)) continue
       lista.push({
         id: `ir-${item.href}`,
@@ -70,6 +72,7 @@ export default function CommandPalette() {
     }
     for (const item of ADMIN_NAV) {
       if (!modulosConNueva.has(item.modulo)) continue
+      if (item.soloAdmin && !puedeVerAprobaciones(user?.rol)) continue
       if (item.href !== "/admin/dashboard" && !canView(user, item.modulo)) continue
       if (!can(user, item.modulo, "crear")) continue
       lista.push({

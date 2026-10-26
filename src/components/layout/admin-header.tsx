@@ -126,8 +126,8 @@ export default function AdminHeader({ onMenuToggle }: { onMenuToggle?: () => voi
           href="/manual"
           target="_blank"
           rel="noreferrer"
-          aria-label="Manual del administrador"
-          title="Manual del administrador"
+          aria-label="Ayuda al funcionario"
+          title="Ayuda al funcionario"
           className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "text-muted-foreground hover:text-primary")}
         >
           <Headset className="h-5 w-5" />

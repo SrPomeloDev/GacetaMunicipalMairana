@@ -78,7 +78,7 @@ export default function ManualIndicePage() {
               <span>•</span>
               <span className="flex items-center gap-1.5 font-medium text-foreground">
                 <FolderOpen className="h-4 w-4 text-primary" />
-                Límites Técnicos de Almacenamiento
+                Capacidad y formatos de almacenamiento
               </span>
               <span>•</span>
               <span className="flex items-center gap-1.5 font-medium text-foreground">

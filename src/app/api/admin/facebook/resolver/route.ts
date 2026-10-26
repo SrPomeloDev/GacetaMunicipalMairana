@@ -60,7 +60,25 @@ export async function GET(request: Request) {
       )
     }
 
-    return NextResponse.json({ ok: true, url: final, titulo: null })
+    let thumbnail: string | null = null
+    try {
+      const oembedUrl = "https://www.facebook.com/oembed?url=" + encodeURIComponent(final)
+      const oembedRes = await fetch(oembedUrl, {
+        redirect: "follow",
+        signal: controller.signal,
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "Accept": "application/json",
+        },
+      })
+      const oembed = await oembedRes.json()
+      thumbnail = oembed?.thumbnail_url ?? oembed?.thumbnail ?? null
+    } catch {
+      thumbnail = null
+    }
+
+    return NextResponse.json({ ok: true, url: final, titulo: null, thumbnail })
   } catch {
     return NextResponse.json(
       { error: "No se pudo contactar a Facebook. Verificá tu conexión e intentá de nuevo." },

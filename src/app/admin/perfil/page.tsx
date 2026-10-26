@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useToast } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { FileUpload } from "@/components/admin/file-upload"
+import { AprobacionesPendientes } from "@/components/admin/aprobaciones-pendientes"
 import { useCurrentUser, rolLabel, type CurrentUser } from "@/hooks/use-current-user"
 import { useTheme } from "@/components/theme-provider"
 import { createClient } from "@/lib/supabase/client"
@@ -129,6 +130,8 @@ function PerfilForm({ user }: { user: CurrentUser }) {
           <p className="text-sm text-muted-foreground">Administra tu cuenta y preferencias</p>
         </div>
       </div>
+
+      <AprobacionesPendientes />
 
       <Card>
         <CardHeader>

@@ -42,13 +42,18 @@ npm run lint       # ESLint (eslint-config-next core-web-vitals + typescript)
   - `00006_contacto_mensajes.sql` — tabla `contacto_mensajes` (mensajes del formulario de contacto) + RLS (INSERT público, gestión solo staff)
   - `00007_contacto_mensajes_categorias.sql` — columnas `categoria` (general/tramite/reclamo/denuncia/sugerencia/informacion_publica/normativa) y `anonimo` (denuncias anónimas)
   - `00008_mensajes_flujo.sql` — columnas `estado` (nuevo/en_revision/respondido/cerrado), `respuesta` y `respondido_en`
+  - `00015_aprobacion_normativa_ultimo_acceso.sql` — aprobación de normativa (`estado_aprobacion`, `aprobado_por/en`, `motivo_rechazo`), tabla `normativa_aprobaciones`, `usuarios.ultimo_acceso`, trigger que impide publicar a no-admin y RPC `revisar_normativa()`
+  - `00016_auditoria_aprobacion_trigger.sql` — la auditoría pasa a trigger AFTER (cubre publicar desde la ficha), `revisar_normativa()` deja de insertar a mano (evita duplicados) y el admin que publica sin aprobación previa deja `aprobado_por/en`
 - **Las migraciones `00006`/`00007`/`00008` NO están ejecutadas en Supabase todavía**: ejecutar en SQL Editor en orden.
 - `.env.local` (ver `.env.example`): obligatorias `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`; opcionales `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_APP_NAME`, `OPENAI_API_KEY`.
 
 ## Auth users (estado actual)
 - `pabloxzad77@gmail.com` — admin (owner)
-- `profpbz@gmail.com` / `13727173` — editor, email_confirm=true, metadata `{nombre:"Prof PBZ", rol:"editor"}`, id `290a0877-d627-42d3-ba84-f08f8586aefe`
-- `andresfidelrocha@hotmail.com` / `13727173` — admin (Alcalde), id `02ba1b39-9612-4122-b110-fcf96a8f6be8`
+- `andresfidelrocha@hotmail.com` — admin (Alcalde), id `02ba1b39-9612-4122-b110-fcf96a8f6be8`; la contraseña documentada `13727173` ya no es válida
+- `gabbor2102@mairana.bo` — editor (Gabriela Rojas Borda), id `71904b8b-8afb-4ccd-8342-ba2cbc44f598`
+- `cruzpradoaleida@mairana.bo` — editor (Aleida) · `nikitafloresyepez@mairana.bo`, `cabritaquispel@mairana.bo`, `nhus9252@mairana.bo` — publicador (contraseñas en `~/Downloads/credenciales-gaceta.csv`)
+- `e2e-admin@gaceta.local` (admin) y `e2e-editor@gaceta.local` (editor) — solo E2E; credenciales en `e2e/.admin-credentials.json` (gitignored, las regenera `node e2e/provision.js`)
+- `profpbz@gmail.com` ya no existe (usuario eliminado de auth; no usar en tests)
 - Registro público desactivado: `REGISTRO_HABILITADO = false` en `src/app/admin/login/page.tsx:7` (cambiar a `true` para reactivar).
 
 ## Estructura relevante
@@ -92,6 +97,9 @@ src/
 - Lectura en server: `requirePermiso(modulo, accion)` (lanzar 403 en catch, 401 si devuelve null sin sesión). Ya aplicado en `/api/admin/normativa*` y `/api/admin/noticias*`; el resto de rutas admin solo valida sesión/rol admin.
 - UI: matriz en `src/components/admin/permisos-editor.tsx` (usado en editar usuario). Al cambiar el rol en el formulario se reinicia la matriz a los defaults del rol.
 - El `Checkbox` de `ui/checkbox.tsx` es un input nativo: usar `onChange`/`checked`, NO `onCheckedChange` (varias páginas lo usan mal y quedan rotas).
+- **Flujo de normativa:** `editor`/`publicador` suben y el trigger deja `estado_aprobacion='pendiente'` + `publicada=false`; solo `admin` publica con la RPC `revisar_normativa()` (UI: `/admin/aprobaciones` con pestañas Pendientes/Rechazadas/Aprobadas, tarjeta en `/admin/perfil` y dashboard). La sección Aprobaciones es **solo UI para admin**: helper `puedeVerAprobaciones(rol)` + `soloAdmin` en `ADMIN_NAV` (sidebar, Ctrl+K, página y tarjeta); el middleware y las RLS no la restringen (decisión del proyecto). Las páginas públicas solo leen `publicada=true`. Editar una aprobada la devuelve a pendiente. Escrituras con service role (`auth.uid()` NULL) se respetan y `publicada=true` normaliza a `aprobado` (seeds/imports). La auditoría en `normativa_aprobaciones` la hace el trigger `trg_normativa_auditar_revision` (00016) y el admin que publica sin aprobación previa deja `aprobado_por/en`. El trigger `trg_normativa_updated_at` mantiene `updated_at` (sitemap).
+- Borrado de normativa: admin (política `normativa_delete_admin`) o el autor de un borrador nunca aprobado (`puede_borrar_normativa()` + `normativa_delete_propias`).
+- `usuarios.ultimo_acceso` se actualiza en `middleware.ts` (como máximo una escritura cada 10 min) y se muestra en `/admin/usuarios`.
 
 ## Perfil del usuario (mi cuenta)
 - `/admin/perfil` (página `src/app/admin/perfil/page.tsx`): edita nombre, avatar (sube a bucket `noticias-imagenes`), cambio de contraseña (`supabase.auth.updateUser({ password })`) y preferencia de tema.
@@ -120,11 +128,11 @@ src/
 - Instalar: `cd "C:\Users\lenov\Desktop\Gaceta Municipal\e2e" && npm install` (instala chromium automáticamente).
 - Correr: `cd e2e && npm test` (o `npm run test:headed` para ver). Reporte HTML: `npm run report`.
 - El webServer levanta `npm run dev` en el puerto **3100** (`PORT=3100`) para no pisar el dev manual en 3000. No correr la suite con el `.next` corrupto ni con `NEXT_PUBLIC_DEMO_EXPIRED=true` (ver layout raíz).
-- Credenciales por defecto (sobreescribibles con `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`, `E2E_EDITOR_EMAIL`, `E2E_EDITOR_PASSWORD`): admin `andresfidelrocha@hotmail.com/13727173`, editor `profpbz@gmail.com/13727173`.
+- Credenciales por defecto (sobreescribibles con `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`, `E2E_EDITOR_EMAIL`, `E2E_EDITOR_PASSWORD`): se leen de `e2e/.admin-credentials.json` (`admin`/`editor`), generado por `node e2e/provision.js`.
 - Los tests de CRUD crean registros reales con prefijo `E2E-` en el proyecto Supabase dev y los limpian en `afterAll` (el editor no puede borrar por RLS: solo admin).
 - Credenciales admin reales se leen de `e2e/.admin-credentials.json` (creado por `node e2e/provision.js` — idempotente, guarda admin+editor). `e2e/cleanup.js` limpia los registros `E2E-` restantes vía service-role (ambos en `.gitignore`).
 - Login en tests: helper `loginAs(page, "admin"|"editor")` en `e2e/helpers/actions.js` (hace login por UI y espera el redirect). NO usar storageState/setup.
-- 38 tests en 5 specs: `auth.spec.js`, `portal.spec.js`, `theme.spec.js`, `admin-sesion.spec.js`, `permisos-admin.spec.js`, `permisos-editor.spec.js`, `normativa-crud.spec.js`, `noticias-crud.spec.js`, `mobile.spec.js` (2 proyectos: desktop Chromium + móvil Pixel 5). Estado: ✅ suite completa verde.
+- Specs: `auth`, `portal`, `theme`, `admin-sesion`, `permisos-admin`, `permisos-editor`, `normativa-crud`, `noticias-crud`, `aprobaciones`, `mobile` y el resto de CRUDs (2 proyectos: desktop Chromium + móvil Pixel 5). Estado: ✅ suite completa verde.
 - La pantalla de bloqueo "Prueba Demo Finalizada" fue ELIMINADA (archivo `demo-pendiente.tsx` borrado, no reintroducir).
 
 <!-- BEGIN:nextjs-agent-rules -->

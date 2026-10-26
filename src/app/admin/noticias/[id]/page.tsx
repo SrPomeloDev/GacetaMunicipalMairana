@@ -111,6 +111,7 @@ export default function NoticiaFormPage() {
         ...prev,
         facebook_url: data.url,
         titulo: prev.titulo.trim() ? prev.titulo : (data.titulo || prev.titulo),
+        imagen_principal: prev.imagen_principal || data.thumbnail || null,
       }))
       addToast("Enlace verificado", "success")
     } catch {

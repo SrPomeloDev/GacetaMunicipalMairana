@@ -11,6 +11,7 @@ import { IconBox } from "@/components/ui/icon-box"
 import { createClient } from "@/lib/supabase/client"
 import { useCurrentUser, rolLabel } from "@/hooks/use-current-user"
 import { canView } from "@/hooks/use-current-user"
+import { puedeVerAprobaciones } from "@/lib/roles"
 import {
   PanelLeftClose, PanelLeft, LogOut, X, Code2, ExternalLink
 } from "lucide-react"
@@ -61,6 +62,7 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
   const supabase = createClient()
   const { user } = useCurrentUser()
   const [unreadCount, setUnreadCount] = useState(0)
+  const [aprobacionesCount, setAprobacionesCount] = useState(0)
 
   useEffect(() => {
     const fetchUnread = async () => {
@@ -77,6 +79,23 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
     }
     fetchUnread()
   }, [])
+
+  useEffect(() => {
+    if (user?.rol !== "admin") return
+    const fetchPendientes = async () => {
+      try {
+        const client = createClient()
+        const { count, error } = await client
+          .from("normativa")
+          .select("id", { count: "exact", head: true })
+          .eq("estado_aprobacion", "pendiente")
+        if (!error && typeof count === "number") setAprobacionesCount(count)
+      } catch {
+        setAprobacionesCount(0)
+      }
+    }
+    fetchPendientes()
+  }, [user?.rol, pathname])
 
   useEffect(() => {
     if (open) {
@@ -145,6 +164,13 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
         {ADMIN_NAV.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
           if (item.href !== "/admin/dashboard" && !canView(user, item.modulo)) return null
+          if (item.soloAdmin && !puedeVerAprobaciones(user?.rol)) return null
+          const badge =
+            item.href === "/admin/mensajes"
+              ? unreadCount
+              : item.href === "/admin/aprobaciones"
+                ? aprobacionesCount
+                : 0
           return (
             <Link
               key={item.href}
@@ -166,9 +192,9 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
                 <AdminNavIcon name={item.icon} />
               </span>
               {!collapsed && <span className="truncate whitespace-nowrap animate-in fade-in duration-300">{item.label}</span>}
-              {!collapsed && item.href === "/admin/mensajes" && unreadCount > 0 && (
+              {!collapsed && badge > 0 && (
                 <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">
-                  {unreadCount}
+                  {badge}
                 </span>
               )}
             </Link>
@@ -179,7 +205,7 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
       <div className="shrink-0 border-t border-sidebar-border p-2.5">
         {!collapsed && (
           <p className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground animate-in fade-in duration-300">
-            Ayuda
+            Ayuda al funcionario
           </p>
         )}
         <Link
@@ -187,7 +213,7 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
           target="_blank"
           rel="noreferrer"
           onClick={onClose}
-          title={collapsed ? "Manual del administrador" : undefined}
+          title={collapsed ? "Manual del funcionario" : undefined}
           className={cn(
             "group flex items-center gap-3 overflow-hidden rounded-xl border border-primary/25 bg-primary/10 px-3 py-2.5 text-sm font-medium transition-all",
             collapsed && "justify-center px-2",
@@ -197,7 +223,7 @@ export default function SidebarAdmin({ open = false, onClose }: { open?: boolean
           <span className="shrink-0 text-primary transition-all group-hover:text-primary-foreground">
             <BookOpen className="h-5 w-5" />
           </span>
-          {!collapsed && <span className="truncate whitespace-nowrap animate-in fade-in duration-300">Manual del administrador</span>}
+          {!collapsed && <span className="truncate whitespace-nowrap animate-in fade-in duration-300">Manual del funcionario</span>}
         </Link>
         <Link
           href="/"

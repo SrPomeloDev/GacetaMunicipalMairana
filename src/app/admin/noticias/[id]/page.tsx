@@ -291,7 +291,7 @@ export default function NoticiaFormPage() {
             </div>
           </CardContent>
         </Card>
-        <div className="sticky bottom-0 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur">
+        <div className="sticky bottom-0 z-30 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur shadow-lifted">
           <Link href="/admin/noticias">
             <Button type="button" variant="outline">Cancelar</Button>
           </Link>

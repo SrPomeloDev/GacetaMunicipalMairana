@@ -261,24 +261,39 @@ export default function Header({ config }: { config?: HeaderConfig }) {
               Acceso Admin
             </Link>
           </div>
-          <div className="p-4 pb-0">
-            <button
-              type="button"
-              onClick={toggleSenior}
-              aria-pressed={senior}
-              aria-label={senior ? "Restablecer tamaño de letra" : "Aumentar tamaño de letra"}
-              className={cn(
-                "inline-flex w-full items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold",
-                senior
-                  ? "border-primary/40 bg-primary text-primary-foreground"
-                  : "border-primary/30 bg-primary/10 text-foreground"
-              )}
-            >
-              <TextAa className="h-6 w-6" />
-              <span className="sr-only">{senior ? "Restablecer tamaño de letra" : "Aumentar tamaño de letra"}</span>
-            </button>
+          <div className="p-4 pb-2 space-y-2">
+            <Link href="/gaceta" onClick={() => setMobileOpen(false)} className="block">
+              <Button className="w-full justify-center gap-2 h-11 text-sm font-bold shadow-md shadow-primary/25">
+                <ScrollText className="h-4 w-4" /> Gaceta Oficial
+              </Button>
+            </Link>
+            <div className="grid grid-cols-2 gap-2">
+              <Link href="/asistente" onClick={() => setMobileOpen(false)}>
+                <Button variant="outline" className="w-full justify-center gap-1.5 h-10 text-xs font-semibold">
+                  <MessageCircle className="h-3.5 w-3.5 text-primary" /> Consulta
+                </Button>
+              </Link>
+              <button
+                type="button"
+                onClick={toggleSenior}
+                aria-pressed={senior}
+                aria-label={senior ? "Restablecer tamaño de letra" : "Aumentar tamaño de letra"}
+                className={cn(
+                  "inline-flex w-full items-center justify-center gap-2 rounded-xl border h-10 text-xs font-semibold transition-colors",
+                  senior
+                    ? "border-primary/40 bg-primary text-primary-foreground"
+                    : "border-border bg-background text-foreground hover:bg-muted"
+                )}
+              >
+                <TextAa className="h-4 w-4" />
+                <span>{senior ? "Texto normal" : "Aumentar letra"}</span>
+              </button>
+            </div>
           </div>
-          <nav className="grid grid-cols-2 gap-1.5 p-4">
+          <div className="px-4 pt-1">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Secciones del portal</p>
+          </div>
+          <nav className="grid grid-cols-2 gap-1.5 p-4 pt-1.5">
             {NAV_LINKS.map((link) => {
               const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href))
               return (
@@ -298,18 +313,6 @@ export default function Header({ config }: { config?: HeaderConfig }) {
               )
             })}
           </nav>
-          <div className="grid grid-cols-2 gap-2 p-4 pt-0">
-            <Link href="/gaceta" onClick={() => setMobileOpen(false)}>
-              <Button className="w-full justify-center text-xs">
-                <ScrollText className="h-3.5 w-3.5" /> Gaceta Oficial
-              </Button>
-            </Link>
-            <Link href="/asistente" onClick={() => setMobileOpen(false)}>
-              <Button variant="outline" className="w-full justify-center text-xs">
-                <MessageCircle className="h-3.5 w-3.5" /> Consulta
-              </Button>
-            </Link>
-          </div>
           <div className="px-4 pb-4 text-center">
             <Link
               href="/ayuda"

@@ -16,7 +16,7 @@ import { createClient } from "@/lib/supabase/client"
 import { useCurrentUser } from "@/hooks/use-current-user"
 import { cn, slugify, hoyLocalISO, formatDate } from "@/lib/utils"
 import { sanitizeHtml } from "@/lib/sanitize"
-import { AlertTriangle, ArrowLeft, CheckCircle2, Clock, XCircle } from "lucide-react"
+import { AlertTriangle, ArrowLeft, CheckCircle2, Clock, Save, XCircle } from "lucide-react"
 import type { Normativa, ModificacionNormativa } from "@/types"
 
 const ESTADOS_OPTIONS = [
@@ -377,7 +377,8 @@ export default function NormativaFormPage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
         <Link href="/admin/normativa">
           <Button variant="ghost" size="sm">
             <ArrowLeft className="h-4 w-4" />
@@ -385,6 +386,18 @@ export default function NormativaFormPage() {
           </Button>
         </Link>
         <h1 className="text-2xl font-bold">{isNew ? "Nueva Normativa" : "Editar Normativa"}</h1>
+        </div>
+        <Button
+          type="submit"
+          form="normativa-form"
+          loading={submitting}
+          className="hidden sm:inline-flex gap-1.5"
+          aria-label={isNew ? "Crear y guardar" : "Guardar rápido"}
+          title={isNew ? "Crear y guardar" : "Guardar rápido"}
+        >
+          <Save className="h-4 w-4" />
+          <span>{isNew ? "Crear y guardar" : "Guardar rápido"}</span>
+        </Button>
       </div>
       {!isNew && (
         <div className={cn("flex items-start gap-3 rounded-xl border p-4", aprobacionUi.clase)}>
@@ -455,7 +468,7 @@ export default function NormativaFormPage() {
           </CardContent>
         </Card>
       )}
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form id="normativa-form" onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader><CardTitle>Datos Generales</CardTitle></CardHeader>
           <CardContent className="space-y-4">
@@ -666,7 +679,7 @@ export default function NormativaFormPage() {
             </CardContent>
           </Card>
         )}
-        <div className="sticky bottom-0 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur">
+        <div className="sticky bottom-0 z-30 mt-6 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-6 py-4 backdrop-blur shadow-lifted">
           <Link href="/admin/normativa">
             <Button type="button" variant="outline">Cancelar</Button>
           </Link>

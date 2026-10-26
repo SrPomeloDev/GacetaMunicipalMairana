@@ -44,7 +44,7 @@ function ToastItem({ toast, onRemove }: { toast: ToastData; onRemove: (id: strin
     <div
       className={cn(
         "pointer-events-auto flex items-start gap-3 rounded-lg border px-4 py-3 shadow-lg",
-        "animate-in slide-in-from-right-full fade-in duration-300",
+        "animate-in slide-in-from-top-full sm:slide-in-from-right-full fade-in duration-300",
         variantStyles[toast.variant]
       )}
     >
@@ -100,7 +100,7 @@ function ToastProvider({ children }: ToastProviderProps) {
   return (
     <ToastContext.Provider value={{ addToast, removeToast }}>
       {children}
-      <div className="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex flex-col gap-2 sm:left-auto sm:w-96">
+      <div className="pointer-events-none fixed top-5 inset-x-4 z-[70] flex flex-col gap-2 sm:left-auto sm:right-5 sm:w-96">
         {toasts.map((toast) => (
           <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
         ))}
